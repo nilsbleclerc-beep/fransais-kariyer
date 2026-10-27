@@ -1649,7 +1649,23 @@
 
         copyTemplate(textId, buttonEl) {
             UIController.copyTextToClipboard(textId, buttonEl);
-        }
+        },
+
+        shareWhatsApp(jobId) {
+            const card = document.querySelector(`.job-card[data-id="${jobId}"]`);
+            const title = card ? card.getAttribute('data-title-tr') || card.querySelector('.job-title')?.textContent.trim() : 'Fransa İş Fırsatı';
+            const company = card ? card.getAttribute('data-company') : '';
+            const url = card ? card.getAttribute('data-url') : window.location.href;
+            const text = encodeURIComponent(
+                `Aşkım / Merhaba, Fransa için şu ilanı buldum, sence başvurayım mı?\n\n` +
+                `💼 Pozisyon: ${title}\n` +
+                `🏢 Şirket: ${company}\n` +
+                `🔗 İlan Linki: ${url}`
+            );
+            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+        },
+
+        Toast: ToastService
     };
 
     // Démarrage automatique au chargement du DOM

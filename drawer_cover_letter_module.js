@@ -143,6 +143,23 @@
     // 4. PANNEAU LATÉRAL COULISSANT (DRAWER)
     // --------------------------------------------------------------------------
     const BilateralDrawer = {
+        open(jobIdOrCard) {
+            if (jobIdOrCard !== undefined && jobIdOrCard !== null) {
+                if (typeof jobIdOrCard === 'object' && jobIdOrCard.nodeType) {
+                    this.openFromCard(jobIdOrCard);
+                    return;
+                }
+                if (typeof jobIdOrCard === 'number' || typeof jobIdOrCard === 'string') {
+                    const card = document.querySelector(`.job-card[data-id="${jobIdOrCard}"]`);
+                    if (card) {
+                        this.openFromCard(card);
+                        return;
+                    }
+                }
+            }
+            this.show();
+        },
+
         openFromCard(cardElement) {
             if (!cardElement) return;
 

@@ -267,16 +267,21 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             <div class="card-tracker-status" style="display: none;"></div>
             
             <div class="card-footer">
-                <a href="{j.url}" target="_blank" rel="noopener noreferrer" class="apply-btn">
-                    <span>İlanı İncele / Başvur</span> {SVG_ICONS["external_link"]}
-                </a>
+                <button class="action-btn-primary" onclick="if(window.BilateralDrawer) window.BilateralDrawer.open({idx})" title="Vize Yol Haritası, İK Bilgileri &amp; İlan Detayı">
+                    <span>👁️ İlan &amp; Vize</span>
+                </button>
+                <button class="action-btn-pitch" onclick="if(window.CoverLetterGenerator) window.CoverLetterGenerator.open({idx})" title="Bu İlana Özel Fransızca Ön Yazı ve Pitch Oluştur">
+                    <span>✍️ Ön Yazı</span>
+                </button>
+                <button class="action-btn-wa" onclick="if(window.TrackerEngine &amp;&amp; window.TrackerEngine.shareWhatsApp) window.TrackerEngine.shareWhatsApp({idx})" title="WhatsApp ile Gönder / Paylaş">
+                    <span>💬 Paylaş</span>
+                </button>
                 <button class="tracker-action-btn" onclick="window.TrackerEngine.openTrackerModal({idx})" title="Başvuru Takibine Ekle">
-                    {SVG_ICONS["bookmark"]} <span>Takip Et</span>
+                    {SVG_ICONS["bookmark"]} <span>Takip</span>
                 </button>
-                <button class="tracker-action-btn" onclick="if(window.BilateralDrawer) window.BilateralDrawer.open({idx})" title="Vize Dosyası, İK İletişimi &amp; Lettre de Motivation">
-                    {SVG_ICONS["file_text"]} <span>Dosya</span>
-                </button>
-                {f'<a href="{j.contact_info}" target="_blank" rel="noopener noreferrer" class="secondary-btn">{SVG_ICONS["building"]} Portal ↗</a>' if j.contact_info else ''}
+                <a href="{j.url}" target="_blank" rel="noopener noreferrer" class="secondary-btn" title="Orijinal İlan Sayfası">
+                    <span>Link</span> {SVG_ICONS["external_link"]}
+                </a>
             </div>
         </div>
         """
@@ -1379,6 +1384,151 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             color: var(--status-success-text);
             border-color: var(--status-success-border);
         }}
+        /* NOUVEAUX BOUTONS D'ACTION RAPIDE (1-CLIC) & MOBILE */
+        .action-btn-primary {{
+            flex: 1.2;
+            text-align: center;
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 9px 12px;
+            border-radius: 9px;
+            font-size: 0.84rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+        }}
+        .action-btn-primary:hover {{
+            background: #0369a1;
+            transform: translateY(-1px);
+        }}
+        .action-btn-pitch {{
+            flex: 1.2;
+            text-align: center;
+            background: #7c3aed;
+            color: white;
+            border: none;
+            padding: 9px 12px;
+            border-radius: 9px;
+            font-size: 0.84rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            box-shadow: 0 2px 4px rgba(124, 58, 237, 0.25);
+        }}
+        .action-btn-pitch:hover {{
+            background: #6d28d9;
+            transform: translateY(-1px);
+        }}
+        .action-btn-wa {{
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 9px 12px;
+            border-radius: 9px;
+            font-size: 0.84rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            box-shadow: 0 2px 4px rgba(37, 211, 102, 0.3);
+        }}
+        .action-btn-wa:hover {{
+            background: #20bd5a;
+            transform: translateY(-1px);
+        }}
+
+        /* BANNIÈRE DE DÉMARRAGE RAPIDE EN 3 ÉTAPES */
+        .quick-start-banner {{
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin: 0 auto 22px auto;
+            max-width: 1280px;
+            box-shadow: var(--shadow-md);
+            color: white;
+        }}
+        .quick-start-header {{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }}
+        .quick-start-badge {{
+            background: #e11d48;
+            color: white;
+            font-size: 0.74rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }}
+        .quick-start-header h3 {{
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #f8fafc;
+        }}
+        .quick-start-steps {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+        }}
+        .quick-step {{
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 180ms ease;
+        }}
+        .quick-step:hover {{
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }}
+        .step-num {{
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #2563eb;
+            color: white;
+            font-weight: 800;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }}
+        .step-text strong {{
+            display: block;
+            font-size: 0.88rem;
+            color: #f1f5f9;
+        }}
+        .step-text span {{
+            display: block;
+            font-size: 0.74rem;
+            color: #94a3b8;
+        }}
+
         .secondary-btn {{
             text-align: center;
             background: var(--surface-subtle);
@@ -1953,6 +2103,37 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
     <!-- ==================================================================== -->
     <main id="tab-content-explore" class="tab-pane">
         
+        <!-- GUIDE DE DÉMARRAGE RAPIDE 3 ÉTAPES (MOBILE & DESKTOP) -->
+        <div class="quick-start-banner">
+            <div class="quick-start-header">
+                <span class="quick-start-badge">🚀 HIZLI BAŞLANGIÇ</span>
+                <h3 id="i18n-qs-title">Fransa'ya Başvuru İçin 3 Kolay Adım :</h3>
+            </div>
+            <div class="quick-start-steps">
+                <div class="quick-step" onclick="window.TrackerEngine.Filter.toggleNoFrench();" title="Sadece İngilizce veya Türkçe yeterli olan ilanlar">
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <strong>🇬🇧 Fransızca Şart Değil</strong>
+                        <span>İngilizce veya Türkçe yeterli ilanları filtrele</span>
+                    </div>
+                </div>
+                <div class="quick-step" onclick="window.TrackerEngine.Filter.setTrack('voie_2')" title="Şirket içi transfer ile en hızlı vize">
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <strong>🏢 Türk Holdingi veya Kurum Seç</strong>
+                        <span>Beko, THY veya Uluslararası Kurumlar</span>
+                    </div>
+                </div>
+                <div class="quick-step" onclick="window.TrackerEngine.switchTab('guide')" title="Hazır Fransızca dilekçe ve vize rehberi">
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <strong>✍️ 1-Tıkla Ön Yazını Üret</strong>
+                        <span>Fransızca resmi başvuru mektubun anında hazır</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="header">
             <h1 id="i18n-title">Türkiye'den Fransa'ya Vize & Relokasyon Destekli İş Fırsatları</h1>
             <p id="i18n-subtitle">Türkiye'de ikamet eden adayların başvurusuna açık, vize/relokasyon sağlayan veya uluslararası statü veren resmi kurumlar ve Türk şirketleri.</p>
