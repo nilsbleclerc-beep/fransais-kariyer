@@ -345,8 +345,8 @@ INTERNATIONAL_AND_ACADEMIC_INSTITUTIONS_IN_FRANCE = [
         "french_required": False,
         "working_language": "İngilizce veya Türkçe (Fransızca Şart Değil)",
         "visa_relocation_friendly": True,
-        "tags_tr": ["🏛️ Uluslararası Kurum", "🇬🇧 Fransızca Şart Değil", "⚖️ Hukuk & Çeviri", "📍 Strasbourg", "🛂 Özel MAE Kartı"],
-        "tags_fr": ["🏛️ Institution Internationale", "🇬🇧 Français Non Requis", "⚖️ Juridique & Traduction", "📍 Strasbourg", "🛂 Titre Spécial MAE"],
+        "tags_tr": ["🏛️ Uluslararası Kurum", "✅ Fransızca Şart Değil", "⚖️ Hukuk & Çeviri", "📍 Strasbourg", "🛂 Özel MAE Kartı"],
+        "tags_fr": ["🏛️ Institution Internationale", "✅ Français Non Requis", "⚖️ Juridique & Traduction", "📍 Strasbourg", "🛂 Titre Spécial MAE"],
         "score": 98
     },
     {
@@ -367,8 +367,8 @@ INTERNATIONAL_AND_ACADEMIC_INSTITUTIONS_IN_FRANCE = [
         "french_required": False,
         "working_language": "İngilizce (Fransızca Şart Değil)",
         "visa_relocation_friendly": True,
-        "tags_tr": ["🏛️ Uluslararası Kurum", "🇬🇧 Fransızca Şart Değil", "📈 Ekonomi & Veri", "📍 Paris", "🛂 Özel MAE Kartı"],
-        "tags_fr": ["🏛️ Institution Internationale", "🇬🇧 Français Non Requis", "📈 Économie & Données", "📍 Paris", "🛂 Titre Spécial MAE"],
+        "tags_tr": ["🏛️ Uluslararası Kurum", "✅ Fransızca Şart Değil", "📈 Ekonomi & Veri", "📍 Paris", "🛂 Özel MAE Kartı"],
+        "tags_fr": ["🏛️ Institution Internationale", "✅ Français Non Requis", "📈 Économie & Données", "📍 Paris", "🛂 Titre Spécial MAE"],
         "score": 97
     },
     {
@@ -389,8 +389,8 @@ INTERNATIONAL_AND_ACADEMIC_INSTITUTIONS_IN_FRANCE = [
         "french_required": False,
         "working_language": "İngilizce (Fransızca Şart Değil)",
         "visa_relocation_friendly": True,
-        "tags_tr": ["🏛️ Birleşmiş Milletler", "🇬🇧 Fransızca Şart Değil", "🌍 Eğitim & Kültür", "📍 Paris", "🛂 Özel MAE Kartı"],
-        "tags_fr": ["🏛️ Nations Unies", "🇬🇧 Français Non Requis", "🌍 Éducation & Culture", "📍 Paris", "🛂 Titre Spécial MAE"],
+        "tags_tr": ["🏛️ Birleşmiş Milletler", "✅ Fransızca Şart Değil", "🌍 Eğitim & Kültür", "📍 Paris", "🛂 Özel MAE Kartı"],
+        "tags_fr": ["🏛️ Nations Unies", "✅ Français Non Requis", "🌍 Éducation & Culture", "📍 Paris", "🛂 Titre Spécial MAE"],
         "score": 96
     },
     {
@@ -411,8 +411,8 @@ INTERNATIONAL_AND_ACADEMIC_INSTITUTIONS_IN_FRANCE = [
         "french_required": False,
         "working_language": "Türkçe ve İngilizce (Fransızca Şart Değil)",
         "visa_relocation_friendly": True,
-        "tags_tr": ["📺 Uluslararası Medya", "🇬🇧 Fransızca Şart Değil", "📰 Gazetecilik & Video", "📍 Lyon", "🛂 Passeport Talent"],
-        "tags_fr": ["📺 Médias Internationaux", "🇬🇧 Français Non Requis", "📰 Journalisme & Vidéo", "📍 Lyon", "🛂 Passeport Talent"],
+        "tags_tr": ["📺 Uluslararası Medya", "✅ Fransızca Şart Değil", "📰 Gazetecilik & Video", "📍 Lyon", "🛂 Passeport Talent"],
+        "tags_fr": ["📺 Médias Internationaux", "✅ Français Non Requis", "📰 Journalisme & Vidéo", "📍 Lyon", "🛂 Passeport Talent"],
         "score": 95
     },
     {
@@ -433,8 +433,8 @@ INTERNATIONAL_AND_ACADEMIC_INSTITUTIONS_IN_FRANCE = [
         "french_required": False,
         "working_language": "Türkçe Öğretimi (Temel Fransızca A1/A2 Kabul)",
         "visa_relocation_friendly": True,
-        "tags_tr": ["🎓 Üniversite & Akademi", "🇬🇧 A1/A2 Fransızca Yeterli", "📖 Türkçe Eğitimi", "📍 Paris & Strasbourg", "🛂 Akademik Vize"],
-        "tags_fr": ["🎓 Université & Recherche", "🇬🇧 Français A1/A2 Toléré", "📖 Enseignement du Turc", "📍 Paris & Strasbourg", "🛂 Visa Talent Chercheur"],
+        "tags_tr": ["🎓 Üniversite & Akademi", "✅ A1/A2 Fransızca Yeterli", "📖 Türkçe Eğitimi", "📍 Paris & Strasbourg", "🛂 Akademik Vize"],
+        "tags_fr": ["🎓 Université & Recherche", "✅ Français A1/A2 Toléré", "📖 Enseignement du Turc", "📍 Paris & Strasbourg", "🛂 Visa Talent Chercheur"],
         "score": 93
     },
     {
@@ -455,8 +455,8 @@ INTERNATIONAL_AND_ACADEMIC_INSTITUTIONS_IN_FRANCE = [
         "french_required": False,
         "working_language": "İngilizce Zorunlu (Fransızca Şart Değil)",
         "visa_relocation_friendly": True,
-        "tags_tr": ["🏛️ Uluslararası Kurum", "🇬🇧 Fransızca Şart Değil", "🛡️ Siber Güvenlik & Hukuk", "📍 Lyon", "🛂 Özel MAE Kartı"],
-        "tags_fr": ["🏛️ Institution Internationale", "🇬🇧 Français Non Requis", "🛡️ Cybersécurité & Juridique", "📍 Lyon", "🛂 Titre Spécial MAE"],
+        "tags_tr": ["🏛️ Uluslararası Kurum", "✅ Fransızca Şart Değil", "🛡️ Siber Güvenlik & Hukuk", "📍 Lyon", "🛂 Özel MAE Kartı"],
+        "tags_fr": ["🏛️ Institution Internationale", "✅ Français Non Requis", "🛡️ Cybersécurité & Juridique", "📍 Lyon", "🛂 Titre Spécial MAE"],
         "score": 94
     },
     {
@@ -477,8 +477,8 @@ INTERNATIONAL_AND_ACADEMIC_INSTITUTIONS_IN_FRANCE = [
         "french_required": False,
         "working_language": "İngilizce Zorunlu (Fransızca Şart Değil)",
         "visa_relocation_friendly": True,
-        "tags_tr": ["🔬 Tıbbi Araştırma", "🇬🇧 Fransızca Şart Değil", "📊 Biyoistatistik", "📍 Lyon", "🛂 BM Statüsü"],
-        "tags_fr": ["🔬 Recherche Médicale", "🇬🇧 Français Non Requis", "📊 Biostatistique", "📍 Lyon", "🛂 Statut ONU"],
+        "tags_tr": ["🔬 Tıbbi Araştırma", "✅ Fransızca Şart Değil", "📊 Biyoistatistik", "📍 Lyon", "🛂 BM Statüsü"],
+        "tags_fr": ["🔬 Recherche Médicale", "✅ Français Non Requis", "📊 Biostatistique", "📍 Lyon", "🛂 Statut ONU"],
         "score": 93
     },
     {
@@ -499,8 +499,8 @@ INTERNATIONAL_AND_ACADEMIC_INSTITUTIONS_IN_FRANCE = [
         "french_required": False,
         "working_language": "100% İngilizce (Fransızca Kesinlikle Şart Değil)",
         "visa_relocation_friendly": True,
-        "tags_tr": ["🏛️ Uluslararası Kurum", "🇬🇧 Fransızca Şart Değil", "⚡ Enerji & Veri", "📍 Paris", "🛂 Özel MAE Kartı"],
-        "tags_fr": ["🏛️ Institution Internationale", "🇬🇧 Français Non Requis", "⚡ Énergie & Données", "📍 Paris", "🛂 Titre Spécial MAE"],
+        "tags_tr": ["🏛️ Uluslararası Kurum", "✅ Fransızca Şart Değil", "⚡ Enerji & Veri", "📍 Paris", "🛂 Özel MAE Kartı"],
+        "tags_fr": ["🏛️ Institution Internationale", "✅ Français Non Requis", "⚡ Énergie & Données", "📍 Paris", "🛂 Titre Spécial MAE"],
         "score": 97
     },
     {
@@ -590,8 +590,8 @@ TECH_SCALEUPS_ENGLISH_IN_FRANCE = [
         "french_required": False,
         "working_language": "100% İngilizce (Fransızca Kesinlikle Aranmaz)",
         "visa_relocation_friendly": True,
-        "tags_tr": ["🤖 Yapay Zeka", "🇬🇧 Fransızca Şart Değil", "📍 Paris", "🛂 Passeport Talent"],
-        "tags_fr": ["🤖 Intelligence Artificielle", "🇬🇧 Français Non Requis", "📍 Paris", "🛂 Passeport Talent"],
+        "tags_tr": ["🤖 Yapay Zeka", "✅ Fransızca Şart Değil", "📍 Paris", "🛂 Passeport Talent"],
+        "tags_fr": ["🤖 Intelligence Artificielle", "✅ Français Non Requis", "📍 Paris", "🛂 Passeport Talent"],
         "score": 96
     },
     {
@@ -610,8 +610,8 @@ TECH_SCALEUPS_ENGLISH_IN_FRANCE = [
         "french_required": False,
         "working_language": "100% İngilizce (Fransızca Sıfır Gereksinim)",
         "visa_relocation_friendly": True,
-        "tags_tr": ["💳 FinTech", "🇬🇧 Fransızca Şart Değil", "📍 Paris", "🛂 Passeport Talent"],
-        "tags_fr": ["💳 FinTech", "🇬🇧 Français Non Requis", "📍 Paris", "🛂 Passeport Talent"],
+        "tags_tr": ["💳 FinTech", "✅ Fransızca Şart Değil", "📍 Paris", "🛂 Passeport Talent"],
+        "tags_fr": ["💳 FinTech", "✅ Français Non Requis", "📍 Paris", "🛂 Passeport Talent"],
         "score": 95
     },
     {
@@ -630,8 +630,8 @@ TECH_SCALEUPS_ENGLISH_IN_FRANCE = [
         "french_required": False,
         "working_language": "İngilizce (Fransızca İsteğe Bağlı)",
         "visa_relocation_friendly": True,
-        "tags_tr": ["☁️ Bulut & Yazılım", "🇬🇧 Fransızca Şart Değil", "📍 Paris", "🛂 Passeport Talent"],
-        "tags_fr": ["☁️ Cloud & Logiciel", "🇬🇧 Français Non Requis", "📍 Paris", "🛂 Passeport Talent"],
+        "tags_tr": ["☁️ Bulut & Yazılım", "✅ Fransızca Şart Değil", "📍 Paris", "🛂 Passeport Talent"],
+        "tags_fr": ["☁️ Cloud & Logiciel", "✅ Français Non Requis", "📍 Paris", "🛂 Passeport Talent"],
         "score": 95
     },
     {
@@ -650,8 +650,8 @@ TECH_SCALEUPS_ENGLISH_IN_FRANCE = [
         "french_required": False,
         "working_language": "İngilizce (Fransızca Aranmaz)",
         "visa_relocation_friendly": True,
-        "tags_tr": ["📊 Büyük Veri & ML", "🇬🇧 Fransızca Şart Değil", "📍 Paris", "🛂 Passeport Talent"],
-        "tags_fr": ["📊 Big Data & ML", "🇬🇧 Français Non Requis", "📍 Paris", "🛂 Passeport Talent"],
+        "tags_tr": ["📊 Büyük Veri & ML", "✅ Fransızca Şart Değil", "📍 Paris", "🛂 Passeport Talent"],
+        "tags_fr": ["📊 Big Data & ML", "✅ Français Non Requis", "📍 Paris", "🛂 Passeport Talent"],
         "score": 94
     }
 ]

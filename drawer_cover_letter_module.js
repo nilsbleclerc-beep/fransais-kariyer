@@ -14,7 +14,8 @@
  *    - Lettre de motivation formelle en français soutenu
  *    - Paragraphe d'introduction rappelant explicitement la voie juridique
  *    - Copie en 1-clic avec Toast et téléchargement .txt
- * 3. Guide bilingue pratique de l'expatriation (3 visas & conversion CV turc)
+ * 3. Guide bilingue pratique de l'expatriation (3 voies prioritaires + voie standard & conversion CV turc)
+ * 4. Contrat d'historique partagé (bouton retour Android) : ids 'drawer', 'letter', 'guide'
  * ==============================================================================
  */
 
@@ -63,7 +64,7 @@
     // --------------------------------------------------------------------------
     const VOIE_ECUSSONS = {
         "voie_1": {
-            title_tr: "🏛️ VOIE 1 PRIORITAIRE : STATUT INTERNATIONAL MAE",
+            title_tr: "🏛️ KAPI 1 ÖNCELİKLİ : ULUSLARARASI STATÜ (MAE)",
             title_fr: "🏛️ VOIE 1 PRIORITAIRE : STATUT INTERNATIONAL MAE",
             sub_tr: "Klasik çalışma izni aranmaz • Fransa Dışişleri Protokolü (Titre Spécial MEAE) • Kurucu Üyelik",
             sub_fr: "Dispense totale d'autorisation de travail • Titre spécial protocole MEAE • Accord de siège",
@@ -72,7 +73,7 @@
             bg: "#eff6ff"
         },
         "voie_2": {
-            title_tr: "🤝 VOIE 2 PRIORITAIRE : SALARIÉ DÉTACHÉ ICT (CCIFT & DEİK)",
+            title_tr: "🤝 KAPI 2 ÖNCELİKLİ : ŞİRKET İÇİ TRANSFER ICT (CCIFT & DEİK)",
             title_fr: "🤝 VOIE 2 PRIORITAIRE : SALARIÉ DÉTACHÉ ICT (CCIFT & DEİK)",
             sub_tr: "Şirket İçi Transfer (ICT) • 1972 İkili Sosyal Güvenlik Anlaşması • İşgücü Testinden Muaf",
             sub_fr: "Mobilité intra-groupe (CESEDA L. 421-26) • Accord bilatéral 1972 • Exonération opposabilité emploi",
@@ -81,7 +82,7 @@
             bg: "#fef3c7"
         },
         "voie_3": {
-            title_tr: "⚡ VOIE 3 PRIORITAIRE : PASSEPORT TALENT (FRENCH TECH)",
+            title_tr: "⚡ KAPI 3 ÖNCELİKLİ : PASSEPORT TALENT (FRENCH TECH)",
             title_fr: "⚡ VOIE 3 PRIORITAIRE : PASSEPORT TALENT (FRENCH TECH)",
             sub_tr: "%100 İngilizce • Yenilikçi Şirket (JEI) • 4 Yıllık Oturum • Eşe Tam Çalışma İzni",
             sub_fr: "Entreprise innovante (CESEDA L. 421-9) • Titre pluriannuel 4 ans • 100% Anglais • Conjoint autorisé",
@@ -90,8 +91,8 @@
             bg: "#f5f3ff"
         },
         "autre": {
-            title_tr: "🏢 VOIE 4 : STANDART ÇALIŞMA VİZESİ (VLS-TS)",
-            title_fr: "🏢 VOIE 4 : VISA DE TRAVAIL SALARIÉ STANDARD (VLS-TS)",
+            title_tr: "🏢 STANDART YOL : ÇALIŞMA VİZESİ (VLS-TS)",
+            title_fr: "🏢 VOIE STANDARD : VISA DE TRAVAIL SALARIÉ (VLS-TS)",
             sub_tr: "Fransız İş Kanunu Genel Hükümleri • ANEF Çalışma İzni Onayı",
             sub_fr: "Droit commun • Autorisation de travail dématérialisée ANEF",
             cssClass: "ecusson-voie-4",
@@ -103,12 +104,167 @@
     // --------------------------------------------------------------------------
     // 3. ÉTAT LOCAL DU MODULE
     // --------------------------------------------------------------------------
+    function readStoredLang() {
+        try {
+            return (typeof localStorage !== 'undefined' && localStorage.getItem('bilateral_lang')) || "tr";
+        } catch (e) {
+            return "tr";
+        }
+    }
+
     const State = {
         currentJob: null,
         currentTrack: "voie_2",
         generatorTab: "email", // 'email' | 'letter'
-        lang: (typeof localStorage !== 'undefined' && localStorage.getItem('bilateral_lang')) || "tr"
+        lang: readStoredLang(),
+        lastSubject: ""
     };
+
+    // Libellés d'interface (la lettre générée, elle, reste toujours en français)
+    const UI_TEXT = {
+        tr: {
+            score: "Uygunluk: %",
+            noFrench: "✅ Fransızca Şart Değil",
+            frenchReq: "🗣️ Fransızca B2+ Gerekli",
+            targetJob: "Hedef İlan",
+            generalApplication: "Genel Başvuru",
+            genEcussonSub: "Mektubun 1. paragrafı bu yasal yolu işverene açıkça hatırlatır.",
+            copyLabel: "Kopyala",
+            copied: "✓ Kopyalandı",
+            toastCopied: "✓ Metin panoya kopyalandı !",
+            toastCopyFail: "⚠️ Kopyalama başarısız. Metni elle seçip kopyalayın.",
+            toastEmailCopied: "✓ İK e-posta adresi kopyalandı : ",
+            toastDownloaded: "✓ Dosya indirildi : ",
+            toastShareFallback: "Paylaşım bu cihazda desteklenmiyor, metin panoya kopyalandı.",
+            shareTitleEmail: "Aday e-postası",
+            shareTitleLetter: "Ön yazı (Lettre de motivation)"
+        },
+        fr: {
+            score: "Score : %",
+            noFrench: "✅ Français Non Requis",
+            frenchReq: "🗣️ Français B2+ Requis",
+            targetJob: "Offre ciblée",
+            generalApplication: "Candidature spontanée",
+            genEcussonSub: "Le 1er paragraphe de la lettre rappelle expressément cette voie juridique au recruteur.",
+            copyLabel: "Copier",
+            copied: "✓ Copié !",
+            toastCopied: "✓ Texte copié dans le presse-papiers !",
+            toastCopyFail: "⚠️ Copie impossible. Sélectionnez le texte manuellement.",
+            toastEmailCopied: "✓ Email RH copié : ",
+            toastDownloaded: "✓ Fichier téléchargé : ",
+            toastShareFallback: "Partage non disponible sur cet appareil, texte copié.",
+            shareTitleEmail: "Email de candidature",
+            shareTitleLetter: "Lettre de motivation"
+        }
+    };
+
+    function t(key) {
+        const dict = UI_TEXT[State.lang] || UI_TEXT.tr;
+        return dict[key] !== undefined ? dict[key] : (UI_TEXT.tr[key] || key);
+    }
+
+    // --------------------------------------------------------------------------
+    // 3b. CONTRAT D'HISTORIQUE PARTAGÉ (bouton retour Android / geste retour)
+    // --------------------------------------------------------------------------
+    // Ouverture : history.pushState({ fransaOverlay: '<id>' }, '')
+    // Fermeture UI : si history.state.fransaOverlay === '<id>' -> history.back()
+    //                (la fermeture effective se fait dans le handler popstate),
+    //                sinon fermeture directe.
+    // Popstate : si l'overlay <id> est ouvert et que event.state.fransaOverlay !== '<id>'
+    //            -> fermeture SANS toucher à l'historique.
+    const OverlayHistory = {
+        pendingBack: false,
+        pendingTimer: null,
+
+        push(id) {
+            try {
+                if (!(history.state && history.state.fransaOverlay === id)) {
+                    history.pushState({ fransaOverlay: id }, '');
+                }
+            } catch (e) {
+                // Environnement sans History API (iframe sandbox, file://…) : ignoré
+            }
+        },
+
+        requestClose(id, hideFn) {
+            let ownsState = false;
+            try {
+                ownsState = !!(history.state && history.state.fransaOverlay === id);
+            } catch (e) {
+                ownsState = false;
+            }
+            if (!ownsState) {
+                hideFn();
+                return;
+            }
+            // Anti double-tap : un seul history.back() en vol à la fois
+            if (this.pendingBack) return;
+            this.pendingBack = true;
+            clearTimeout(this.pendingTimer);
+            this.pendingTimer = setTimeout(() => { this.pendingBack = false; }, 800);
+            history.back();
+        },
+
+        settle() {
+            this.pendingBack = false;
+            clearTimeout(this.pendingTimer);
+        }
+    };
+
+    // --------------------------------------------------------------------------
+    // 3c. VERROUILLAGE DU SCROLL DE LA PAGE & FOCUS
+    // --------------------------------------------------------------------------
+    function isOverlayOpen(elementId) {
+        const el = document.getElementById(elementId);
+        return !!(el && el.classList.contains('open'));
+    }
+
+    function syncScrollLock() {
+        const anyOpen = isOverlayOpen('bld-drawer') || isOverlayOpen('bld-gen-modal-overlay') || isOverlayOpen('bld-guide-modal-overlay');
+        document.documentElement.classList.toggle('bld-scroll-lock', anyOpen);
+    }
+
+    const focusMemory = {};
+    function rememberFocus(id, focusTarget) {
+        focusMemory[id] = document.activeElement;
+        if (focusTarget && typeof focusTarget.focus === 'function') {
+            setTimeout(() => {
+                try { focusTarget.focus({ preventScroll: true }); } catch (e) { /* noop */ }
+            }, 60);
+        }
+    }
+    function restoreFocus(id) {
+        const el = focusMemory[id];
+        focusMemory[id] = null;
+        if (el && document.contains(el) && typeof el.focus === 'function') {
+            try { el.focus({ preventScroll: true }); } catch (e) { /* noop */ }
+        }
+    }
+
+    // --------------------------------------------------------------------------
+    // 3d. PRESSE-PAPIERS (API moderne + fallback execCommand)
+    // --------------------------------------------------------------------------
+    function legacyCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.top = '-1000px';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+        document.body.removeChild(ta);
+        return ok;
+    }
+
+    function copyText(text) {
+        if (navigator.clipboard && window.isSecureContext !== false) {
+            return navigator.clipboard.writeText(text).then(() => true).catch(() => legacyCopy(text));
+        }
+        return Promise.resolve(legacyCopy(text));
+    }
 
     function detectTrackForJob(company, title, tags, isCcift) {
         const str = `${company} ${title} ${tags}`.toLowerCase();
@@ -162,6 +318,17 @@
 
         openFromCard(cardElement) {
             if (!cardElement) return;
+            this.loadFromCard(cardElement);
+            this.render();
+            this.show();
+        },
+
+        /**
+         * Charge les données d'une carte dans l'état local SANS ouvrir le drawer
+         * (utilisé aussi par le générateur ouvert directement depuis une carte).
+         */
+        loadFromCard(cardElement) {
+            if (!cardElement) return;
 
             const id = cardElement.getAttribute('data-id') || '0';
             const titleTr = cardElement.getAttribute('data-title-tr') || cardElement.querySelector('.job-title')?.textContent || '';
@@ -198,9 +365,6 @@
                 track: track === 'autre' ? (regInfo?.voie || 'autre') : track
             };
             State.currentTrack = State.currentJob.track;
-
-            this.render();
-            this.show();
         },
 
         render() {
@@ -229,16 +393,17 @@
 
             // Badges
             const scoreEl = document.getElementById('bld-drawer-score');
-            if (scoreEl) scoreEl.textContent = `${lang === 'tr' ? 'Uygunluk: %' : 'Score : %'}${job.score}`;
+            if (scoreEl) scoreEl.textContent = `${t('score')}${job.score}`;
 
+            // ✅ = « français non requis » (🇬🇧 réservé aux textes « anglais suffisant »)
             const langBadgeEl = document.getElementById('bld-drawer-lang-badge');
             if (langBadgeEl) {
                 if (job.isNoFrench) {
                     langBadgeEl.className = 'val-val tag-no-french';
-                    langBadgeEl.textContent = lang === 'tr' ? '🇬🇧 Fransızca Şart Değil' : '🇬🇧 Français Non Requis';
+                    langBadgeEl.textContent = t('noFrench');
                 } else {
                     langBadgeEl.className = 'val-val tag-french-req';
-                    langBadgeEl.textContent = lang === 'tr' ? '🗣️ Fransızca B2+ Gerekli' : '🗣️ Français B2+ Requis';
+                    langBadgeEl.textContent = t('frenchReq');
                 }
             }
 
@@ -527,28 +692,48 @@
             }
         },
 
+        isOpen() {
+            return isOverlayOpen('bld-drawer');
+        },
+
         show() {
             const overlay = document.getElementById('bld-drawer-overlay');
             const drawer = document.getElementById('bld-drawer');
+            if (!drawer) return;
+            const wasOpen = this.isOpen();
             if (overlay) overlay.classList.add('open');
-            if (drawer) drawer.classList.add('open');
-            document.body.style.overflow = 'hidden';
+            drawer.classList.add('open');
+            const body = drawer.querySelector('.bld-drawer-body');
+            if (body && !wasOpen) body.scrollTop = 0;
+            syncScrollLock();
+            if (!wasOpen) {
+                OverlayHistory.push('drawer');
+                rememberFocus('drawer', drawer.querySelector('.bld-close-btn'));
+            }
         },
 
+        /** Fermeture demandée par l'UI (X, fond, Échap) : passe par l'historique si besoin. */
         close() {
+            if (!this.isOpen()) return;
+            OverlayHistory.requestClose('drawer', () => this.hide());
+        },
+
+        /** Fermeture effective, sans toucher à l'historique. */
+        hide() {
             const overlay = document.getElementById('bld-drawer-overlay');
             const drawer = document.getElementById('bld-drawer');
             if (overlay) overlay.classList.remove('open');
             if (drawer) drawer.classList.remove('open');
-            document.body.style.overflow = '';
+            syncScrollLock();
+            restoreFocus('drawer');
         },
 
         copyEmail() {
-            if (State.currentJob?.hrEmail) {
-                navigator.clipboard.writeText(State.currentJob.hrEmail).then(() => {
-                    Toast.show(`✓ İK e-posta adresi kopyalandı : ${State.currentJob.hrEmail}`);
-                });
-            }
+            const email = State.currentJob?.hrEmail;
+            if (!email) return;
+            copyText(email).then((ok) => {
+                Toast.show(ok ? `${t('toastEmailCopied')}${email}` : t('toastCopyFail'));
+            });
         }
     };
 
@@ -558,15 +743,12 @@
     const CoverLetterGenerator = {
         open(jobIdOrCard) {
             if (jobIdOrCard !== undefined && jobIdOrCard !== null) {
+                // Ouverture directe depuis une carte : on charge l'offre sans ouvrir le drawer
                 if (typeof jobIdOrCard === 'object' && jobIdOrCard.nodeType) {
-                    BilateralDrawer.openFromCard(jobIdOrCard);
-                    BilateralDrawer.close();
+                    BilateralDrawer.loadFromCard(jobIdOrCard);
                 } else if (typeof jobIdOrCard === 'number' || typeof jobIdOrCard === 'string') {
                     const card = document.querySelector(`.job-card[data-id="${jobIdOrCard}"]`);
-                    if (card) {
-                        BilateralDrawer.openFromCard(card);
-                        BilateralDrawer.close();
-                    }
+                    if (card) BilateralDrawer.loadFromCard(card);
                 }
             }
 
@@ -585,31 +767,81 @@
             State.currentTrack = State.currentJob.track || "voie_2";
             this.setVoie(State.currentTrack);
             this.setTab(State.generatorTab || 'email');
-
-            const targetJobLabel = document.getElementById('bld-gen-target-job');
-            if (targetJobLabel) {
-                targetJobLabel.textContent = `Hedef İlan : ${State.currentJob.titleFr || State.currentJob.titleTr} – ${State.currentJob.company}`;
-            }
+            this.renderLabels();
 
             const overlay = document.getElementById('bld-gen-modal-overlay');
-            if (overlay) overlay.classList.add('open');
-            document.body.style.overflow = 'hidden';
+            if (!overlay) return;
+            const wasOpen = this.isOpen();
+            overlay.classList.add('open');
+            const body = overlay.querySelector('.bld-modal-body');
+            if (body && !wasOpen) body.scrollTop = 0;
+            syncScrollLock();
+            if (!wasOpen) {
+                // Si le drawer est ouvert, cet état s'empile au-dessus de { fransaOverlay: 'drawer' }
+                OverlayHistory.push('letter');
+                rememberFocus('letter', overlay.querySelector('.bld-close-btn'));
+            }
 
             this.updatePreview();
         },
 
+        isOpen() {
+            return isOverlayOpen('bld-gen-modal-overlay');
+        },
+
+        /** Fermeture demandée par l'UI (X, fond, Échap). */
         close() {
+            if (!this.isOpen()) return;
+            OverlayHistory.requestClose('letter', () => this.hide());
+        },
+
+        /** Fermeture effective, sans toucher à l'historique (le drawer éventuel reste ouvert). */
+        hide() {
             const overlay = document.getElementById('bld-gen-modal-overlay');
             if (overlay) overlay.classList.remove('open');
-            document.body.style.overflow = '';
+            syncScrollLock();
+            restoreFocus('letter');
+        },
+
+        /** Libellés d'interface dynamiques du générateur, dans la langue courante. */
+        renderLabels() {
+            const job = State.currentJob;
+            const targetJobLabel = document.getElementById('bld-gen-target-job');
+            if (targetJobLabel) {
+                if (job && (job.titleTr || job.titleFr)) {
+                    const title = State.lang === 'fr' ? (job.titleFr || job.titleTr) : (job.titleTr || job.titleFr);
+                    targetJobLabel.textContent = `${t('targetJob')} : ${title}${job.company ? ' – ' + job.company : ''}`;
+                } else {
+                    targetJobLabel.textContent = `${t('targetJob')} : ${t('generalApplication')}`;
+                }
+            }
+
+            const ecusson = VOIE_ECUSSONS[State.currentTrack] || VOIE_ECUSSONS["autre"];
+            const ecussonEl = document.getElementById('bld-gen-modal-ecusson');
+            if (ecussonEl) {
+                ecussonEl.className = 'ecusson-card-header bld-ecusson-flush ' + ecusson.cssClass;
+                ecussonEl.innerHTML = `
+                    <div class="ecusson-header-title">${State.lang === 'fr' ? ecusson.title_fr : ecusson.title_tr}</div>
+                    <div class="ecusson-header-sub">${t('genEcussonSub')}</div>
+                `;
+            }
+
+            const copyLabel = document.getElementById('bld-copy-btn-label');
+            if (copyLabel && !copyLabel.dataset.feedback) copyLabel.textContent = t('copyLabel');
         },
 
         setTab(tab) {
             State.generatorTab = tab;
             const btnEmail = document.getElementById('bld-tab-email-btn');
             const btnLetter = document.getElementById('bld-tab-letter-btn');
-            if (btnEmail) btnEmail.classList.toggle('active', tab === 'email');
-            if (btnLetter) btnLetter.classList.toggle('active', tab === 'letter');
+            if (btnEmail) {
+                btnEmail.classList.toggle('active', tab === 'email');
+                btnEmail.setAttribute('aria-selected', String(tab === 'email'));
+            }
+            if (btnLetter) {
+                btnLetter.classList.toggle('active', tab === 'letter');
+                btnLetter.setAttribute('aria-selected', String(tab === 'letter'));
+            }
             this.updatePreview();
         },
 
@@ -617,20 +849,14 @@
             State.currentTrack = voieKey;
             ['voie_1', 'voie_2', 'voie_3', 'autre'].forEach(k => {
                 const btn = document.getElementById(`bld-btn-voie-${k}`);
-                if (btn) btn.classList.toggle('active', k === voieKey);
+                if (btn) {
+                    btn.classList.toggle('active', k === voieKey);
+                    btn.setAttribute('aria-pressed', String(k === voieKey));
+                }
             });
 
-            // Mise à jour de l'Écusson dans la modale
-            const ecusson = VOIE_ECUSSONS[voieKey] || VOIE_ECUSSONS["autre"];
-            const ecussonEl = document.getElementById('bld-gen-modal-ecusson');
-            if (ecussonEl) {
-                ecussonEl.className = 'ecusson-card-header ' + ecusson.cssClass;
-                ecussonEl.innerHTML = `
-                    <div class="ecusson-header-title">${ecusson.title_fr}</div>
-                    <div class="ecusson-header-sub">Le 1er paragraphe de la lettre rappelle expressément cette voie juridique au recruteur.</div>
-                `;
-            }
-
+            // Mise à jour de l'Écusson dans la modale (langue courante)
+            this.renderLabels();
             this.updatePreview();
         },
 
@@ -764,36 +990,61 @@ ${candTitle}`;
 
             const previewEl = document.getElementById('bld-gen-preview');
             if (previewEl) previewEl.textContent = generatedText;
+
+            // Objet réutilisé comme titre de partage (ex. sujet Gmail)
+            const subjectMatch = generatedText.match(/^Objet : (.+)$/m);
+            State.lastSubject = subjectMatch ? subjectMatch[1].trim() : `Candidature – ${jobTitle}`;
+        },
+
+        getText() {
+            const previewEl = document.getElementById('bld-gen-preview');
+            return previewEl?.textContent || "";
         },
 
         copy() {
-            const previewEl = document.getElementById('bld-gen-preview');
-            const text = previewEl?.textContent || "";
-            if (!text) return;
+            const text = this.getText();
+            if (!text) return Promise.resolve(false);
 
-            navigator.clipboard.writeText(text).then(() => {
-                Toast.show("✓ Metin panoya başarıyla kopyalandı! / Texte copié avec succès !");
-                const btn = document.getElementById('bld-copy-btn');
-                if (btn) {
-                    const orig = btn.textContent;
-                    btn.textContent = "✓ Kopyalandı / Copié !";
-                    setTimeout(() => { btn.textContent = orig; }, 2000);
+            return copyText(text).then((ok) => {
+                Toast.show(ok ? t('toastCopied') : t('toastCopyFail'));
+                const label = document.getElementById('bld-copy-btn-label');
+                if (ok && label) {
+                    label.dataset.feedback = '1';
+                    label.textContent = t('copied');
+                    setTimeout(() => {
+                        delete label.dataset.feedback;
+                        label.textContent = t('copyLabel');
+                    }, 2000);
                 }
-            }).catch(() => {
-                // Fallback
-                const ta = document.createElement('textarea');
-                ta.value = text;
-                document.body.appendChild(ta);
-                ta.select();
-                document.execCommand('copy');
-                document.body.removeChild(ta);
-                Toast.show("✓ Metin panoya kopyalandı !");
+                return ok;
             });
         },
 
+        /**
+         * Partage natif Android/iOS (WhatsApp, Gmail, LinkedIn…) via Web Share API,
+         * avec repli sur la copie presse-papiers. Une annulation (AbortError) est silencieuse.
+         */
+        async share() {
+            const text = this.getText();
+            if (!text) return;
+            const title = State.lastSubject || (State.generatorTab === 'email' ? t('shareTitleEmail') : t('shareTitleLetter'));
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title, text });
+                    return;
+                } catch (err) {
+                    if (err && err.name === 'AbortError') return;
+                    // Autre erreur (NotAllowedError, données refusées…) : repli copie
+                }
+            }
+
+            const ok = await copyText(text);
+            Toast.show(ok ? t('toastShareFallback') : t('toastCopyFail'));
+        },
+
         download() {
-            const previewEl = document.getElementById('bld-gen-preview');
-            const text = previewEl?.textContent || "";
+            const text = this.getText();
             if (!text) return;
 
             const filename = State.generatorTab === 'email' ? 'Email_Contact_FR.txt' : 'Lettre_Motivation_FR.txt';
@@ -805,8 +1056,8 @@ ${candTitle}`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            Toast.show(`✓ Dosya indirildi : ${filename}`);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            Toast.show(`${t('toastDownloaded')}${filename}`);
         }
     };
 
@@ -816,15 +1067,35 @@ ${candTitle}`;
     const MobilityGuide = {
         open() {
             const overlay = document.getElementById('bld-guide-modal-overlay');
-            if (overlay) overlay.classList.add('open');
-            document.body.style.overflow = 'hidden';
+            if (!overlay) return;
+            const wasOpen = this.isOpen();
+            overlay.classList.add('open');
             this.setTab('visas');
+            const body = overlay.querySelector('.bld-modal-body');
+            if (body && !wasOpen) body.scrollTop = 0;
+            syncScrollLock();
+            if (!wasOpen) {
+                OverlayHistory.push('guide');
+                rememberFocus('guide', overlay.querySelector('.bld-close-btn'));
+            }
         },
 
+        isOpen() {
+            return isOverlayOpen('bld-guide-modal-overlay');
+        },
+
+        /** Fermeture demandée par l'UI (X, fond, Échap, bouton « Anladım »). */
         close() {
+            if (!this.isOpen()) return;
+            OverlayHistory.requestClose('guide', () => this.hide());
+        },
+
+        /** Fermeture effective, sans toucher à l'historique. */
+        hide() {
             const overlay = document.getElementById('bld-guide-modal-overlay');
             if (overlay) overlay.classList.remove('open');
-            document.body.style.overflow = '';
+            syncScrollLock();
+            restoreFocus('guide');
         },
 
         setTab(tab) {
@@ -833,8 +1104,14 @@ ${candTitle}`;
             const contentVisas = document.getElementById('bld-guide-content-visas');
             const contentCv = document.getElementById('bld-guide-content-cv');
 
-            if (btnVisas) btnVisas.classList.toggle('active', tab === 'visas');
-            if (btnCv) btnCv.classList.toggle('active', tab === 'cv');
+            if (btnVisas) {
+                btnVisas.classList.toggle('active', tab === 'visas');
+                btnVisas.setAttribute('aria-selected', String(tab === 'visas'));
+            }
+            if (btnCv) {
+                btnCv.classList.toggle('active', tab === 'cv');
+                btnCv.setAttribute('aria-selected', String(tab === 'cv'));
+            }
             if (contentVisas) contentVisas.style.display = tab === 'visas' ? 'block' : 'none';
             if (contentCv) contentCv.style.display = tab === 'cv' ? 'block' : 'none';
         }
@@ -844,17 +1121,21 @@ ${candTitle}`;
     // 7. TOAST NOTIFICATION SERVICE
     // --------------------------------------------------------------------------
     const Toast = {
+        hideTimer: null,
         show(msg) {
             let toastEl = document.getElementById('bld-toast-notification');
             if (!toastEl) {
                 toastEl = document.createElement('div');
                 toastEl.id = 'bld-toast-notification';
                 toastEl.className = 'bld-toast';
+                toastEl.setAttribute('role', 'status');
+                toastEl.setAttribute('aria-live', 'polite');
                 document.body.appendChild(toastEl);
             }
             toastEl.textContent = msg;
             toastEl.classList.add('show');
-            setTimeout(() => {
+            clearTimeout(this.hideTimer);
+            this.hideTimer = setTimeout(() => {
                 toastEl.classList.remove('show');
             }, 3200);
         }
@@ -869,20 +1150,45 @@ ${candTitle}`;
     window.BilateralToast = Toast;
 
     // Écoute des changements de langue globaux
+    // (émis par TrackerEngine.applyLanguage : CustomEvent('languageChanged', { detail: { lang } }))
     window.addEventListener('languageChanged', (e) => {
-        const newLang = (e && e.detail && e.detail.lang) || localStorage.getItem('bilateral_lang') || 'tr';
+        const newLang = (e && e.detail && e.detail.lang) || readStoredLang();
         State.lang = newLang;
         if (State.currentJob) {
             BilateralDrawer.render();
         }
+        // Libellés du générateur (la lettre elle-même reste en français)
+        CoverLetterGenerator.renderLabels();
     });
 
-    // Fermeture par touche ESC
+    // Fermeture par touche ESC : uniquement l'overlay du dessus
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            BilateralDrawer.close();
+        if (e.key !== 'Escape') return;
+        if (CoverLetterGenerator.isOpen()) {
             CoverLetterGenerator.close();
+        } else if (MobilityGuide.isOpen()) {
             MobilityGuide.close();
+        } else if (BilateralDrawer.isOpen()) {
+            BilateralDrawer.close();
+        }
+    });
+
+    // Bouton / geste retour Android : contrat d'historique partagé.
+    // Chaque overlay se ferme si l'état courant n'est plus le sien, sans toucher à l'historique.
+    window.addEventListener('popstate', (event) => {
+        OverlayHistory.settle();
+        const current = (event.state || {}).fransaOverlay;
+
+        if (CoverLetterGenerator.isOpen() && current !== 'letter') {
+            CoverLetterGenerator.hide();
+        }
+        if (MobilityGuide.isOpen() && current !== 'guide') {
+            MobilityGuide.hide();
+        }
+        // Overlays empilés : quand on revient de { letter } à { drawer }, le drawer reste ouvert.
+        // Le générateur a déjà été traité ci-dessus : s'il est encore ouvert, l'état 'letter' lui appartient.
+        if (BilateralDrawer.isOpen() && current !== 'drawer' && !(current === 'letter' && CoverLetterGenerator.isOpen())) {
+            BilateralDrawer.hide();
         }
     });
 

@@ -64,8 +64,8 @@ def analyze_job(title: str, snippet: str, url: str = "") -> Tuple[int, List[str]
     if any(m in text for m in no_french_markers):
         french_required = False
         working_language = "İngilizce / Türkçe (Fransızca Gerekmiyor)"
-        tags_tr.append("🇬🇧 Fransızca Şart Değil")
-        tags_fr.append("🇬🇧 Français Non Obligatoire")
+        tags_tr.append("✅ Fransızca Şart Değil")
+        tags_fr.append("✅ Français Non Obligatoire")
         score += 20
     elif any(m in text for m in french_strict_markers):
         french_required = True

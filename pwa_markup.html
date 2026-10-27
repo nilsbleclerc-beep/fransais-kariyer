@@ -12,29 +12,61 @@
         </div>
     </div>
     <div class="banner-actions">
-        <button class="banner-install-btn" onclick="window.PWAHandler.promptInstall()">
+        <button type="button" class="banner-install-btn" onclick="window.PWAHandler.promptInstall()">
             <span data-tr="Hemen Yükle" data-fr="Installer">Hemen Yükle</span>
         </button>
-        <button class="banner-close-btn" onclick="window.PWAHandler.dismissBanner()" aria-label="Fermer" title="Kapat">&times;</button>
+        <button type="button" class="banner-close-btn" onclick="window.PWAHandler.dismissBanner()" aria-label="Kapat / Fermer" title="Kapat">&times;</button>
     </div>
 </aside>
 
 <!-- ==================================================================== -->
-<!-- MODAL GUIDE D'INSTALLATION IOS (SAFARI)                              -->
+<!-- MODAL GUIDE D'INSTALLATION MANUELLE (ANDROID CHROME D'ABORD, iOS)    -->
+<!-- (id historique conservé : pwa-ios-modal)                              -->
 <!-- ==================================================================== -->
-<div id="pwa-ios-modal" class="pwa-modal-overlay" style="display: none;">
+<div id="pwa-ios-modal" class="pwa-modal-overlay pwa-platform-android" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="pwa-install-title">
     <div class="pwa-modal-card">
         <div class="pwa-modal-header">
             <div class="pwa-modal-header-left">
                 <img src="./icon-192.png" alt="Logo" class="pwa-modal-logo" width="44" height="44" onerror="this.src='./icon.svg'">
                 <div>
-                    <h3 class="pwa-modal-title" data-tr="iPhone / iPad'e Nasıl Yüklenir?" data-fr="Comment installer sur iPhone / iPad ?">iPhone / iPad'e Nasıl Yüklenir?</h3>
-                    <p class="pwa-modal-sub" data-tr="App Store gerekmez • 30 saniyede hazır" data-fr="Sans passer par l'App Store • Prêt en 30 secondes">App Store gerekmez • 30 saniyede hazır</p>
+                    <h3 class="pwa-modal-title" id="pwa-install-title" data-tr="Telefona Nasıl Yüklenir?" data-fr="Comment installer l'application ?">Telefona Nasıl Yüklenir?</h3>
+                    <p class="pwa-modal-sub" data-tr="Uygulama mağazası gerekmez • 30 saniyede hazır" data-fr="Sans passer par un store • Prêt en 30 secondes">Uygulama mağazası gerekmez • 30 saniyede hazır</p>
                 </div>
             </div>
-            <button class="pwa-modal-close" onclick="window.PWAHandler.closeIosModal()" aria-label="Fermer">&times;</button>
+            <button type="button" class="pwa-modal-close" onclick="window.PWAHandler.closeInstallGuide()" aria-label="Kapat / Fermer">&times;</button>
         </div>
 
+        <!-- 1. ANDROID (CHROME) : FLUX PRIORITAIRE -->
+        <div class="pwa-steps-group pwa-steps-android">
+            <div class="pwa-steps-heading" data-tr="🤖 Android (Chrome)" data-fr="🤖 Android (Chrome)">🤖 Android (Chrome)</div>
+            <div class="pwa-steps-list">
+                <div class="pwa-step-item">
+                    <div class="step-num-badge">1</div>
+                    <div class="step-content">
+                        <div class="step-title" data-tr="Chrome'da sağ üstteki ⋮ menüsüne dokunun" data-fr="Touchez le menu ⋮ en haut à droite de Chrome">Chrome'da sağ üstteki ⋮ menüsüne dokunun</div>
+                        <p class="step-desc" data-tr="Adres çubuğunun sağındaki üç nokta simgesi." data-fr="L'icône à trois points, à droite de la barre d'adresse.">Adres çubuğunun sağındaki üç nokta simgesi.</p>
+                    </div>
+                </div>
+                <div class="pwa-step-item">
+                    <div class="step-num-badge">2</div>
+                    <div class="step-content">
+                        <div class="step-title" data-tr="'Uygulamayı yükle' veya 'Ana ekrana ekle'yi seçin" data-fr="Choisissez « Installer l'application » ou « Ajouter à l'écran d'accueil »">'Uygulamayı yükle' veya 'Ana ekrana ekle'yi seçin</div>
+                        <p class="step-desc" data-tr="Menüde görünmüyorsa sayfayı yenileyip tekrar deneyin." data-fr="Si l'option n'apparaît pas, rechargez la page puis réessayez.">Menüde görünmüyorsa sayfayı yenileyip tekrar deneyin.</p>
+                    </div>
+                </div>
+                <div class="pwa-step-item">
+                    <div class="step-num-badge">3</div>
+                    <div class="step-content">
+                        <div class="step-title" data-tr="'Yükle' ile onaylayın" data-fr="Confirmez avec « Installer »">'Yükle' ile onaylayın</div>
+                        <p class="step-desc" data-tr="Fransaİş simgesi ana ekranınıza eklenir ve tam ekran açılır." data-fr="L'icône Fransaİş apparaît sur l'écran d'accueil et s'ouvre en plein écran.">Fransaİş simgesi ana ekranınıza eklenir ve tam ekran açılır.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. iPHONE / iPAD (SAFARI) : SECONDAIRE (ouvert automatiquement sur iOS) -->
+        <details class="pwa-steps-group pwa-steps-ios" id="pwa-steps-ios">
+            <summary class="pwa-steps-heading" data-tr="📱 iPhone / iPad (Safari)" data-fr="📱 iPhone / iPad (Safari)">📱 iPhone / iPad (Safari)</summary>
         <div class="pwa-steps-list">
             <div class="pwa-step-item">
                 <div class="step-num-badge">1</div>
@@ -68,9 +100,10 @@
                 </div>
             </div>
         </div>
+        </details>
 
         <div class="pwa-modal-footer">
-            <button class="pwa-modal-confirm-btn" onclick="window.PWAHandler.closeIosModal()">
+            <button type="button" class="pwa-modal-confirm-btn" onclick="window.PWAHandler.closeInstallGuide()">
                 <span data-tr="Harika, Anladım ! 👍" data-fr="Super, j'ai compris ! 👍">Harika, Anladım ! 👍</span>
             </button>
         </div>
@@ -80,17 +113,17 @@
 <!-- ==================================================================== -->
 <!-- MODAL D'INFORMATION : ACTUALISATION CLOUD & AUTOMATIQUE               -->
 <!-- ==================================================================== -->
-<div id="cloud-info-modal" class="pwa-modal-overlay" style="display: none;">
+<div id="cloud-info-modal" class="pwa-modal-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="pwa-cloud-title">
     <div class="pwa-modal-card">
         <div class="pwa-modal-header">
             <div class="pwa-modal-header-left">
                 <div class="cloud-icon-circle">🔄</div>
                 <div>
-                    <h3 class="pwa-modal-title" data-tr="Otomatik İlan Yenileme Sistemi" data-fr="Système d'Actualisation des Offres">Otomatik İlan Yenileme Sistemi</h3>
+                    <h3 class="pwa-modal-title" id="pwa-cloud-title" data-tr="Otomatik İlan Yenileme Sistemi" data-fr="Système d'Actualisation des Offres">Otomatik İlan Yenileme Sistemi</h3>
                     <p class="pwa-modal-sub" data-tr="%100 Ücretsiz &amp; Sıfır Zahmet" data-fr="100% Gratuit &amp; Sans Manipulation">%100 Ücretsiz &amp; Sıfır Zahmet</p>
                 </div>
             </div>
-            <button class="pwa-modal-close" onclick="window.PWAHandler.closeCloudInfoModal()" aria-label="Fermer">&times;</button>
+            <button type="button" class="pwa-modal-close" onclick="window.PWAHandler.closeCloudInfoModal()" aria-label="Kapat / Fermer">&times;</button>
         </div>
 
         <div class="cloud-info-body">
@@ -110,7 +143,7 @@
         </div>
 
         <div class="pwa-modal-footer">
-            <button class="pwa-modal-confirm-btn" onclick="window.PWAHandler.closeCloudInfoModal()">
+            <button type="button" class="pwa-modal-confirm-btn" onclick="window.PWAHandler.closeCloudInfoModal()">
                 <span data-tr="Anladım, Harika !" data-fr="Compris, parfait !">Anladım, Harika !</span>
             </button>
         </div>

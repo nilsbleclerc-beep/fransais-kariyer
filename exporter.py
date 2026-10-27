@@ -317,8 +317,8 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
                     <div class="score-badge" style="background-color: {score_color}">
                         {SVG_ICONS["sparkles"]} <span class="score-prefix">Uygunluk: </span>%{j.relevance_score}
                     </div>
-                    <button class="bookmark-btn" onclick="window.TrackerEngine.toggleBookmark({idx}, event)" title="Favorilere Ekle / Retirer">
-                        <span class="star-icon">☆</span>
+                    <button class="bookmark-btn" onclick="window.TrackerEngine.toggleBookmark({idx}, event)" aria-label="Favorilere Ekle" title="Favorilere Ekle" aria-pressed="false">
+                        <span class="star-icon" aria-hidden="true">☆</span>
                     </button>
                 </div>
             </div>
@@ -326,7 +326,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             <h3 class="job-title" data-original-text="{title_tr_safe}">{j.title}</h3>
             
             <div class="company-loc">
-                <span class="company-name-text" data-original-text="{company_safe}">{SVG_ICONS["building"]} <strong>{j.company}</strong></span> &nbsp;|&nbsp; <span>{SVG_ICONS["map_pin"]} {j.location}</span>
+                <span class="company-name-text" data-original-text="{company_safe}">{SVG_ICONS["building"]} <strong>{j.company}</strong></span><span class="loc-sep" aria-hidden="true">·</span><span class="company-loc-place">{SVG_ICONS["map_pin"]} {j.location}</span>
             </div>
             
             <div class="visa-and-lang-box">
@@ -355,7 +355,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
                 <button class="action-btn-pitch" onclick="if(window.CoverLetterGenerator) window.CoverLetterGenerator.open({idx})" title="Bu İlana Özel Fransızca Ön Yazı ve Pitch Oluştur" data-tooltip-tr="Bu İlana Özel Fransızca Ön Yazı ve Pitch Oluştur" data-tooltip-fr="Générer une Lettre de Motivation &amp; Pitch en Français">
                     <span data-tr="✍️ Ön Yazı" data-fr="✍️ Lettre &amp; Pitch">✍️ Ön Yazı</span>
                 </button>
-                <button class="action-btn-wa" onclick="if(window.TrackerEngine &amp;&amp; window.TrackerEngine.shareWhatsApp) window.TrackerEngine.shareWhatsApp({idx})" title="WhatsApp ile Gönder / Paylaş" data-tooltip-tr="WhatsApp ile Gönder / Paylaş" data-tooltip-fr="Partager cette offre sur WhatsApp">
+                <button class="action-btn-wa" onclick="if(window.TrackerEngine &amp;&amp; window.TrackerEngine.shareWhatsApp) window.TrackerEngine.shareWhatsApp({idx})" title="Paylaş" data-tooltip-tr="Paylaş" data-tooltip-fr="Partager cette offre">
                     <span data-tr="💬 Paylaş" data-fr="💬 Partager">💬 Paylaş</span>
                 </button>
                 <button class="tracker-action-btn" onclick="window.TrackerEngine.openTrackerModal({idx})" title="Başvuru Takibine Ekle" data-tooltip-tr="Başvuru Takibine Ekle" data-tooltip-fr="Ajouter au suivi des candidatures">
@@ -417,12 +417,13 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
 <html lang="tr" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Fransa Kariyer &amp; Vize Rehberi | TR ⇄ FR Bilateral Hub</title>
     
     <!-- PWA & Mobile Web App Meta Tags -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#090d16" media="(prefers-color-scheme: dark)">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -438,6 +439,13 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         (function() {{
             const savedTheme = localStorage.getItem('bilateral_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
             document.documentElement.setAttribute('data-theme', savedTheme);
+            // Barre d'état Android (theme-color) alignée sur le thème choisi manuellement
+            window.syncThemeColorMeta = function(theme) {{
+                document.querySelectorAll('meta[name="theme-color"]').forEach(function(m) {{
+                    m.setAttribute('content', theme === 'dark' ? '#090d16' : '#f8fafc');
+                }});
+            }};
+            window.syncThemeColorMeta(savedTheme);
         }})();
     </script>
     <style>
@@ -627,8 +635,23 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             color: var(--text-primary);
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-            padding: 16px 24px 60px 24px;
+            padding: max(16px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) calc(60px + env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
             transition: background-color 260ms cubic-bezier(0.16, 1, 0.3, 1), color 260ms cubic-bezier(0.16, 1, 0.3, 1);
+        }}
+        /* Filet de sécurité anti-débordement horizontal (les vraies causes sont corrigées à la source) */
+        html, body {{
+            overflow-x: hidden;
+            overflow-x: clip; /* clip : ne crée pas de conteneur de défilement (préserve position:sticky) */
+        }}
+        /* Interactions tactiles : pas de flash bleu Android, pas de délai double-tap */
+        button, a, summary, label, select, .quick-step, .track-btn, .filter-pill-btn {{
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }}
+        /* Longs mots / URLs : coupure plutôt que débordement */
+        h1, h2, h3, h4, .job-title, .snippet, .company-loc, .val-val, .template-title,
+        .checklist-label, .visa-method-card p, .visa-method-card a, .ccift-text, .bilateral-box p {{
+            overflow-wrap: anywhere;
         }}
 
         /* SVG Icons */
@@ -1083,6 +1106,248 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             line-height: 1.55;
         }}
 
+        /* Encarts repliables (<details>) CCIFT & Conseils */
+        .info-collapsible > .info-summary {{
+            list-style: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-height: 48px;
+            position: relative;
+            z-index: 1;
+        }}
+        .info-collapsible > .info-summary::-webkit-details-marker {{
+            display: none;
+        }}
+        .info-collapsible > .info-summary::after {{
+            content: '';
+            flex-shrink: 0;
+            width: 9px;
+            height: 9px;
+            border-right: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            transform: rotate(45deg);
+            margin: 0 6px 4px 0;
+            color: var(--text-tertiary);
+            transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+        }}
+        .info-collapsible[open] > .info-summary::after {{
+            transform: rotate(-135deg);
+            margin-bottom: -4px;
+        }}
+        .info-collapsible > .info-summary:focus-visible {{
+            outline: 2px solid var(--border-focus);
+            outline-offset: 4px;
+            border-radius: 6px;
+        }}
+        .info-collapsible > .info-summary h4 {{
+            margin-bottom: 0;
+        }}
+        .info-collapsible-body {{
+            padding-top: 8px;
+            position: relative;
+            z-index: 1;
+        }}
+        .info-collapsible-body .ccift-quick-btn {{
+            margin-top: 12px;
+        }}
+
+        /* Libellés courts des onglets : visibles uniquement dans la barre du bas mobile */
+        .tab-label-short {{
+            display: none;
+        }}
+
+        /* Séparateurs neutres (remplacent les « | » textuels) */
+        .facet-separator {{
+            width: 1px;
+            align-self: stretch;
+            min-height: 24px;
+            background: var(--border-default);
+            margin: 0 4px;
+            flex-shrink: 0;
+        }}
+        .loc-sep {{
+            color: var(--text-muted);
+            font-weight: 700;
+        }}
+        .company-loc-place {{
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }}
+
+        /* Contenu des cartes Kanban (markup généré par tracker_engine.js > createKanbanCardElement) */
+        .kanban-card-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 6px;
+        }}
+        .kanban-company-box {{
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }}
+        .kanban-company {{
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--text-secondary);
+            overflow-wrap: anywhere;
+        }}
+        .kanban-location {{
+            font-size: 0.76rem;
+            color: var(--text-tertiary);
+        }}
+        .kanban-fav-btn {{
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            margin: -6px -6px 0 0;
+            border: none;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }}
+        .kanban-fav-btn.active {{
+            color: #d97706;
+        }}
+        .kanban-title {{
+            font-size: 0.92rem;
+            font-weight: 700;
+            line-height: 1.35;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }}
+        .kanban-badges-row {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 8px;
+        }}
+        .kanban-badges-row > span,
+        .kanban-date-badge {{
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 6px;
+            background: var(--surface-subtle);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+        }}
+        .kanban-badge-ccift {{
+            background: var(--status-amber-subtle) !important;
+            color: var(--gold-primary) !important;
+            border-color: var(--status-amber-border) !important;
+        }}
+        .kanban-badge-nofrench {{
+            background: var(--status-success-subtle) !important;
+            color: var(--status-success-text) !important;
+            border-color: var(--status-success-border) !important;
+        }}
+        .kanban-date-badge {{
+            display: inline-block;
+            margin: 0 4px 6px 0;
+        }}
+        .kanban-date-badge.date-interview {{
+            background: var(--status-purple-subtle);
+            color: var(--status-purple-text);
+            border-color: var(--status-purple-border);
+        }}
+        .kanban-notes-preview {{
+            font-size: 0.78rem;
+            color: var(--text-tertiary);
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }}
+        .kanban-actions-row,
+        .kanban-move-row {{
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 6px;
+            margin-top: 6px;
+        }}
+        .kanban-btn-action,
+        .kanban-btn-link,
+        .kanban-move-btn {{
+            min-height: 36px;
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid var(--border-default);
+            background: var(--surface-subtle);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }}
+        .kanban-btn-action:hover,
+        .kanban-btn-link:hover,
+        .kanban-move-btn:hover:not(:disabled) {{
+            background: var(--surface-muted);
+        }}
+        .kanban-move-btn:disabled {{
+            opacity: 0.45;
+            cursor: not-allowed;
+        }}
+        .kanban-move-label {{
+            color: var(--text-tertiary);
+        }}
+
+        /* Sélecteur tactile de statut sur chaque carte Kanban (injecté par tracker_engine.js,
+           qui pose un style inline minimal : !important nécessaire pour reprendre la main) */
+        .kanban-move-select {{
+            display: block !important;
+            width: 100% !important;
+            min-height: 48px !important;
+            margin-top: 8px !important;
+            padding: 0 12px !important;
+            font-family: inherit !important;
+            font-size: 16px !important;
+            font-weight: 600;
+            color: var(--text-primary) !important;
+            background-color: var(--surface-subtle) !important;
+            border: 1px solid var(--border-default) !important;
+            border-radius: 10px !important;
+            cursor: pointer;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            transition: border-color 160ms, box-shadow 160ms;
+        }}
+        .kanban-move-select:focus-visible {{
+            border-color: var(--border-focus) !important;
+            box-shadow: var(--shadow-focus);
+        }}
+        .kanban-move-select option {{
+            background-color: var(--surface-card);
+            color: var(--text-primary);
+        }}
+
+        /* État vide d'une colonne Kanban */
+        .kanban-empty-slot {{
+            font-size: 0.84rem;
+            color: var(--text-tertiary);
+            text-align: center;
+            padding: 18px 10px;
+            border-radius: 10px;
+            background: var(--surface-card);
+            border: 1px dashed var(--border-default);
+        }}
+
         /* Filtres Multi-Facettes Linear Style */
         .filter-controls-row {{
             display: flex;
@@ -1135,7 +1400,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         }}
         .search-input {{
             flex: 1;
-            min-width: 280px;
+            min-width: min(100%, 280px);
             padding: 12px 18px;
             border-radius: 10px;
             border: 1px solid var(--border-default);
@@ -1233,7 +1498,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             max-width: 1280px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
             gap: 22px;
         }}
         .job-card {{
@@ -1733,7 +1998,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             border: 1px solid var(--border-default);
             border-radius: 8px;
             font-size: 0.9rem;
-            min-width: 260px;
+            min-width: min(100%, 260px);
             outline: none;
             background: var(--surface-card);
             color: var(--text-primary);
@@ -1874,7 +2139,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         }}
         .guide-grid-2 {{
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
             gap: 16px;
         }}
         .visa-method-card {{
@@ -2153,6 +2418,803 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
 
         /* STYLES PWA & INSTALLATION MOBILE */
         {pwa_css_content}
+
+        /* ==========================================================================
+           MOBILE ANDROID (HONOR Magic7 Lite ≈ 384–412px CSS, bords incurvés, gestes)
+           Material 3 : barre de navigation basse, cibles 48dp, marges ≥ 16px.
+           Placé APRÈS les CSS drawer/PWA injectés pour primer à spécificité égale.
+           ========================================================================== */
+        :root {{
+            --m3-nav-height: 64px;
+            --m3-nav-total: calc(var(--m3-nav-height) + env(safe-area-inset-bottom));
+            --m3-gutter-left: max(16px, env(safe-area-inset-left));
+            --m3-gutter-right: max(16px, env(safe-area-inset-right));
+        }}
+
+        @media (max-width: 768px) {{
+            body {{
+                padding: max(10px, env(safe-area-inset-top)) var(--m3-gutter-right) calc(var(--m3-nav-total) + 24px) var(--m3-gutter-left);
+            }}
+
+            /* ---------- Barre supérieure ---------- */
+            .top-nav {{
+                flex-wrap: nowrap;
+                gap: 8px;
+                margin-bottom: 12px;
+            }}
+            .brand-badge {{
+                min-width: 0;
+                flex: 1 1 auto;
+                font-size: 0.9rem;
+                gap: 8px;
+            }}
+            .brand-badge > div:last-child {{
+                min-width: 0;
+                overflow: hidden;
+            }}
+            .brand-badge strong {{
+                display: block;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }}
+            .brand-badge > div:last-child > span {{
+                display: none !important;
+            }}
+            .brand-icon-box {{
+                width: 32px;
+                height: 32px;
+                flex-shrink: 0;
+            }}
+            .user-nav-controls {{
+                gap: 6px;
+                flex-shrink: 0;
+            }}
+            .lang-switch-box {{
+                padding: 0;
+                gap: 0;
+                overflow: hidden;
+            }}
+            .lang-btn {{
+                min-width: 48px;
+                min-height: 48px;
+                justify-content: center;
+                padding: 0 10px;
+                border-radius: 0;
+            }}
+            .lang-btn .svg-icon {{
+                display: none;
+            }}
+            .theme-toggle-btn,
+            .refresh-btn,
+            .pwa-install-btn {{
+                min-width: 48px;
+                min-height: 48px;
+                justify-content: center;
+            }}
+            .theme-toggle-btn:hover {{
+                transform: none;
+            }}
+
+            /* ---------- Navigation basse Material 3 ---------- */
+            .main-tabs-nav {{
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 1000;
+                max-width: none;
+                margin: 0;
+                height: var(--m3-nav-total);
+                padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0;
+                background: var(--surface-card);
+                border: none;
+                border-top: 1px solid var(--border-default);
+                border-radius: 0;
+                box-shadow: 0 -4px 14px rgba(15, 23, 42, 0.06);
+            }}
+            .tab-nav-btn {{
+                position: relative;
+                flex-direction: column;
+                justify-content: center;
+                gap: 4px;
+                height: var(--m3-nav-height);
+                min-width: 0;
+                padding: 6px 4px;
+                border-radius: 0;
+                font-size: 0.74rem;
+                font-weight: 700;
+                letter-spacing: 0.01em;
+                color: var(--text-tertiary);
+                background: transparent;
+            }}
+            .tab-nav-btn:hover,
+            .tab-nav-btn.active {{
+                background: transparent;
+                box-shadow: none;
+            }}
+            .tab-nav-btn > .svg-icon {{
+                width: 24px;
+                height: 24px;
+                padding: 4px 20px;
+                box-sizing: content-box;
+                border-radius: 16px;
+                transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1);
+            }}
+            .tab-nav-btn.active {{
+                color: var(--text-primary);
+            }}
+            .tab-nav-btn.active > .svg-icon {{
+                background: var(--accent-primary-subtle);
+                color: var(--accent-primary);
+            }}
+            .tab-label-long {{
+                display: none;
+            }}
+            .tab-label-short {{
+                display: block;
+                max-width: 100%;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                line-height: 1.2;
+            }}
+            .tab-nav-btn .tab-badge {{
+                position: absolute;
+                top: 4px;
+                left: calc(50% + 8px);
+                min-width: 18px;
+                padding: 1px 5px;
+                font-size: 0.64rem;
+                line-height: 1.3;
+                text-align: center;
+                border-radius: 10px;
+                border: 2px solid var(--surface-card);
+            }}
+
+            /* ---------- Toasts au-dessus de la barre basse ---------- */
+            .toast-container {{
+                left: var(--m3-gutter-left);
+                right: var(--m3-gutter-right);
+                bottom: calc(var(--m3-nav-total) + 12px);
+                align-items: stretch;
+            }}
+            .bld-toast {{
+                left: var(--m3-gutter-left);
+                right: var(--m3-gutter-right);
+                bottom: calc(var(--m3-nav-total) + 12px);
+            }}
+
+            /* ---------- Démarrage rapide compact ---------- */
+            .quick-start-banner {{
+                padding: 12px;
+                margin-bottom: 14px;
+            }}
+            .quick-start-header {{
+                gap: 8px;
+                margin-bottom: 8px;
+            }}
+            .quick-start-badge {{
+                display: none;
+            }}
+            .quick-start-header h3 {{
+                font-size: 0.92rem;
+            }}
+            .quick-start-steps {{
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }}
+            .quick-step {{
+                min-height: 48px;
+                padding: 6px 10px;
+                gap: 10px;
+            }}
+            .quick-step:hover {{
+                transform: none;
+            }}
+            .step-num {{
+                width: 24px;
+                height: 24px;
+                font-size: 0.78rem;
+            }}
+            .step-text {{
+                min-width: 0;
+            }}
+            .step-text strong {{
+                font-size: 0.84rem;
+            }}
+            .step-text strong,
+            .step-text span {{
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }}
+
+            /* ---------- En-tête ---------- */
+            .header {{
+                margin-bottom: 14px;
+                text-align: left;
+            }}
+            .header h1 {{
+                font-size: 1.25rem;
+                line-height: 1.3;
+                margin-bottom: 6px;
+            }}
+            .header p {{
+                font-size: 0.88rem;
+                line-height: 1.45;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }}
+
+            /* ---------- 3 Kapı : pastilles défilantes ---------- */
+            .priority-tracks-bar {{
+                padding: 0;
+                margin-bottom: 12px;
+                background: transparent;
+                border: none;
+                box-shadow: none;
+            }}
+            .tracks-bar-title {{
+                font-size: 0.76rem;
+                margin-bottom: 6px;
+                color: var(--text-tertiary);
+                display: block;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }}
+            .tracks-buttons-group,
+            .filter-facets-row {{
+                display: flex;
+                flex-wrap: nowrap;
+                gap: 8px;
+                overflow-x: auto;
+                overscroll-behavior-x: contain;
+                scroll-snap-type: x proximity;
+                scrollbar-width: none;
+                -webkit-overflow-scrolling: touch;
+                /* débord jusqu'aux bords de l'écran, contenu aligné sur la gouttière */
+                margin-left: calc(-1 * var(--m3-gutter-left));
+                margin-right: calc(-1 * var(--m3-gutter-right));
+                padding: 2px var(--m3-gutter-right) 4px var(--m3-gutter-left);
+                scroll-padding-left: var(--m3-gutter-left);
+            }}
+            .tracks-buttons-group::-webkit-scrollbar,
+            .filter-facets-row::-webkit-scrollbar {{
+                display: none;
+            }}
+            .track-btn {{
+                flex: 0 0 auto;
+                scroll-snap-align: start;
+                min-height: 48px;
+                padding: 6px 10px 6px 14px;
+                gap: 8px;
+                border-radius: 24px;
+            }}
+            .track-btn:hover {{
+                transform: none;
+            }}
+            .track-btn-left {{
+                gap: 6px;
+            }}
+            .track-btn .track-name {{
+                font-size: 0.82rem;
+                white-space: nowrap;
+            }}
+
+            /* ---------- Compteurs : une rangée compacte ---------- */
+            .stats-grid {{
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 6px;
+                margin-bottom: 12px;
+            }}
+            .stat-card {{
+                padding: 8px 4px;
+                border-radius: 10px;
+            }}
+            .stat-card:hover {{
+                transform: none;
+            }}
+            .stat-card .num {{
+                font-size: 1.15rem;
+            }}
+            .stat-card .label {{
+                font-size: 0.64rem;
+                line-height: 1.2;
+                margin-top: 3px;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                overflow-wrap: anywhere;
+            }}
+
+            /* ---------- Encarts repliables ---------- */
+            .ccift-highlight-box,
+            .bilateral-box {{
+                padding: 4px 14px;
+                margin-bottom: 10px;
+                box-shadow: var(--shadow-xs);
+            }}
+            .ccift-highlight-box[open],
+            .bilateral-box[open] {{
+                padding-bottom: 14px;
+            }}
+            .ccift-badge-title {{
+                font-size: 0.86rem;
+            }}
+            .bilateral-box h4 {{
+                font-size: 0.86rem;
+            }}
+            .ccift-text,
+            .bilateral-box p {{
+                font-size: 0.86rem;
+            }}
+            .ccift-quick-btn {{
+                width: 100%;
+                min-height: 48px;
+                justify-content: center;
+            }}
+
+            /* ---------- Filtres ---------- */
+            .filter-panel {{
+                padding: 12px;
+                margin-bottom: 14px;
+            }}
+            .search-bar-row {{
+                margin-bottom: 10px;
+            }}
+            .search-input {{
+                width: 100%;
+                min-width: 0;
+                min-height: 48px;
+                font-size: 16px; /* évite le zoom automatique au focus */
+                padding: 10px 14px;
+            }}
+            .filter-controls-row {{
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+                margin: 0 0 10px 0;
+            }}
+            .control-group {{
+                flex-direction: column;
+                align-items: stretch;
+                gap: 4px;
+                min-width: 0;
+            }}
+            .control-label {{
+                font-size: 0.74rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }}
+            .filter-select {{
+                width: 100%;
+                min-width: 0;
+                min-height: 48px;
+                font-size: 16px;
+                padding: 8px 10px;
+                text-overflow: ellipsis;
+            }}
+            .filter-facets-row {{
+                margin-top: 0;
+            }}
+            .filter-pill-btn {{
+                flex: 0 0 auto;
+                scroll-snap-align: start;
+                min-height: 48px;
+                padding: 0 14px;
+                border-radius: 24px;
+                white-space: nowrap;
+            }}
+            .filter-status-row {{
+                margin-top: 8px;
+                padding-top: 6px;
+                flex-wrap: nowrap;
+            }}
+            .results-summary {{
+                font-size: 0.8rem;
+                min-width: 0;
+            }}
+            .reset-filter-btn {{
+                min-height: 48px;
+                padding: 0 4px 0 8px;
+                flex-shrink: 0;
+                font-size: 0.82rem;
+            }}
+
+            /* ---------- Cartes d'offres compactes ---------- */
+            .cards-grid {{
+                gap: 12px;
+            }}
+            .job-card {{
+                padding: 12px 14px;
+                border-radius: 14px;
+            }}
+            .job-card:hover {{
+                transform: none;
+            }}
+            .track-ribbon,
+            .ccift-card-ribbon {{
+                max-width: 100%;
+                font-size: 0.66rem;
+                padding: 4px 8px;
+                margin-bottom: 6px;
+                gap: 5px;
+                white-space: nowrap;
+            }}
+            .track-ribbon-text,
+            .ccift-card-ribbon > span {{
+                overflow: hidden;
+                text-overflow: ellipsis;
+                min-width: 0;
+            }}
+            .card-header {{
+                margin-bottom: 6px;
+            }}
+            .header-badges {{
+                flex-wrap: nowrap;
+                min-width: 0;
+                overflow: hidden;
+            }}
+            .source-badge,
+            .category-badge {{
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-size: 0.68rem;
+            }}
+            .category-badge {{
+                min-width: 0;
+            }}
+            .header-right-actions {{
+                gap: 2px;
+                flex-shrink: 0;
+            }}
+            .score-badge .score-prefix {{
+                display: none;
+            }}
+            .bookmark-btn {{
+                width: 48px;
+                height: 48px;
+                margin: -8px -8px -8px 0;
+                border: none;
+                border-radius: 50%;
+                background: transparent;
+                font-size: 1.3rem;
+            }}
+            .bookmark-btn:hover {{
+                transform: none;
+            }}
+            .bookmark-btn.active {{
+                background: transparent;
+                color: #d97706;
+            }}
+            .job-title {{
+                font-size: 1.02rem;
+                margin-bottom: 4px;
+                line-height: 1.3;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }}
+            /* Entreprise · Lieu sur une seule ligne, chaque partie tronquée si besoin */
+            .company-loc {{
+                font-size: 0.82rem;
+                margin-bottom: 6px;
+                gap: 6px;
+                flex-wrap: nowrap;
+                min-width: 0;
+            }}
+            .company-name-text,
+            .company-loc-place {{
+                display: block;
+                flex: 0 1 auto;
+                min-width: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }}
+            .company-name-text {{
+                flex-shrink: 0.6;
+            }}
+            .visa-and-lang-box {{
+                padding: 5px 10px;
+                margin-bottom: 6px;
+                gap: 2px;
+                font-size: 0.78rem;
+            }}
+            .val-item {{
+                gap: 8px;
+                min-width: 0;
+            }}
+            .val-label {{
+                font-size: 0.74rem;
+                flex-shrink: 0;
+            }}
+            .val-val {{
+                min-width: 0;
+                font-size: 0.76rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }}
+            .val-visa {{
+                max-width: none;
+            }}
+            .tag-no-french,
+            .tag-french-req {{
+                padding: 1px 6px;
+            }}
+            .snippet {{
+                font-size: 0.85rem;
+                line-height: 1.4;
+                margin-bottom: 6px;
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                flex-grow: 0;
+            }}
+            .tags-container {{
+                gap: 4px;
+                margin-bottom: 8px;
+                max-height: 22px;
+                overflow: hidden;
+            }}
+            .tags-container .tag:nth-child(n+4) {{
+                display: none;
+            }}
+            .tag {{
+                font-size: 0.68rem;
+                padding: 2px 7px;
+                white-space: nowrap;
+                max-width: 100%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }}
+            .card-tracker-status {{
+                margin-bottom: 8px;
+            }}
+
+            /* Pied de carte : 1 action pleine (accent) + actions tonales neutres en grille 2 col. */
+            .card-footer {{
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 6px 8px;
+            }}
+            .card-footer > * {{
+                min-height: 48px;
+                min-width: 0;
+                margin: 0;
+                padding: 0 10px;
+                border-radius: 24px;
+                font-size: 0.84rem;
+                font-weight: 700;
+                justify-content: center;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                box-shadow: none;
+            }}
+            .card-footer > *:hover {{
+                transform: none;
+            }}
+            .card-footer .action-btn-primary {{
+                grid-column: 1 / -1;
+                background: var(--accent-primary);
+                color: #ffffff;
+            }}
+            .card-footer .action-btn-primary:hover {{
+                background: var(--accent-primary-hover);
+            }}
+            .card-footer .action-btn-pitch,
+            .card-footer .action-btn-wa,
+            .card-footer .tracker-action-btn,
+            .card-footer .secondary-btn {{
+                background: var(--surface-subtle);
+                color: var(--text-primary);
+                border: 1px solid var(--border-default);
+            }}
+            .card-footer .action-btn-pitch:hover,
+            .card-footer .action-btn-wa:hover,
+            .card-footer .tracker-action-btn:hover,
+            .card-footer .secondary-btn:hover {{
+                background: var(--surface-muted);
+                color: var(--text-primary);
+            }}
+            .card-footer .tracker-action-btn.in-pipeline {{
+                background: var(--status-success-subtle);
+                color: var(--status-success-text);
+                border-color: var(--status-success-border);
+            }}
+
+            /* ---------- Onglet Suivi / Kanban ---------- */
+            .tracker-header-box {{
+                text-align: left;
+                margin-bottom: 14px;
+            }}
+            .tracker-header-box h2 {{
+                font-size: 1.25rem;
+            }}
+            .tracker-header-box p {{
+                font-size: 0.88rem;
+            }}
+            .tracker-stats-grid {{
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 6px;
+                margin-bottom: 12px;
+            }}
+            .tracker-stat-box {{
+                padding: 8px 4px;
+                border-radius: 10px;
+            }}
+            .tracker-stat-box .t-num {{
+                font-size: 1.15rem;
+            }}
+            .tracker-stat-box .t-lbl {{
+                font-size: 0.64rem;
+                line-height: 1.2;
+                margin-top: 3px;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }}
+            .tracker-toolbar {{
+                padding: 12px;
+                gap: 8px;
+                margin-bottom: 14px;
+            }}
+            .tracker-search-input {{
+                width: 100%;
+                min-width: 0;
+                min-height: 48px;
+                font-size: 16px;
+            }}
+            .tracker-actions-group {{
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                width: 100%;
+            }}
+            .btn-action-tracker {{
+                min-height: 48px;
+                justify-content: center;
+                text-align: center;
+                font-size: 0.82rem;
+                padding: 6px 10px;
+            }}
+            .btn-clear-tracker {{
+                grid-column: 1 / -1;
+            }}
+            .kanban-board {{
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }}
+            .kanban-column {{
+                min-height: auto;
+                padding: 10px 12px;
+                border-width: 1px;
+                border-style: solid;
+            }}
+            .kanban-col-header {{
+                margin-bottom: 8px;
+                padding-bottom: 8px;
+                border-bottom-width: 1px;
+            }}
+            .kanban-items-list {{
+                gap: 8px;
+            }}
+            .kanban-empty-slot {{
+                padding: 8px;
+                font-size: 0.78rem;
+                background: transparent;
+                border: none;
+            }}
+            .kanban-card {{
+                padding: 12px;
+                cursor: default;
+            }}
+            .kanban-card:hover {{
+                transform: none;
+            }}
+            .kanban-fav-btn {{
+                width: 48px;
+                height: 48px;
+                margin: -12px -12px 0 0;
+            }}
+            .kanban-btn-action,
+            .kanban-btn-link,
+            .kanban-move-btn {{
+                min-height: 48px;
+                font-size: 0.82rem;
+                border-radius: 24px;
+            }}
+            .apply-btn {{
+                min-height: 48px;
+            }}
+
+            /* ---------- Onglet Guide ---------- */
+            .guide-card-section {{
+                padding: 16px 14px;
+                margin-bottom: 14px;
+            }}
+            .guide-section-header h3 {{
+                font-size: 1.05rem;
+                align-items: flex-start;
+            }}
+            .visa-method-card {{
+                padding: 14px;
+            }}
+            .checklist-item {{
+                min-height: 48px;
+                padding: 10px 12px;
+            }}
+            .guide-checkbox {{
+                width: 22px;
+                height: 22px;
+                flex-shrink: 0;
+            }}
+            .checklist-label {{
+                font-size: 0.86rem;
+            }}
+            .template-block {{
+                padding: 12px;
+            }}
+            .copy-template-btn {{
+                min-height: 48px;
+                width: 100%;
+                justify-content: center;
+            }}
+            .template-content {{
+                font-size: 0.78rem;
+                padding: 10px;
+                max-height: 320px;
+                overflow-y: auto;
+                overscroll-behavior-y: contain;
+            }}
+
+            /* ---------- Modale de suivi ---------- */
+            .modal-overlay {{
+                padding: max(12px, env(safe-area-inset-top)) var(--m3-gutter-right) max(12px, env(safe-area-inset-bottom)) var(--m3-gutter-left);
+            }}
+            .modal-box {{
+                padding: 18px 16px;
+                max-height: 100%;
+                overflow-y: auto;
+                overscroll-behavior-y: contain;
+            }}
+            .modal-close-btn {{
+                min-width: 48px;
+                min-height: 48px;
+                margin: -10px -10px -10px 0;
+            }}
+            .form-control {{
+                font-size: 16px;
+                min-height: 48px;
+            }}
+            .modal-btn {{
+                min-height: 48px;
+            }}
+        }}
+
+        @media (max-width: 380px) {{
+            .tab-nav-btn > .svg-icon {{
+                padding: 4px 14px;
+            }}
+            .stat-card .label,
+            .tracker-stat-box .t-lbl {{
+                font-size: 0.6rem;
+            }}
+        }}
     </style>
 </head>
 <body>
@@ -2197,20 +3259,24 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
     {pwa_markup_content}
 
     <!-- ONGLETS PRINCIPAUX -->
-    <nav class="main-tabs-nav">
+    <!-- Desktop : onglets segmentés en haut. Mobile (≤768px) : barre de navigation fixe en bas (Material 3). -->
+    <nav class="main-tabs-nav" aria-label="Fransaİş">
         <button class="tab-nav-btn active" id="tabBtnExplore" onclick="window.TrackerEngine.switchTab('explore')">
             {SVG_ICONS["briefcase"]}
-            <span id="i18n-tab-explore" data-tr="Keşfet &amp; İlanlar" data-fr="Explorer les Offres">Keşfet &amp; İlanlar</span>
+            <span class="tab-label-long" id="i18n-tab-explore" data-tr="Keşfet &amp; İlanlar" data-fr="Explorer les Offres">Keşfet &amp; İlanlar</span>
+            <span class="tab-label-short" data-tr="Keşfet" data-fr="Explorer">Keşfet</span>
             <span class="tab-badge" id="badge-explore-count">{total}</span>
         </button>
         <button class="tab-nav-btn" id="tabBtnTracker" onclick="window.TrackerEngine.switchTab('tracker')">
             {SVG_ICONS["bookmark"]}
-            <span id="i18n-tab-tracker" data-tr="Başvuru Takibi (Kanban)" data-fr="Suivi Candidatures (Kanban)">Başvuru Takibi (Kanban)</span>
+            <span class="tab-label-long" id="i18n-tab-tracker" data-tr="Başvuru Takibi (Kanban)" data-fr="Suivi Candidatures (Kanban)">Başvuru Takibi (Kanban)</span>
+            <span class="tab-label-short" data-tr="Başvurularım" data-fr="Candidatures">Başvurularım</span>
             <span class="tab-badge" id="badge-tracker-count">0</span>
         </button>
         <button class="tab-nav-btn" id="tabBtnGuide" onclick="window.TrackerEngine.switchTab('guide')">
             {SVG_ICONS["file_text"]}
-            <span id="i18n-tab-guide" data-tr="Rehber, Vize &amp; Belgeler" data-fr="Guide Visa &amp; Outils">Rehber, Vize &amp; Belgeler</span>
+            <span class="tab-label-long" id="i18n-tab-guide" data-tr="Rehber, Vize &amp; Belgeler" data-fr="Guide Visa &amp; Outils">Rehber, Vize &amp; Belgeler</span>
+            <span class="tab-label-short" data-tr="Rehber" data-fr="Guide">Rehber</span>
         </button>
     </nav>
 
@@ -2229,7 +3295,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
                 <div class="quick-step" onclick="window.TrackerEngine.Filter.toggleNoFrench();" title="Sadece İngilizce veya Türkçe yeterli olan ilanlar" data-tooltip-tr="Sadece İngilizce veya Türkçe yeterli olan ilanlar" data-tooltip-fr="Offres où l'anglais ou le turc est suffisant">
                     <div class="step-num">1</div>
                     <div class="step-text">
-                        <strong data-tr="🇬🇧 Fransızca Şart Değil" data-fr="🇬🇧 Français Non Requis">🇬🇧 Fransızca Şart Değil</strong>
+                        <strong data-tr="✅ Fransızca Şart Değil" data-fr="✅ Français Non Requis">✅ Fransızca Şart Değil</strong>
                         <span data-tr="İngilizce veya Türkçe yeterli ilanları filtrele" data-fr="Filtrer les offres en anglais ou turc">İngilizce veya Türkçe yeterli ilanları filtrele</span>
                     </div>
                 </div>
@@ -2311,25 +3377,32 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         </div>
 
         <!-- ENCART CCIFT & DEIK AVEC GOLD SHIMMER -->
-        <div class="ccift-highlight-box">
-            <div class="ccift-header">
-                <div class="ccift-badge-title" id="i18n-ccift-box-title">{SVG_ICONS["shield_check"]} CCIFT & DEİK RESMİ İKİLİ TİCARET ÜYELERİ (EN YÜKSEK VİZE ONAYI)</div>
+        <!-- Repliable (<details>) : fermé par défaut sur mobile, ouvert sur desktop via le script de thème -->
+        <details class="ccift-highlight-box info-collapsible">
+            <summary class="info-summary">
+                <span class="ccift-badge-title" id="i18n-ccift-box-title">{SVG_ICONS["shield_check"]} CCIFT & DEİK RESMİ İKİLİ TİCARET ÜYELERİ (EN YÜKSEK VİZE ONAYI)</span>
+            </summary>
+            <div class="info-collapsible-body">
+                <p class="ccift-text" id="i18n-ccift-box-text">
+                    Aşağıda altın rozetle işaretlenen şirketler, <strong>Fransız-Türk Ticaret Odası (CCIFT)</strong> ve <strong>DEİK Türkiye-Fransa İş Konseyi</strong>'nin resmi üye holdingleridir (<em>Beko France, Turkish Airlines, Ekol, Barsan, Şişecam, Vestel, Sabancı, Eczacıbaşı vb.</em>). Bu kurumlar, Fransa ile resmi ikili protokol ve anlaşmalara sahip olup, Türkiye'den personel transferinde <strong>Şirket İçi Transfer (ICT)</strong> ve <strong>Yetenek Pasaportu (Passeport Talent)</strong> vizelerinde en yüksek onay oranına ve en hızlı prosedürlere sahiptir.
+                </p>
                 <button class="ccift-quick-btn" onclick="window.TrackerEngine.Filter.toggleCcift(); document.getElementById('filter-btn-ccift').classList.toggle('active');" id="i18n-ccift-quick-btn">
                     {SVG_ICONS["shield_check"]} Bu Üyelerin İlanlarını Filtrele (1-Tık)
                 </button>
             </div>
-            <p class="ccift-text" id="i18n-ccift-box-text">
-                Aşağıda altın rozetle işaretlenen şirketler, <strong>Fransız-Türk Ticaret Odası (CCIFT)</strong> ve <strong>DEİK Türkiye-Fransa İş Konseyi</strong>'nin resmi üye holdingleridir (<em>Beko France, Turkish Airlines, Ekol, Barsan, Şişecam, Vestel, Sabancı, Eczacıbaşı vb.</em>). Bu kurumlar, Fransa ile resmi ikili protokol ve anlaşmalara sahip olup, Türkiye'den personel transferinde <strong>Şirket İçi Transfer (ICT)</strong> ve <strong>Yetenek Pasaportu (Passeport Talent)</strong> vizelerinde en yüksek onay oranına ve en hızlı prosedürlere sahiptir.
-            </p>
-        </div>
+        </details>
 
         <!-- ENCART CONSEILS & LANGUES -->
-        <div class="bilateral-box">
-            <h4 id="i18n-advice-title">{SVG_ICONS["check_circle"]} Türkiye'deki Adaylar İçin Vize ve Dil Rehberi:</h4>
-            <p id="i18n-advice-text">
-                <strong>Fransızca bilmiyorsanız endişelenmeyin :</strong> Yeşil etiketli ilanlarda çalışma dili <strong>İngilizce veya Türkçe</strong>dir (Fransızca şart değildir veya temel A1 yeterlidir). Türkiye'den vizesiz başvuru yaparken en güçlü kapılar : <strong>1)</strong> Yukarıdaki <strong>CCIFT & DEİK üyesi holdingler</strong> (Şirket İçi Transfer ICT vizesi). <strong>2)</strong> Türkiye'nin üyesi olduğu uluslararası kuruluşlar (<em>Avrupa Konseyi, OECD, UNESCO</em> - özel diplomatik/uluslararası memur statüsü verilir). <strong>3)</strong> Paris merkezli scale-up'lar (%100 İngilizce Tech kadroları).
-            </p>
-        </div>
+        <details class="bilateral-box info-collapsible">
+            <summary class="info-summary">
+                <h4 id="i18n-advice-title">{SVG_ICONS["check_circle"]} Türkiye'deki Adaylar İçin Vize ve Dil Rehberi:</h4>
+            </summary>
+            <div class="info-collapsible-body">
+                <p id="i18n-advice-text">
+                    <strong>Fransızca bilmiyorsanız endişelenmeyin :</strong> Yeşil etiketli ilanlarda çalışma dili <strong>İngilizce veya Türkçe</strong>dir (Fransızca şart değildir veya temel A1 yeterlidir). Türkiye'den vizesiz başvuru yaparken en güçlü kapılar : <strong>1)</strong> Yukarıdaki <strong>CCIFT & DEİK üyesi holdingler</strong> (Şirket İçi Transfer ICT vizesi). <strong>2)</strong> Türkiye'nin üyesi olduğu uluslararası kuruluşlar (<em>Avrupa Konseyi, OECD, UNESCO</em> - özel diplomatik/uluslararası memur statüsü verilir). <strong>3)</strong> Paris merkezli scale-up'lar (%100 İngilizce Tech kadroları).
+                </p>
+            </div>
+        </details>
 
         <!-- BARRE DE RECHERCHE ET FILTRES MULTI-FACETTES -->
         <div class="filter-panel">
@@ -2385,7 +3458,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
                     {SVG_ICONS["briefcase"]} <span data-tr="KOBİ &amp; Saha" data-fr="PME &amp; Terrain">KOBİ &amp; Saha</span>
                 </button>
                 
-                <span style="color: var(--border-default); font-size: 1.2rem;">|</span>
+                <span class="facet-separator" aria-hidden="true"></span>
                 
                 <button class="filter-pill-btn pill-fav" onclick="const isFav = this.classList.toggle('active'); window.TrackerEngine.Filter.setStatusFilter(isFav ? 'fav' : 'all');">
                     {SVG_ICONS["bookmark"]} <span data-tr="Sadece Favoriler" data-fr="Favoris Uniquement">Sadece Favoriler</span>
@@ -2531,7 +3604,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             <!-- SECTION A : LES 4 VOIES LÉGALES DE VISA -->
             <div class="guide-card-section">
                 <div class="guide-section-header">
-                    <h3 data-tr="1. Türkiye'den Fransa'ya 4 Yasal İstihdam ve Vize Yolu" data-fr="1. Les 4 Voies Légales d'Emploi et de Visa Turquie ➔ France">{SVG_ICONS["plane"]} 1. Türkiye'den Fransa'ya 4 Yasal İstihdam ve Vize Yolu</h3>
+                    <h3 data-tr="1. Türkiye'den Fransa'ya 3 Öncelikli Kapı + Standart Yol" data-fr="1. Turquie ➔ France : 3 Voies Prioritaires + Voie Standard">{SVG_ICONS["plane"]} 1. Türkiye'den Fransa'ya 3 Öncelikli Kapı + Standart Yol</h3>
                     <p data-tr="Klasik çalışma izni engeline takılmadan Fransa'ya geçiş sağlayan öncelikli statüler." data-fr="Statuts prioritaires permettant de s'installer en France sans blocage d'autorisation de travail standard.">Klasik çalışma izni engeline takılmadan Fransa'ya geçiş sağlayan öncelikli statüler.</p>
                 </div>
                 <div class="guide-grid-2">
@@ -2675,7 +3748,7 @@ Best regards,
         <div class="modal-box">
             <div class="modal-header">
                 <h3 id="i18n-modal-title" data-tr="Başvuru Takip Detayları" data-fr="Modifier les détails de la candidature">Başvuru Takip Detayları</h3>
-                <button type="button" class="modal-close-btn" id="modal-close-btn">&times;</button>
+                <button type="button" class="modal-close-btn" id="modal-close-btn" aria-label="Kapat / Fermer">&times;</button>
             </div>
             
             <form id="tracker-form">
@@ -2734,6 +3807,7 @@ Best regards,
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('bilateral_theme', next);
             updateThemeButton(next);
+            if (window.syncThemeColorMeta) window.syncThemeColorMeta(next);
         }}
 
         function updateThemeButton(theme) {{
@@ -2752,6 +3826,10 @@ Best regards,
         document.addEventListener('DOMContentLoaded', () => {{
             const curTheme = document.documentElement.getAttribute('data-theme') || 'light';
             updateThemeButton(curTheme);
+            // Encarts informatifs : dépliés sur desktop, repliés par défaut sur mobile
+            if (window.matchMedia('(min-width: 769px)').matches) {{
+                document.querySelectorAll('details.info-collapsible').forEach(d => {{ d.open = true; }});
+            }}
         }});
     </script>
 

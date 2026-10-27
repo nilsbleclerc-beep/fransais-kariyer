@@ -6,7 +6,7 @@
  * - Bypass automatique pour les routes dynamiques /api/*
  */
 
-const CACHE_NAME = 'fransais-pwa-v2';
+const CACHE_NAME = 'fransais-pwa-v3';
 
 const STATIC_ASSETS = [
     './',

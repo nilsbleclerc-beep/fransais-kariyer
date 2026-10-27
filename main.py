@@ -99,7 +99,7 @@ def run_agent(pages: int = 4, dorks_count: int = 8):
     table.add_column("Fransızca?", style="magenta", width=16)
 
     for job in unique_jobs[:12]:
-        lang_status = "Gerekmiyor 🇬🇧" if not job.french_required else "Gerekli B2+"
+        lang_status = "Gerekmiyor ✅" if not job.french_required else "Gerekli B2+"
         table.add_row(
             f"%{job.relevance_score}",
             job.company[:22],

@@ -5,26 +5,26 @@
 
 <!-- 1. PANNEAU LATÉRAL COULISSANT (DRAWER OPPORTUNITÉ) -->
 <div class="bld-drawer-overlay" id="bld-drawer-overlay" onclick="window.BilateralDrawer.close()"></div>
-<div class="bld-drawer" id="bld-drawer">
+<div class="bld-drawer" id="bld-drawer" role="dialog" aria-modal="true" aria-labelledby="bld-drawer-title">
     <div class="bld-drawer-header">
-        <div style="flex: 1;">
+        <div class="bld-header-text">
             <h2 id="bld-drawer-title">Titre de l'Offre</h2>
             <div id="bld-drawer-company-loc" class="bld-drawer-header-subtitle">🏢 Entreprise | 📍 Ville</div>
         </div>
-        <button class="bld-close-btn" onclick="window.BilateralDrawer.close()" title="Fermer / Kapat" data-tooltip-tr="Kapat" data-tooltip-fr="Fermer">✕</button>
+        <button type="button" class="bld-close-btn" onclick="window.BilateralDrawer.close()" title="Kapat" aria-label="Kapat / Fermer" data-tooltip-tr="Kapat" data-tooltip-fr="Fermer">✕</button>
     </div>
-    
+
     <div class="bld-drawer-body">
         <!-- Écusson officiel de la Voie -->
         <div id="bld-drawer-ecusson" class="ecusson-card-header ecusson-voie-2">
-            <div class="ecusson-header-title">🤝 VOIE 2 PRIORITAIRE : SALARIÉ DÉTACHÉ ICT (CCIFT &amp; DEİK)</div>
-            <div class="ecusson-header-sub">Mobilité intra-groupe • Accord bilatéral 1972 • Exonération opposabilité emploi</div>
+            <div class="ecusson-header-title">🤝 KAPI 2 ÖNCELİKLİ : ŞİRKET İÇİ TRANSFER ICT (CCIFT &amp; DEİK)</div>
+            <div class="ecusson-header-sub">Şirket İçi Transfer (ICT) • 1972 İkili Sosyal Güvenlik Anlaşması • İşgücü Testinden Muaf</div>
         </div>
 
-        <!-- Badges d'adéquation rapide -->
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <span id="bld-drawer-score" class="score-badge" style="background: #059669;">Uygunluk: %95</span>
-            <span id="bld-drawer-lang-badge" class="val-val tag-no-french" data-tr="🇬🇧 Fransızca Şart Değil" data-fr="🇬🇧 Français Non Requis">🇬🇧 Fransızca Şart Değil</span>
+        <!-- Badges d'adéquation rapide (textes gérés en JS selon la langue et l'offre) -->
+        <div class="bld-badges-row">
+            <span id="bld-drawer-score" class="score-badge bld-score-badge">Uygunluk: %95</span>
+            <span id="bld-drawer-lang-badge" class="val-val tag-no-french">✅ Fransızca Şart Değil</span>
             <span id="bld-drawer-source" class="source-badge">Kariyer.net</span>
         </div>
 
@@ -32,80 +32,85 @@
         <div class="bld-hr-ats-box">
             <h4 data-tr="📫 İK İletişim &amp; Doğrudan Başvuru Kanalları" data-fr="📫 Contacts RH &amp; Canaux de Candidature Directs">📫 İK İletişim &amp; Doğrudan Başvuru Kanalları</h4>
             <div id="bld-drawer-hr-box" class="bld-hr-item" style="display: none;">
-                <strong data-tr="📧 İK E-posta :" data-fr="📧 Email RH :">📧 İK E-posta :</strong> 
-                <a id="bld-drawer-hr-email" href="#" style="color: #e11d48; font-weight: 700; text-decoration: underline;">recrutement@beko.fr</a>
-                <button class="bld-btn-copy-small" onclick="window.BilateralDrawer.copyEmail()" data-tr="Kopyala" data-fr="Copier">Kopyala</button>
+                <strong data-tr="📧 İK E-posta :" data-fr="📧 Email RH :">📧 İK E-posta :</strong>
+                <a id="bld-drawer-hr-email" href="#" class="bld-hr-email-link">recrutement@beko.fr</a>
+                <button type="button" class="bld-btn-copy-small" onclick="window.BilateralDrawer.copyEmail()" data-tr="Kopyala" data-fr="Copier">Kopyala</button>
             </div>
             <div class="bld-hr-item">
-                <strong data-tr="🌐 Resmi Kariyer Portalı / ATS :" data-fr="🌐 Portail Recrutement Officiel / ATS :">🌐 Resmi Kariyer Portalı / ATS :</strong> 
-                <a id="bld-drawer-portal-link" href="#" target="_blank" style="color: #2563eb; text-decoration: underline;" data-tr="Aday Portalına Git ↗" data-fr="Accéder au Portail Candidat ↗">Aday Portalına Git ↗</a>
+                <strong data-tr="🌐 Resmi Kariyer Portalı / ATS :" data-fr="🌐 Portail Recrutement Officiel / ATS :">🌐 Resmi Kariyer Portalı / ATS :</strong>
+                <a id="bld-drawer-portal-link" href="#" target="_blank" rel="noopener" class="bld-link" data-tr="Aday Portalına Git ↗" data-fr="Accéder au Portail Candidat ↗">Aday Portalına Git ↗</a>
             </div>
         </div>
 
         <!-- Description Complète de l'Opportunité -->
         <div>
-            <h4 style="font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 6px;" data-tr="📝 Pozisyon &amp; Görev Tanımı" data-fr="📝 Description du Poste &amp; Missions">📝 Pozisyon &amp; Görev Tanımı</h4>
-            <p id="bld-drawer-snippet" style="font-size: 0.92rem; color: #334155; line-height: 1.6;"></p>
+            <h4 class="bld-section-title" data-tr="📝 Pozisyon &amp; Görev Tanımı" data-fr="📝 Description du Poste &amp; Missions">📝 Pozisyon &amp; Görev Tanımı</h4>
+            <p id="bld-drawer-snippet" class="bld-section-text"></p>
         </div>
 
         <!-- Fiche Visa Étape par Étape (Turquie ➔ France) -->
         <div>
-            <h4 style="font-size: 0.98rem; font-weight: 800; color: #0f172a; margin-bottom: 4px;" data-tr="🛂 Türkiye'den Fransa'ya Vize ve İşe Başlama Aşamaları" data-fr="🛂 Procédure Visa &amp; Installation Turquie ➔ France">🛂 Türkiye'den Fransa'ya Vize ve İşe Başlama Aşamaları</h4>
-            <p style="font-size: 0.84rem; color: #64748b; margin-bottom: 12px;" data-tr="Bu ilana Türkiye'den başvuracak adaylar için resmi konsolosluk ve intibak yol haritası." data-fr="Feuille de route consulaire et administrative pour les candidats postulant depuis la Turquie.">Bu ilana Türkiye'den başvuracak adaylar için resmi konsolosluk ve intibak yol haritası.</p>
+            <h4 class="bld-section-title" data-tr="🛂 Türkiye'den Fransa'ya Vize ve İşe Başlama Aşamaları" data-fr="🛂 Procédure Visa &amp; Installation Turquie ➔ France">🛂 Türkiye'den Fransa'ya Vize ve İşe Başlama Aşamaları</h4>
+            <p class="bld-section-desc" data-tr="Bu ilana Türkiye'den başvuracak adaylar için resmi konsolosluk ve intibak yol haritası." data-fr="Feuille de route consulaire et administrative pour les candidats postulant depuis la Turquie.">Bu ilana Türkiye'den başvuracak adaylar için resmi konsolosluk ve intibak yol haritası.</p>
             <div class="visa-timeline" id="bld-drawer-timeline">
                 <!-- Généré dynamiquement en JS selon la voie de l'offre et la langue -->
             </div>
         </div>
     </div>
-    
+
     <div class="bld-drawer-footer">
-        <button class="bld-btn-primary" style="flex: 1.3;" onclick="window.BilateralDrawer.close(); window.CoverLetterGenerator.open();" data-tr="✍️ Bu İlan İçin Fransızca Ön Yazı &amp; Pitch Üret" data-fr="✍️ Générer la Lettre &amp; Pitch en Français">✍️ Bu İlan İçin Fransızca Ön Yazı &amp; Pitch Üret</button>
-        <a id="bld-drawer-ats-btn" href="#" target="_blank" class="bld-btn-secondary" style="flex: 1; text-align: center; text-decoration: none; justify-content: center;" data-tr="Resmi ATS'de Aç ↗" data-fr="Ouvrir l'ATS Officiel ↗">Resmi ATS'de Aç ↗</a>
+        <button type="button" class="bld-btn-primary bld-drawer-cta" onclick="window.CoverLetterGenerator.open();" data-tr="✍️ Bu İlan İçin Fransızca Ön Yazı &amp; Pitch Üret" data-fr="✍️ Générer la Lettre &amp; Pitch en Français">✍️ Bu İlan İçin Fransızca Ön Yazı &amp; Pitch Üret</button>
+        <a id="bld-drawer-ats-btn" href="#" target="_blank" rel="noopener" class="bld-btn-secondary bld-drawer-ats" data-tr="Resmi ATS'de Aç ↗" data-fr="Ouvrir l'ATS Officiel ↗">Resmi ATS'de Aç ↗</a>
     </div>
 </div>
 
-<!-- 2. MODAL DU GÉNÉRATEUR INTELLIGENT DE LETTRE & PITCH (TR ➔ FR) -->
+<!-- 2. MODAL / BOTTOM SHEET DU GÉNÉRATEUR INTELLIGENT DE LETTRE & PITCH (TR ➔ FR) -->
 <div class="bld-modal-overlay" id="bld-gen-modal-overlay" onclick="if(event.target.id === 'bld-gen-modal-overlay') window.CoverLetterGenerator.close();">
-    <div class="bld-modal-card">
+    <div class="bld-modal-card" role="dialog" aria-modal="true" aria-labelledby="bld-gen-modal-title">
         <div class="bld-modal-header">
-            <div>
-                <div class="bld-modal-title" data-tr="✍️ Fransızca Pitch &amp; Ön Yazı Oluşturucu (TR ➔ FR)" data-fr="✍️ Générateur Intelligent de Pitch &amp; Lettre (FR)">✍️ Fransızca Pitch &amp; Ön Yazı Oluşturucu (TR ➔ FR)</div>
-                <div id="bld-gen-target-job" style="font-size: 0.85rem; color: #64748b; margin-top: 2px;" data-tr="Hedef İlan : Genel Başvuru" data-fr="Offre Ciblée : Candidature Spontanée">Hedef İlan : Genel Başvuru</div>
+            <div class="bld-header-text">
+                <div class="bld-modal-title" id="bld-gen-modal-title" data-tr="✍️ Fransızca Pitch &amp; Ön Yazı Oluşturucu (TR ➔ FR)" data-fr="✍️ Générateur Intelligent de Pitch &amp; Lettre (FR)">✍️ Fransızca Pitch &amp; Ön Yazı Oluşturucu (TR ➔ FR)</div>
+                <!-- Texte géré en JS (langue courante + offre ciblée) -->
+                <div id="bld-gen-target-job" class="bld-modal-subtitle">Hedef İlan : Genel Başvuru</div>
             </div>
-            <button class="bld-close-btn" onclick="window.CoverLetterGenerator.close()" data-tooltip-tr="Kapat" data-tooltip-fr="Fermer">✕</button>
+            <button type="button" class="bld-close-btn" onclick="window.CoverLetterGenerator.close()" title="Kapat" aria-label="Kapat / Fermer" data-tooltip-tr="Kapat" data-tooltip-fr="Fermer">✕</button>
         </div>
-        
+
         <div class="bld-modal-body">
-            <!-- Écusson officiel rappelant la voie sélectionnée -->
-            <div id="bld-gen-modal-ecusson" class="ecusson-card-header ecusson-voie-2" style="margin-bottom: 0;">
-                <div class="ecusson-header-title">🤝 VOIE 2 PRIORITAIRE : SALARIÉ DÉTACHÉ ICT (CCIFT &amp; DEİK)</div>
-                <div class="ecusson-header-sub" data-tr="Mektubun 1. paragrafı bu yasal yolu işverene açıkça hatırlatır." data-fr="Le 1er paragraphe de la lettre rappelle expressément cette voie juridique au recruteur.">Mektubun 1. paragrafı bu yasal yolu işverene açıkça hatırlatır.</div>
+            <!-- Écusson officiel rappelant la voie sélectionnée (rendu en JS selon la langue) -->
+            <div id="bld-gen-modal-ecusson" class="ecusson-card-header ecusson-voie-2 bld-ecusson-flush">
+                <div class="ecusson-header-title">🤝 KAPI 2 ÖNCELİKLİ : ŞİRKET İÇİ TRANSFER ICT (CCIFT &amp; DEİK)</div>
+                <div class="ecusson-header-sub">Mektubun 1. paragrafı bu yasal yolu işverene açıkça hatırlatır.</div>
             </div>
 
             <!-- Onglets Type de Document -->
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                <div class="bld-modal-tabs">
-                    <button class="bld-modal-tab-btn active" id="bld-tab-email-btn" onclick="window.CoverLetterGenerator.setTab('email')" data-tr="📧 Kısa İK Tanıtım E-postası (InMail / Email)" data-fr="📧 Email Court / InMail LinkedIn">📧 Kısa İK Tanıtım E-postası (InMail / Email)</button>
-                    <button class="bld-modal-tab-btn" id="bld-tab-letter-btn" onclick="window.CoverLetterGenerator.setTab('letter')" data-tr="📄 Resmi Fransızca Ön Yazı (Lettre Formelle)" data-fr="📄 Lettre de Motivation Formelle">📄 Resmi Fransızca Ön Yazı (Lettre Formelle)</button>
+            <div class="bld-gen-toolbar">
+                <div class="bld-modal-tabs" role="tablist">
+                    <button type="button" class="bld-modal-tab-btn active" id="bld-tab-email-btn" role="tab" onclick="window.CoverLetterGenerator.setTab('email')" data-tr="📧 Kısa İK E-postası (InMail)" data-fr="📧 Email court / InMail">📧 Kısa İK E-postası (InMail)</button>
+                    <button type="button" class="bld-modal-tab-btn" id="bld-tab-letter-btn" role="tab" onclick="window.CoverLetterGenerator.setTab('letter')" data-tr="📄 Resmi Ön Yazı (Lettre)" data-fr="📄 Lettre de motivation">📄 Resmi Ön Yazı (Lettre)</button>
                 </div>
-                <span style="font-size: 0.8rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; background: #e0f2fe; color: #0369a1;" data-tr="Hukuki Uyarlama Aktif" data-fr="Ciblage Juridique Actif">Hukuki Uyarlama Aktif</span>
+                <span class="bld-info-pill" data-tr="Hukuki Uyarlama Aktif" data-fr="Ciblage Juridique Actif">Hukuki Uyarlama Aktif</span>
             </div>
 
             <!-- Sélecteur de Voies / Organismes -->
             <div>
-                <label class="bld-form-label" style="margin-bottom: 6px; display: block;" data-tr="🏢 Öncelikli Hukuki Yol (Gerekirse Manuel Değiştirin):" data-fr="🏢 Voie Juridique Prioritaire (Modifiable manuellement) :">🏢 Öncelikli Hukuki Yol (Gerekirse Manuel Değiştirin):</label>
+                <label class="bld-form-label bld-form-label-block" data-tr="🏢 Öncelikli Kapı / Yol (Gerekirse Manuel Değiştirin):" data-fr="🏢 Voie prioritaire (modifiable manuellement) :">🏢 Öncelikli Kapı / Yol (Gerekirse Manuel Değiştirin):</label>
                 <div class="bld-org-type-selector">
-                    <button class="bld-org-type-btn" id="bld-btn-voie-voie_1" onclick="window.CoverLetterGenerator.setVoie('voie_1')">
-                        🏛️ Voie 1 : Statut MAE<br><small style="font-weight: 400; color: #64748b;" data-tr="MEAE Özel Statüsü (Vizesiz)" data-fr="Protocole MEAE (Statut Spécial)">MEAE Özel Statüsü (Vizesiz)</small>
+                    <button type="button" class="bld-org-type-btn" id="bld-btn-voie-voie_1" onclick="window.CoverLetterGenerator.setVoie('voie_1')">
+                        <span class="bld-org-type-name" data-tr="🏛️ Kapı 1 : MAE Statüsü" data-fr="🏛️ Voie 1 : Statut MAE">🏛️ Kapı 1 : MAE Statüsü</span>
+                        <small class="bld-org-type-sub" data-tr="MEAE Özel Statüsü (Klasik İzin Yok)" data-fr="Protocole MEAE (Statut Spécial)">MEAE Özel Statüsü (Klasik İzin Yok)</small>
                     </button>
-                    <button class="bld-org-type-btn active" id="bld-btn-voie-voie_2" onclick="window.CoverLetterGenerator.setVoie('voie_2')">
-                        🤝 Voie 2 : CCIFT &amp; DEİK<br><small style="font-weight: 400; color: #64748b;" data-tr="ICT Salarié Détaché &amp; İkili Anlaşma" data-fr="Salarié Détaché ICT &amp; Accord 1972">ICT Salarié Détaché &amp; İkili Anlaşma</small>
+                    <button type="button" class="bld-org-type-btn active" id="bld-btn-voie-voie_2" onclick="window.CoverLetterGenerator.setVoie('voie_2')">
+                        <span class="bld-org-type-name" data-tr="🤝 Kapı 2 : CCIFT &amp; DEİK" data-fr="🤝 Voie 2 : CCIFT &amp; DEİK">🤝 Kapı 2 : CCIFT &amp; DEİK</span>
+                        <small class="bld-org-type-sub" data-tr="ICT Şirket İçi Transfer &amp; İkili Anlaşma" data-fr="Salarié Détaché ICT &amp; Accord 1972">ICT Şirket İçi Transfer &amp; İkili Anlaşma</small>
                     </button>
-                    <button class="bld-org-type-btn" id="bld-btn-voie-voie_3" onclick="window.CoverLetterGenerator.setVoie('voie_3')">
-                        ⚡ Voie 3 : Passeport Talent<br><small style="font-weight: 400; color: #64748b;" data-tr="French Tech &amp; %100 İngilizce" data-fr="French Tech &amp; 100% Anglais">French Tech &amp; %100 İngilizce</small>
+                    <button type="button" class="bld-org-type-btn" id="bld-btn-voie-voie_3" onclick="window.CoverLetterGenerator.setVoie('voie_3')">
+                        <span class="bld-org-type-name" data-tr="⚡ Kapı 3 : Passeport Talent" data-fr="⚡ Voie 3 : Passeport Talent">⚡ Kapı 3 : Passeport Talent</span>
+                        <small class="bld-org-type-sub" data-tr="French Tech &amp; %100 İngilizce" data-fr="French Tech &amp; 100% Anglais">French Tech &amp; %100 İngilizce</small>
                     </button>
-                    <button class="bld-org-type-btn" id="bld-btn-voie-autre" onclick="window.CoverLetterGenerator.setVoie('autre')">
-                        🏢 Voie 4 : Standart<br><small style="font-weight: 400; color: #64748b;" data-tr="Klasik Çalışma İzni &amp; VLS-TS" data-fr="Autorisation Travail &amp; VLS-TS">Klasik Çalışma İzni &amp; VLS-TS</small>
+                    <button type="button" class="bld-org-type-btn" id="bld-btn-voie-autre" onclick="window.CoverLetterGenerator.setVoie('autre')">
+                        <span class="bld-org-type-name" data-tr="🏢 Standart Yol" data-fr="🏢 Voie standard">🏢 Standart Yol</span>
+                        <small class="bld-org-type-sub" data-tr="Klasik Çalışma İzni &amp; VLS-TS" data-fr="Autorisation Travail &amp; VLS-TS">Klasik Çalışma İzni &amp; VLS-TS</small>
                     </button>
                 </div>
             </div>
@@ -113,119 +118,135 @@
             <!-- Formulaire Aday Bilgileri -->
             <div class="bld-candidate-form-grid">
                 <div class="bld-form-group">
-                    <label class="bld-form-label" data-tr="Adınız Soyadınız :" data-fr="Nom &amp; Prénom :">Adınız Soyadınız :</label>
-                    <input type="text" id="bld-cand-name" class="bld-form-input" value="Can Yılmaz" oninput="window.CoverLetterGenerator.updatePreview()">
+                    <label class="bld-form-label" for="bld-cand-name" data-tr="Adınız Soyadınız :" data-fr="Nom &amp; Prénom :">Adınız Soyadınız :</label>
+                    <input type="text" id="bld-cand-name" class="bld-form-input" value="Can Yılmaz" autocomplete="name" oninput="window.CoverLetterGenerator.updatePreview()">
                 </div>
                 <div class="bld-form-group">
-                    <label class="bld-form-label" data-tr="Mevcut Ünvanınız / Uzmanlığınız :" data-fr="Poste actuel / Expertise :">Mevcut Ünvanınız / Uzmanlığınız :</label>
-                    <input type="text" id="bld-cand-title" class="bld-form-input" value="Senior Software Engineer / Uzman Yönetici" oninput="window.CoverLetterGenerator.updatePreview()">
+                    <label class="bld-form-label" for="bld-cand-title" data-tr="Mevcut Ünvanınız / Uzmanlığınız :" data-fr="Poste actuel / Expertise :">Mevcut Ünvanınız / Uzmanlığınız :</label>
+                    <input type="text" id="bld-cand-title" class="bld-form-input" value="Senior Software Engineer / Uzman Yönetici" autocomplete="organization-title" oninput="window.CoverLetterGenerator.updatePreview()">
                 </div>
                 <div class="bld-form-group">
-                    <label class="bld-form-label" data-tr="Deneyim Yılı :" data-fr="Années d'expérience :">Deneyim Yılı :</label>
-                    <input type="text" id="bld-cand-exp" class="bld-form-input" value="6" oninput="window.CoverLetterGenerator.updatePreview()">
+                    <label class="bld-form-label" for="bld-cand-exp" data-tr="Deneyim Yılı :" data-fr="Années d'expérience :">Deneyim Yılı :</label>
+                    <input type="text" id="bld-cand-exp" class="bld-form-input" value="6" inputmode="numeric" oninput="window.CoverLetterGenerator.updatePreview()">
                 </div>
                 <div class="bld-form-group">
-                    <label class="bld-form-label" data-tr="Öne Çıkan Yetkinlikleriniz :" data-fr="Compétences clés :">Öne Çıkan Yetkinlikleriniz :</label>
+                    <label class="bld-form-label" for="bld-cand-skills" data-tr="Öne Çıkan Yetkinlikleriniz (Fransızca) :" data-fr="Compétences clés :">Öne Çıkan Yetkinlikleriniz (Fransızca) :</label>
                     <input type="text" id="bld-cand-skills" class="bld-form-input" value="Systèmes distribués, Cloud, optimisation des flux internationaux" oninput="window.CoverLetterGenerator.updatePreview()">
                 </div>
             </div>
 
-            <!-- Zone de Prévisualisation du Texte en Français Soutenu -->
+            <!-- Zone de Prévisualisation du Texte en Français Soutenu (le texte reste en français : destiné au recruteur) -->
             <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <label class="bld-form-label" style="font-weight: 800;" data-tr="📄 Oluşturulan Fransızca Metin (Kullanıma Hazır) :" data-fr="📄 Texte Français Généré (Prêt à l'emploi) :">📄 Oluşturulan Fransızca Metin (Kullanıma Hazır) :</label>
-                    <span style="font-size: 0.8rem; color: #64748b;" data-tr="Fransız İş Hukuku ve Diplomatik Standartlara Tam Uyumlu" data-fr="100% Conforme Droit du Travail Français">Fransız İş Hukuku ve Diplomatik Standartlara Tam Uyumlu</span>
+                <div class="bld-preview-head">
+                    <label class="bld-form-label bld-form-label-strong" data-tr="📄 Oluşturulan Fransızca Metin (Kullanıma Hazır) :" data-fr="📄 Texte Français Généré (Prêt à l'emploi) :">📄 Oluşturulan Fransızca Metin (Kullanıma Hazır) :</label>
+                    <span class="bld-hint-text" data-tr="Fransız İş Hukuku ve Diplomatik Standartlara Uyumlu" data-fr="Conforme au droit du travail français">Fransız İş Hukuku ve Diplomatik Standartlara Uyumlu</span>
                 </div>
-                <div class="bld-letter-preview-box" id="bld-gen-preview"></div>
+                <div class="bld-letter-preview-box" id="bld-gen-preview" lang="fr"></div>
             </div>
         </div>
-        
-        <div class="bld-modal-footer">
-            <div style="font-size: 0.82rem; color: #64748b;" data-tr="Metni 1-tıkla kopyalayıp LinkedIn InMail veya e-posta olarak doğrudan gönderebilirsiniz." data-fr="Copiez le texte en 1 clic pour l'envoyer directement par email ou LinkedIn InMail.">Metni 1-tıkla kopyalayıp LinkedIn InMail veya e-posta olarak doğrudan gönderebilirsiniz.</div>
-            <div style="display: flex; gap: 8px;">
-                <button class="bld-btn-secondary" onclick="window.CoverLetterGenerator.download()" data-tr="📥 İndir (.txt)" data-fr="📥 Télécharger (.txt)">📥 İndir (.txt)</button>
-                <button class="bld-btn-primary" onclick="window.CoverLetterGenerator.copy()" id="bld-copy-btn" data-tr="📋 Tek Tıkla Kopyala" data-fr="📋 Copier en 1-Clic">📋 Tek Tıkla Kopyala</button>
+
+        <div class="bld-modal-footer bld-gen-actions">
+            <div class="bld-hint-text bld-footer-hint" data-tr="Metni kopyalayın veya doğrudan WhatsApp, Gmail ya da LinkedIn ile paylaşın." data-fr="Copiez le texte ou partagez-le directement via WhatsApp, Gmail ou LinkedIn.">Metni kopyalayın veya doğrudan WhatsApp, Gmail ya da LinkedIn ile paylaşın.</div>
+            <div class="bld-actions-row">
+                <button type="button" class="bld-btn-secondary bld-btn-icon-mobile" onclick="window.CoverLetterGenerator.download()" title="İndir (.txt)" aria-label="İndir (.txt) / Télécharger (.txt)" data-tooltip-tr="İndir (.txt)" data-tooltip-fr="Télécharger (.txt)">
+                    <span aria-hidden="true">📥</span><span class="bld-btn-label" data-tr="İndir (.txt)" data-fr="Télécharger (.txt)">İndir (.txt)</span>
+                </button>
+                <button type="button" class="bld-btn-secondary bld-btn-grow" onclick="window.CoverLetterGenerator.copy()" id="bld-copy-btn">
+                    <span aria-hidden="true">📋</span><span class="bld-btn-label" id="bld-copy-btn-label" data-tr="Kopyala" data-fr="Copier">Kopyala</span>
+                </button>
+                <button type="button" class="bld-btn-primary bld-btn-grow" onclick="window.CoverLetterGenerator.share()" id="bld-share-btn">
+                    <span aria-hidden="true">📤</span><span class="bld-btn-label" data-tr="Paylaş" data-fr="Partager">Paylaş</span>
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 3. MODAL GUIDE BILINGUE PRATIQUE DE L'EXPATRIATION & CV -->
+<!-- 3. MODAL / BOTTOM SHEET GUIDE BILINGUE PRATIQUE DE L'EXPATRIATION & CV -->
 <div class="bld-modal-overlay" id="bld-guide-modal-overlay" onclick="if(event.target.id === 'bld-guide-modal-overlay') window.MobilityGuide.close();">
-    <div class="bld-modal-card" style="width: 880px;">
+    <div class="bld-modal-card bld-modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="bld-guide-modal-title">
         <div class="bld-modal-header">
-            <div>
-                <div class="bld-modal-title" data-tr="📘 Türkiye'den Fransa'ya Kariyer, Vize &amp; CV Standartları Rehberi" data-fr="📘 Guide Carrière, Visas &amp; Standards de CV (Turquie ➔ France)">📘 Türkiye'den Fransa'ya Kariyer, Vize &amp; CV Standartları Rehberi</div>
-                <div style="font-size: 0.85rem; color: #64748b; margin-top: 2px;" data-tr="Türkçe / Fransızca Çift Dilli Hukuki ve Pratik Bilgiler" data-fr="Informations juridiques et pratiques bilingues FR / TR">Türkçe / Fransızca Çift Dilli Hukuki ve Pratik Bilgiler</div>
+            <div class="bld-header-text">
+                <div class="bld-modal-title" id="bld-guide-modal-title" data-tr="📘 Türkiye'den Fransa'ya Kariyer, Vize &amp; CV Standartları Rehberi" data-fr="📘 Guide Carrière, Visas &amp; Standards de CV (Turquie ➔ France)">📘 Türkiye'den Fransa'ya Kariyer, Vize &amp; CV Standartları Rehberi</div>
+                <div class="bld-modal-subtitle" data-tr="Türkçe / Fransızca Çift Dilli Hukuki ve Pratik Bilgiler" data-fr="Informations juridiques et pratiques bilingues FR / TR">Türkçe / Fransızca Çift Dilli Hukuki ve Pratik Bilgiler</div>
             </div>
-            <button class="bld-close-btn" onclick="window.MobilityGuide.close()" data-tooltip-tr="Kapat" data-tooltip-fr="Fermer">✕</button>
+            <button type="button" class="bld-close-btn" onclick="window.MobilityGuide.close()" title="Kapat" aria-label="Kapat / Fermer" data-tooltip-tr="Kapat" data-tooltip-fr="Fermer">✕</button>
         </div>
-        
+
         <div class="bld-modal-body">
-            <div class="bld-modal-tabs">
-                <button class="bld-modal-tab-btn active" id="bld-guide-tab-visas-btn" onclick="window.MobilityGuide.setTab('visas')" data-tr="🛂 3 Öncelikli Vize Türü (Voies 1, 2, 3)" data-fr="🛂 Les 3 Visas Prioritaires (Voies 1, 2, 3)">🛂 3 Öncelikli Vize Türü (Voies 1, 2, 3)</button>
-                <button class="bld-modal-tab-btn" id="bld-guide-tab-cv-btn" onclick="window.MobilityGuide.setTab('cv')" data-tr="📝 CV Formatlama (TR Standartları ➔ Fransa)" data-fr="📝 Adaptation du CV (Standards TR ➔ FR)">📝 CV Formatlama (TR Standartları ➔ Fransa)</button>
+            <div class="bld-modal-tabs" role="tablist">
+                <button type="button" class="bld-modal-tab-btn active" id="bld-guide-tab-visas-btn" role="tab" onclick="window.MobilityGuide.setTab('visas')" data-tr="🛂 3 Öncelikli Kapı + Standart Yol" data-fr="🛂 3 Voies prioritaires + voie standard">🛂 3 Öncelikli Kapı + Standart Yol</button>
+                <button type="button" class="bld-modal-tab-btn" id="bld-guide-tab-cv-btn" role="tab" onclick="window.MobilityGuide.setTab('cv')" data-tr="📝 CV Formatlama (TR ➔ Fransa)" data-fr="📝 Adaptation du CV (TR ➔ FR)">📝 CV Formatlama (TR ➔ Fransa)</button>
             </div>
 
-            <!-- Onglet 1 : Fiche Synthétique des 3 Visas -->
+            <!-- Onglet 1 : Fiche Synthétique des 3 Voies prioritaires + voie standard -->
             <div id="bld-guide-content-visas">
-                <h4 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin-bottom: 8px;" data-tr="Fransa'ya Türkiye'den Doğrudan İstihdamda 3 Ana Hukuki Yol" data-fr="Les 3 Voies Juridiques Principales pour Travailler en France">Fransa'ya Türkiye'den Doğrudan İstihdamda 3 Ana Hukuki Yol</h4>
-                <table style="width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 12px 0;">
-                    <thead>
-                        <tr style="background: #f8fafc; text-align: left;">
-                            <th style="padding: 10px; border: 1px solid #e2e8f0;" data-tr="Öncelikli Yol &amp; Écusson" data-fr="Voie Juridique &amp; Écusson">Öncelikli Yol &amp; Écusson</th>
-                            <th style="padding: 10px; border: 1px solid #e2e8f0;" data-tr="Hedef Aday &amp; Kurumlar" data-fr="Candidats &amp; Organismes Cibles">Hedef Aday &amp; Kurumlar</th>
-                            <th style="padding: 10px; border: 1px solid #e2e8f0;" data-tr="VFS Süresi" data-fr="Délai VFS">VFS Süresi</th>
-                            <th style="padding: 10px; border: 1px solid #e2e8f0;" data-tr="Eşin Çalışma Hakkı" data-fr="Travail du Conjoint">Eşin Çalışma Hakkı</th>
-                            <th style="padding: 10px; border: 1px solid #e2e8f0;" data-tr="Temel Hukuki Avantaj" data-fr="Avantage Clé">Temel Hukuki Avantaj</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>🏛️ Voie 1 : Statut International MAE</strong></td>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Avrupa Konseyi, OECD, UNESCO, INTERPOL, DSÖ/IARC</td>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;" data-tr="Öncelikli Diplomatik" data-fr="Diplomatique Prioritaire">Öncelikli Diplomatik</td>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;" data-tr="✅ Evet (Özel Protokol)" data-fr="✅ Oui (Protocole Spécial)">✅ Evet (Özel Protokol)</td>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;" data-tr="Klasik vize/çalışma izni aranmaz, gelir vergisi muafiyeti &amp; tam relokasyon." data-fr="Exonération de permis de travail, exonération fiscale et relocalisation complète.">Klasik vize/çalışma izni aranmaz, gelir vergisi muafiyeti &amp; tam relokasyon.</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>🤝 Voie 2 : Salarié Détaché ICT</strong></td>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;">CCIFT / DEİK üyesi holdingler (Beko, THY, Ekol, Şişecam, Vestel...)</td>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;" data-tr="10 - 15 Gün" data-fr="10 à 15 jours">10 - 15 Gün</td>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;" data-tr="✅ Evet (ICT Aile)" data-fr="✅ Oui (Titre Famille ICT)">✅ Evet (ICT Aile)</td>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;" data-tr="1972 İkili Anlaşması. Pôle Emploi iş piyasası kısıtlamasından %100 muaftır." data-fr="Accord bilatéral de 1972. Exonération opposabilité du marché de l'emploi.">1972 İkili Anlaşması. Pôle Emploi iş piyasası kısıtlamasından %100 muaftır.</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>⚡ Voie 3 : Passeport Talent</strong></td>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Paris Tech Scale-up'ları (Mistral, Qonto, Datadog...) ve Yüksek Nitelik</td>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;" data-tr="15 - 20 Gün" data-fr="15 à 20 jours">15 - 20 Gün</td>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;" data-tr="✅ Evet (Tam Hak)" data-fr="✅ Oui (Plein Droit)">✅ Evet (Tam Hak)</td>
-                            <td style="padding: 10px; border: 1px solid #e2e8f0;" data-tr="Doğrudan 4 yıllık oturum kartı; %100 İngilizce çalışma ortamı." data-fr="Titre pluriannuel 4 ans direct ; environnement de travail 100% anglais.">Doğrudan 4 yıllık oturum kartı; %100 İngilizce çalışma ortamı.</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <h4 class="bld-section-title" data-tr="Türkiye'den Fransa'da İstihdam : 3 Öncelikli Kapı + Standart Yol" data-fr="Travailler en France depuis la Turquie : 3 voies prioritaires + voie standard">Türkiye'den Fransa'da İstihdam : 3 Öncelikli Kapı + Standart Yol</h4>
+                <div class="bld-table-scroll">
+                    <table class="bld-guide-table">
+                        <thead>
+                            <tr>
+                                <th data-tr="Kapı / Yol" data-fr="Voie juridique">Kapı / Yol</th>
+                                <th data-tr="Hedef Aday &amp; Kurumlar" data-fr="Candidats &amp; Organismes Cibles">Hedef Aday &amp; Kurumlar</th>
+                                <th data-tr="VFS Süresi" data-fr="Délai VFS">VFS Süresi</th>
+                                <th data-tr="Eşin Çalışma Hakkı" data-fr="Travail du Conjoint">Eşin Çalışma Hakkı</th>
+                                <th data-tr="Temel Hukuki Avantaj" data-fr="Avantage Clé">Temel Hukuki Avantaj</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong data-tr="🏛️ Kapı 1 : Uluslararası Statü (MAE)" data-fr="🏛️ Voie 1 : Statut International MAE">🏛️ Kapı 1 : Uluslararası Statü (MAE)</strong></td>
+                                <td>Avrupa Konseyi, OECD, UNESCO, INTERPOL, DSÖ/IARC</td>
+                                <td data-tr="Öncelikli Diplomatik" data-fr="Diplomatique Prioritaire">Öncelikli Diplomatik</td>
+                                <td data-tr="✅ Evet (Özel Protokol)" data-fr="✅ Oui (Protocole Spécial)">✅ Evet (Özel Protokol)</td>
+                                <td data-tr="Klasik vize/çalışma izni aranmaz, gelir vergisi muafiyeti &amp; tam relokasyon." data-fr="Exonération de permis de travail, exonération fiscale et relocalisation complète.">Klasik vize/çalışma izni aranmaz, gelir vergisi muafiyeti &amp; tam relokasyon.</td>
+                            </tr>
+                            <tr>
+                                <td><strong data-tr="🤝 Kapı 2 : Şirket İçi Transfer (ICT)" data-fr="🤝 Voie 2 : Salarié Détaché ICT">🤝 Kapı 2 : Şirket İçi Transfer (ICT)</strong></td>
+                                <td data-tr="CCIFT / DEİK üyesi holdingler (Beko, THY, Ekol, Şişecam, Vestel...)" data-fr="Groupes membres CCIFT / DEİK (Beko, THY, Ekol, Şişecam, Vestel...)">CCIFT / DEİK üyesi holdingler (Beko, THY, Ekol, Şişecam, Vestel...)</td>
+                                <td data-tr="10 - 15 Gün" data-fr="10 à 15 jours">10 - 15 Gün</td>
+                                <td data-tr="✅ Evet (ICT Aile)" data-fr="✅ Oui (Titre Famille ICT)">✅ Evet (ICT Aile)</td>
+                                <td data-tr="1972 İkili Anlaşması. Pôle Emploi iş piyasası kısıtlamasından %100 muaftır." data-fr="Accord bilatéral de 1972. Exonération opposabilité du marché de l'emploi.">1972 İkili Anlaşması. Pôle Emploi iş piyasası kısıtlamasından %100 muaftır.</td>
+                            </tr>
+                            <tr>
+                                <td><strong data-tr="⚡ Kapı 3 : Passeport Talent" data-fr="⚡ Voie 3 : Passeport Talent">⚡ Kapı 3 : Passeport Talent</strong></td>
+                                <td data-tr="Paris Tech Scale-up'ları (Mistral, Qonto, Datadog...) ve Yüksek Nitelik" data-fr="Scale-ups tech parisiennes (Mistral, Qonto, Datadog...) et profils qualifiés">Paris Tech Scale-up'ları (Mistral, Qonto, Datadog...) ve Yüksek Nitelik</td>
+                                <td data-tr="15 - 20 Gün" data-fr="15 à 20 jours">15 - 20 Gün</td>
+                                <td data-tr="✅ Evet (Tam Hak)" data-fr="✅ Oui (Plein Droit)">✅ Evet (Tam Hak)</td>
+                                <td data-tr="Doğrudan 4 yıllık oturum kartı; %100 İngilizce çalışma ortamı." data-fr="Titre pluriannuel 4 ans direct ; environnement de travail 100% anglais.">Doğrudan 4 yıllık oturum kartı; %100 İngilizce çalışma ortamı.</td>
+                            </tr>
+                            <tr class="bld-row-standard">
+                                <td><strong data-tr="🏢 Standart Yol : VLS-TS Salarié" data-fr="🏢 Voie standard : VLS-TS Salarié">🏢 Standart Yol : VLS-TS Salarié</strong></td>
+                                <td data-tr="Diğer tüm işverenler (KOBİ, yerel işletmeler)" data-fr="Tous les autres employeurs (PME, commerces)">Diğer tüm işverenler (KOBİ, yerel işletmeler)</td>
+                                <td data-tr="ANEF izni onayından sonra" data-fr="Après l'autorisation ANEF">ANEF izni onayından sonra</td>
+                                <td data-tr="⚠️ Aile birleşimi prosedürü" data-fr="⚠️ Procédure de regroupement familial">⚠️ Aile birleşimi prosedürü</td>
+                                <td data-tr="Her sektörde geçerli; işveren ANEF üzerinden çalışma izni alır." data-fr="Valable dans tous les secteurs ; l'employeur obtient l'autorisation de travail via l'ANEF.">Her sektörde geçerli; işveren ANEF üzerinden çalışma izni alır.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-                <div style="margin-top: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px;">
-                    <h5 style="font-size: 0.92rem; font-weight: 800; margin-bottom: 6px; color: #0f172a;" data-tr="📍 Türkiye'deki Resmi VFS Global Fransa Vize Merkezleri:" data-fr="📍 Centres Officiels VFS Global Visas France en Turquie :">📍 Türkiye'deki Resmi VFS Global Fransa Vize Merkezleri:</h5>
-                    <p style="font-size: 0.85rem; color: #334155; line-height: 1.5;">
+                <div class="bld-info-card">
+                    <h5 data-tr="📍 Türkiye'deki Resmi VFS Global Fransa Vize Merkezleri:" data-fr="📍 Centres Officiels VFS Global Visas France en Turquie :">📍 Türkiye'deki Resmi VFS Global Fransa Vize Merkezleri:</h5>
+                    <p>
                         • <strong>İstanbul (Avrupa) :</strong> Hacıahmet Mah. Kurtuluş Deresi Cad. No:29 Harbiye / Beyoğlu<br>
                         • <strong>İstanbul (Anadolu) :</strong> Altunizade Mah. Mahir İz Cad. No:13 Üsküdar<br>
                         • <strong>Ankara :</strong> İşçi Blokları Mah. Muhsin Yazıcıoğlu Cad. No:57 Çankaya<br>
                         • <strong>İzmir :</strong> Akdeniz Mah. Akdeniz Cad. No:1/C Konak / Alsancak<br>
-                        <span data-tr="Resmi Vize Başvuru Portalı : " data-fr="Portail Officiel des Visas : ">Resmi Vize Başvuru Portalı : </span><a href="https://france-visas.gouv.fr" target="_blank" style="color: #2563eb; font-weight: 700; text-decoration: underline;">france-visas.gouv.fr</a>
+                        <span data-tr="Resmi Vize Başvuru Portalı : " data-fr="Portail Officiel des Visas : ">Resmi Vize Başvuru Portalı : </span><a href="https://france-visas.gouv.fr" target="_blank" rel="noopener" class="bld-link bld-link-strong">france-visas.gouv.fr</a>
                     </p>
                 </div>
             </div>
 
             <!-- Onglet 2 : Conseils de Conversion du CV Turc vers le Standard Français -->
             <div id="bld-guide-content-cv" style="display: none;">
-                <h4 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin-bottom: 4px;" data-tr="Türkiye'deki CV Alışkanlıkları vs. Fransa Standartları" data-fr="Standards de CV : Turquie vs France">Türkiye'deki CV Alışkanlıkları vs. Fransa Standartları</h4>
-                <p style="font-size: 0.86rem; color: #64748b; margin-bottom: 12px;" data-tr="Fransız İK uzmanları ve ATS tarayıcıları Türkiye formatındaki uzun ve kişisel detaylı CV'leri doğrudan elemektedir." data-fr="Les recruteurs et ATS français privilégient les CV synthétiques d'une page et sans informations personnelles discriminatoires.">Fransız İK uzmanları ve ATS tarayıcıları Türkiye formatındaki uzun ve kişisel detaylı CV'leri doğrudan elemektedir.</p>
+                <h4 class="bld-section-title" data-tr="Türkiye'deki CV Alışkanlıkları vs. Fransa Standartları" data-fr="Standards de CV : Turquie vs France">Türkiye'deki CV Alışkanlıkları vs. Fransa Standartları</h4>
+                <p class="bld-section-desc" data-tr="Fransız İK uzmanları ve ATS tarayıcıları Türkiye formatındaki uzun ve kişisel detaylı CV'leri doğrudan elemektedir." data-fr="Les recruteurs et ATS français privilégient les CV synthétiques d'une page et sans informations personnelles discriminatoires.">Fransız İK uzmanları ve ATS tarayıcıları Türkiye formatındaki uzun ve kişisel detaylı CV'leri doğrudan elemektedir.</p>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div style="background: #fff5f5; border: 1px solid #fecaca; border-radius: 10px; padding: 16px;">
-                        <h5 style="color: #991b1b; font-weight: 800; margin-bottom: 8px;" data-tr="❌ Türkiye Formatında Olan ve CV'den SİLİNMESİ Gerekenler:" data-fr="❌ À SUPPRIMER d'un CV format turc vers la France :">❌ Türkiye Formatında Olan ve CV'den SİLİNMESİ Gerekenler:</h5>
-                        <ul style="padding-left: 20px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px; color: #7f1d1d;">
+                <div class="bld-cv-grid">
+                    <div class="bld-cv-box bld-cv-box-dont">
+                        <h5 data-tr="❌ Türkiye Formatında Olan ve CV'den SİLİNMESİ Gerekenler:" data-fr="❌ À SUPPRIMER d'un CV format turc vers la France :">❌ Türkiye Formatında Olan ve CV'den SİLİNMESİ Gerekenler:</h5>
+                        <ul>
                             <li data-tr="<strong>Doğum Tarihi / Yaş :</strong> Fransa'da yaş ayrımcılığı kanunen yasaktır (İş Kanunu m. L1132-1). Asla yaş yazmayın." data-fr="<strong>Date de naissance / Âge :</strong> Discrimination interdite par la loi (C. trav. L1132-1). Ne jamais mentionner l'âge."><strong>Doğum Tarihi / Yaş :</strong> Fransa'da yaş ayrımcılığı kanunen yasaktır (İş Kanunu m. L1132-1). Asla yaş yazmayın.</li>
                             <li data-tr="<strong>Medeni Durum &amp; Çocuk :</strong> Bekar, evli, çocuk sayısı gibi özel hayat bilgileri kesinlikle yer almaz." data-fr="<strong>Situation familiale :</strong> Célibataire, marié, enfants : strictement proscrit."><strong>Medeni Durum &amp; Çocuk :</strong> Bekar, evli, çocuk sayısı gibi özel hayat bilgileri kesinlikle yer almaz.</li>
                             <li data-tr="<strong>Askerlik Durumu :</strong> Fransa'da askerlik yükümlülüğü olmadığından recruteur için anlamsızdır, tamamen silin." data-fr="<strong>Service militaire :</strong> Inexistant en France, à supprimer totalement."><strong>Askerlik Durumu :</strong> Fransa'da askerlik yükümlülüğü olmadığından recruteur için anlamsızdır, tamamen silin.</li>
@@ -233,9 +254,9 @@
                             <li data-tr="<strong>Vesikalık Fotoğraf :</strong> Standart kimlik fotoğrafı koymayın. İsteğe bağlı profesyonel güler yüzlü fotoğraf olabilir veya fotoğrafsız sunulabilir." data-fr="<strong>Photo d'identité :</strong> Facultative. Si présente, photo corporate souriante et sobre."><strong>Vesikalık Fotoğraf :</strong> Standart kimlik fotoğrafı koymayın. İsteğe bağlı profesyonel güler yüzlü fotoğraf olabilir veya fotoğrafsız sunulabilir.</li>
                         </ul>
                     </div>
-                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 16px;">
-                        <h5 style="color: #166534; font-weight: 800; margin-bottom: 8px;" data-tr="✅ Fransa İçin DÖNÜŞTÜRÜLMESİ ve EKLENMESİ Gerekenler:" data-fr="✅ À AJOUTER &amp; ADAPTER aux normes françaises :">✅ Fransa İçin DÖNÜŞTÜRÜLMESİ ve EKLENMESİ Gerekenler:</h5>
-                        <ul style="padding-left: 20px; font-size: 0.88rem; display: flex; flex-direction: column; gap: 6px; color: #14532d;">
+                    <div class="bld-cv-box bld-cv-box-do">
+                        <h5 data-tr="✅ Fransa İçin DÖNÜŞTÜRÜLMESİ ve EKLENMESİ Gerekenler:" data-fr="✅ À AJOUTER &amp; ADAPTER aux normes françaises :">✅ Fransa İçin DÖNÜŞTÜRÜLMESİ ve EKLENMESİ Gerekenler:</h5>
+                        <ul>
                             <li data-tr="<strong>1 Sayfa Kuralı :</strong> 10 yıldan az deneyimliler için CV kesinlikle 1 sayfayı geçmemelidir (2 sayfa sadece C-Level için)." data-fr="<strong>Règle d'une page :</strong> Strictement 1 page pour moins de 10 ans d'expérience."><strong>1 Sayfa Kuralı :</strong> 10 yıldan az deneyimliler için CV kesinlikle 1 sayfayı geçmemelidir (2 sayfa sadece C-Level için).</li>
                             <li data-tr="<strong>Diplomaların Fransız Karşılığı :</strong> Lisans = 'Bac+4 (Licence/Master 1)', Yüksek Lisans = 'Bac+5 (Master 2)', Doktora = 'Bac+8 (Doctorat)'." data-fr="<strong>Équivalences de diplômes :</strong> Lisans = Bac+4, Yüksek Lisans = Bac+5 (Master 2), Doktora = Bac+8."><strong>Diplomaların Fransız Karşılığı :</strong> Lisans = 'Bac+4 (Licence/Master 1)', Yüksek Lisans = 'Bac+5 (Master 2)', Doktora = 'Bac+8 (Doctorat)'.</li>
                             <li data-tr="<strong>Dil Seviyeleri (CECRL) :</strong> 'İyi / Orta' yerine A1, A2, B1, B2, C1, C2 ölçeği kullanılmalıdır (Örn: Anglais C1, Turc natif)." data-fr="<strong>Niveaux de langues (CECRL) :</strong> Utiliser impérativement A1 à C2 (ex: Anglais C1, Turc bilingue)."><strong>Dil Seviyeleri (CECRL) :</strong> 'İyi / Orta' yerine A1, A2, B1, B2, C1, C2 ölçeği kullanılmalıdır (Örn: Anglais C1, Turc natif).</li>
@@ -246,12 +267,12 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bld-modal-footer">
-            <button class="bld-btn-secondary" onclick="window.MobilityGuide.close()" data-tr="Anladım / Kapat" data-fr="Compris / Fermer">Anladım / Kapat</button>
+            <button type="button" class="bld-btn-secondary bld-btn-block-mobile" onclick="window.MobilityGuide.close()" data-tr="Anladım / Kapat" data-fr="Compris / Fermer">Anladım / Kapat</button>
         </div>
     </div>
 </div>
 
 <!-- 4. TOAST NOTIFICATION UNIFIÉ -->
-<div class="bld-toast" id="bld-toast-notification">✓ Metin panoya başarıyla kopyalandı!</div>
+<div class="bld-toast" id="bld-toast-notification" role="status" aria-live="polite"></div>

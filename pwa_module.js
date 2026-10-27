@@ -4,6 +4,8 @@
  * - Gestion de l'événement beforeinstallprompt (Android / Chrome / Edge)
  * - Détection et Guide interactif pour iOS (Safari Add to Home Screen)
  * - Actualisation en 1-clic (Mode Local via /api/refresh & Mode Cloud GitHub Pages)
+ * - Modales en bottom sheet sur mobile + contrat d'historique partagé
+ *   (bouton retour Android) : ids 'pwa-install' et 'pwa-cloud'
  */
 
 (function (window) {
@@ -13,10 +15,106 @@
     let isRefreshing = false;
     let refreshPollInterval = null;
 
+    const BANNER_SNOOZE_MS = 3 * 24 * 60 * 60 * 1000;
+
+    function getLang() {
+        try {
+            return localStorage.getItem('bilateral_lang') || 'tr';
+        } catch (e) {
+            return 'tr';
+        }
+    }
+
+    function isBannerSnoozed() {
+        try {
+            const dismissedTime = localStorage.getItem('pwa_banner_dismissed_time');
+            return !!dismissedTime && (Date.now() - parseInt(dismissedTime, 10)) <= BANNER_SNOOZE_MS;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    // --------------------------------------------------------------------------
+    // CONTRAT D'HISTORIQUE PARTAGÉ (identique à drawer_cover_letter_module.js)
+    // Ouvrir : pushState({ fransaOverlay: id }) ; fermer via l'UI : history.back()
+    // si l'état courant est le nôtre, sinon fermeture directe ; popstate : fermer
+    // l'overlay ouvert dont l'id n'est plus l'état courant, sans toucher à l'historique.
+    // --------------------------------------------------------------------------
+    const PWA_OVERLAYS = {
+        'pwa-install': 'pwa-ios-modal',
+        'pwa-cloud': 'cloud-info-modal'
+    };
+    let pendingBack = false;
+    let pendingBackTimer = null;
+
+    function overlayEl(id) {
+        return document.getElementById(PWA_OVERLAYS[id]);
+    }
+
+    function isPwaOverlayOpen(id) {
+        const el = overlayEl(id);
+        return !!(el && el.style.display === 'flex');
+    }
+
+    function syncPwaScrollLock() {
+        const anyOpen = Object.keys(PWA_OVERLAYS).some(isPwaOverlayOpen);
+        document.documentElement.classList.toggle('pwa-scroll-lock', anyOpen);
+    }
+
+    function showPwaOverlay(id) {
+        const el = overlayEl(id);
+        if (!el) return false;
+        const wasOpen = isPwaOverlayOpen(id);
+        el.style.display = 'flex';
+        syncPwaScrollLock();
+        if (!wasOpen) {
+            try {
+                if (!(history.state && history.state.fransaOverlay === id)) {
+                    history.pushState({ fransaOverlay: id }, '');
+                }
+            } catch (e) { /* History API indisponible */ }
+            const closeBtn = el.querySelector('.pwa-modal-close');
+            if (closeBtn) {
+                setTimeout(() => {
+                    try { closeBtn.focus({ preventScroll: true }); } catch (e) { /* noop */ }
+                }, 60);
+            }
+        }
+        return true;
+    }
+
+    function hidePwaOverlay(id) {
+        const el = overlayEl(id);
+        if (el) el.style.display = 'none';
+        syncPwaScrollLock();
+    }
+
+    function requestClosePwaOverlay(id) {
+        if (!isPwaOverlayOpen(id)) return;
+        let ownsState = false;
+        try {
+            ownsState = !!(history.state && history.state.fransaOverlay === id);
+        } catch (e) {
+            ownsState = false;
+        }
+        if (!ownsState) {
+            hidePwaOverlay(id);
+            return;
+        }
+        if (pendingBack) return;
+        pendingBack = true;
+        clearTimeout(pendingBackTimer);
+        pendingBackTimer = setTimeout(() => { pendingBack = false; }, 800);
+        history.back();
+    }
+
     const PWAHandler = {
         // État de l'appareil
         isIOS: /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
-        isStandalone: window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true,
+        isAndroid: /Android/i.test(navigator.userAgent),
+        isStandalone: window.matchMedia('(display-mode: standalone)').matches
+            || window.matchMedia('(display-mode: fullscreen)').matches
+            || window.navigator.standalone === true,
 
         /**
          * Initialisation complète au chargement de la page
@@ -26,7 +124,37 @@
             this.setupInstallListeners();
             this.checkDisplayMode();
             this.setupLanguageWatchers();
+            this.setupOverlayListeners();
             this.checkServerStatus();
+        },
+
+        /**
+         * Retour Android (popstate), Échap et clic sur le fond pour les modales PWA
+         */
+        setupOverlayListeners() {
+            window.addEventListener('popstate', (event) => {
+                pendingBack = false;
+                clearTimeout(pendingBackTimer);
+                const current = (event.state || {}).fransaOverlay;
+                Object.keys(PWA_OVERLAYS).forEach((id) => {
+                    if (isPwaOverlayOpen(id) && current !== id) {
+                        hidePwaOverlay(id);
+                    }
+                });
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key !== 'Escape') return;
+                Object.keys(PWA_OVERLAYS).forEach((id) => requestClosePwaOverlay(id));
+            });
+
+            Object.keys(PWA_OVERLAYS).forEach((id) => {
+                const el = overlayEl(id);
+                if (!el) return;
+                el.addEventListener('click', (e) => {
+                    if (e.target === el) requestClosePwaOverlay(id);
+                });
+            });
         },
 
         /**
@@ -46,7 +174,7 @@
                                     if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                                         console.log('[PWA] Nouvelle version prête');
                                         if (window.TrackerEngine && window.TrackerEngine.Toast) {
-                                            const lang = localStorage.getItem('bilateral_lang') || 'tr';
+                                            const lang = getLang();
                                             const msg = lang === 'fr' 
                                                 ? "Mise à jour disponible ! Rafraîchissez pour voir les nouveautés." 
                                                 : "Uygulama güncellemesi hazır! Yeni ilanlar için sayfayı yenileyin.";
@@ -86,7 +214,7 @@
                 deferredPrompt = null;
                 this.hideInstallUI();
                 if (window.TrackerEngine && window.TrackerEngine.Toast) {
-                    const lang = localStorage.getItem('bilateral_lang') || 'tr';
+                    const lang = getLang();
                     const msg = lang === 'fr'
                         ? "🎉 Application installée sur votre écran d'accueil !"
                         : "🎉 Uygulama başarıyla ana ekranınıza yüklendi !";
@@ -94,14 +222,9 @@
                 }
             });
 
-            // Pour iOS Safari, on affiche le bouton d'installation si non standalone
-            if (this.isIOS && !this.isStandalone) {
-                // Vérifier si dismissé depuis moins de 3 jours
-                const dismissedTime = localStorage.getItem('pwa_banner_dismissed_time');
-                const now = Date.now();
-                if (!dismissedTime || (now - parseInt(dismissedTime, 10)) > (3 * 24 * 60 * 60 * 1000)) {
-                    this.showInstallUI();
-                }
+            // iOS Safari (secondaire) : pas de beforeinstallprompt, on propose le guide manuel
+            if (this.isIOS && !this.isStandalone && !isBannerSnoozed()) {
+                this.showInstallUI();
             }
         },
 
@@ -116,12 +239,8 @@
             const btn = document.getElementById('pwaInstallBtn');
             const banner = document.getElementById('mobileInstallBanner');
             if (btn) btn.style.display = 'inline-flex';
-            if (banner) {
-                const dismissedTime = localStorage.getItem('pwa_banner_dismissed_time');
-                const now = Date.now();
-                if (!dismissedTime || (now - parseInt(dismissedTime, 10)) > (3 * 24 * 60 * 60 * 1000)) {
-                    banner.style.display = 'flex';
-                }
+            if (banner && !isBannerSnoozed()) {
+                banner.style.display = 'flex';
             }
         },
 
@@ -135,44 +254,61 @@
         dismissBanner() {
             const banner = document.getElementById('mobileInstallBanner');
             if (banner) banner.style.display = 'none';
-            localStorage.setItem('pwa_banner_dismissed_time', Date.now().toString());
+            try {
+                localStorage.setItem('pwa_banner_dismissed_time', Date.now().toString());
+            } catch (e) { /* stockage indisponible */ }
         },
 
         /**
          * Déclenche l'installation de l'application
          */
         promptInstall() {
-            if (this.isIOS) {
-                // Sur iOS, afficher la modal avec le guide visuel Safari
-                this.openIosModal();
-                return;
-            }
-
+            // 1. Android / Chrome (prioritaire) : fenêtre native d'installation en 1 clic
             if (deferredPrompt) {
-                // Sur Android / Chrome, déclenche la fenêtre native 1-clic
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
+                const promptEvent = deferredPrompt;
+                deferredPrompt = null; // un beforeinstallprompt ne peut servir qu'une fois
+                promptEvent.prompt();
+                promptEvent.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                         console.log('[PWA] Utilisateur a accepté l\'installation');
                     } else {
                         console.log('[PWA] Utilisateur a refusé l\'installation');
                     }
-                    deferredPrompt = null;
-                });
-            } else {
-                // Fallback générique
-                this.openIosModal();
+                }).catch(() => { /* noop */ });
+                return;
             }
+
+            // 2. Pas d'invite native disponible : guide manuel (Android Chrome d'abord, iOS ensuite)
+            this.openInstallGuide();
         },
 
+        /**
+         * Guide d'installation manuel : étapes Android (menu ⋮ de Chrome) mises en avant,
+         * étapes iOS (Safari) affichées en premier uniquement sur iPhone / iPad.
+         */
+        openInstallGuide() {
+            const modal = overlayEl('pwa-install');
+            if (modal) {
+                modal.classList.toggle('pwa-platform-ios', this.isIOS);
+                modal.classList.toggle('pwa-platform-android', !this.isIOS);
+                // Sur iOS : étapes Safari dépliées (étapes Android masquées en CSS)
+                const iosSteps = document.getElementById('pwa-steps-ios');
+                if (iosSteps) iosSteps.open = this.isIOS;
+            }
+            showPwaOverlay('pwa-install');
+        },
+
+        closeInstallGuide() {
+            requestClosePwaOverlay('pwa-install');
+        },
+
+        // Alias rétro-compatibles (appelés depuis le markup existant)
         openIosModal() {
-            const modal = document.getElementById('pwa-ios-modal');
-            if (modal) modal.style.display = 'flex';
+            this.openInstallGuide();
         },
 
         closeIosModal() {
-            const modal = document.getElementById('pwa-ios-modal');
-            if (modal) modal.style.display = 'none';
+            this.closeInstallGuide();
         },
 
         /**
@@ -184,7 +320,7 @@
             const btn = document.getElementById('refreshBtn');
             const icon = document.getElementById('refreshBtnIcon');
             const text = document.getElementById('refreshBtnText');
-            const lang = localStorage.getItem('bilateral_lang') || 'tr';
+            const lang = getLang();
 
             isRefreshing = true;
             if (btn) btn.classList.add('loading');
@@ -290,7 +426,7 @@
             this.resetRefreshButton();
             isRefreshing = false;
 
-            const lang = localStorage.getItem('bilateral_lang') || 'tr';
+            const lang = getLang();
             const countMsg = jobCount ? ` (${jobCount} ilan)` : '';
             const msg = (lang === 'fr')
                 ? `✅ Liste des offres mise à jour avec succès ! Rechargement...`
@@ -310,7 +446,7 @@
             const btn = document.getElementById('refreshBtn');
             const icon = document.getElementById('refreshBtnIcon');
             const text = document.getElementById('refreshBtnText');
-            const lang = localStorage.getItem('bilateral_lang') || 'tr';
+            const lang = getLang();
 
             if (btn) btn.classList.remove('loading');
             if (icon) icon.classList.remove('spin-animation');
@@ -320,10 +456,7 @@
         },
 
         openCloudInfoModal(lang) {
-            const modal = document.getElementById('cloud-info-modal');
-            if (modal) {
-                modal.style.display = 'flex';
-            } else {
+            if (!showPwaOverlay('pwa-cloud')) {
                 // Fallback toast si modal absent
                 const toastMsg = (lang === 'fr')
                     ? "☁️ Mode Cloud : Les offres s'actualisent automatiquement chaque jour à 08:00 (TR) via GitHub Actions !"
@@ -335,8 +468,7 @@
         },
 
         closeCloudInfoModal() {
-            const modal = document.getElementById('cloud-info-modal');
-            if (modal) modal.style.display = 'none';
+            requestClosePwaOverlay('pwa-cloud');
         },
 
         /**
@@ -359,12 +491,15 @@
         },
 
         /**
-         * Met à jour les textes traduits de la PWA selon la langue
+         * Met à jour les textes traduits des éléments PWA selon la langue.
+         * Portée limitée au bandeau et aux modales PWA (le reste de la page est déjà
+         * traduit par TrackerEngine.applyLanguage). Aucun toast n'est émis ici :
+         * la notification de changement de langue n'appartient qu'à l'action utilisateur.
          */
         setupLanguageWatchers() {
             const updateTexts = () => {
-                const lang = localStorage.getItem('bilateral_lang') || 'tr';
-                document.querySelectorAll('[data-tr][data-fr]').forEach((el) => {
+                const lang = getLang();
+                document.querySelectorAll('#mobileInstallBanner [data-tr][data-fr], #pwa-ios-modal [data-tr][data-fr], #cloud-info-modal [data-tr][data-fr]').forEach((el) => {
                     const text = (lang === 'fr') ? el.getAttribute('data-fr') : el.getAttribute('data-tr');
                     if (text !== null && text !== undefined) {
                         const svg = el.querySelector('svg.svg-icon, svg');
@@ -380,9 +515,13 @@
                 });
             };
 
-            // Écoute de l'événement personnalisé ou polling léger
+            // Écoute de l'événement personnalisé + passage initial
             window.addEventListener('languageChanged', updateTexts);
-            document.addEventListener('DOMContentLoaded', updateTexts);
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', updateTexts);
+            } else {
+                updateTexts();
+            }
         }
     };
 

@@ -57,7 +57,7 @@
             // Stats Explorer
             statTotal: "Toplam Fırsat",
             statCcift: "🤝 CCIFT & DEİK Akredite Üye",
-            statNoFrench: "🇬🇧 Fransızca Şart Değil",
+            statNoFrench: "✅ Fransızca Şart Değil",
             statReloc: "✈️ Vize / Relokasyon Sağlanan",
             
             // CCIFT Encart
@@ -73,7 +73,7 @@
             searchPlaceholder: "🔍 Pozisyon, şehir (Paris, Lyon, Strazburg...), kurum (OECD, Beko, THY, Ekol...) ara...",
             filterCatAll: "Tüm Kategoriler",
             filterCatCcift: "🤝 CCIFT & DEİK Üyeleri",
-            filterCatNoFrench: "🇬🇧 Fransızca Şart Değil",
+            filterCatNoFrench: "✅ Fransızca Şart Değil",
             filterCatInstitutions: "🏛️ Uluslararası Kurumlar",
             filterCatCompanies: "🏢 Türk Holdingleri",
             filterCatLogistics: "📦 Lojistik & Ticaret",
@@ -125,6 +125,13 @@
             modalBtnSave: "Kaydet",
             modalBtnCancel: "İptal",
             modalBtnDelete: "Takibi Bırak",
+
+            // Kanban tactile & favoris (accessibilité)
+            kanbanMoveLabel: "Durum",
+            kanbanBadgeNoFrench: "✅ Fransızca Gerekmez",
+            favAddLabel: "Favorilere Ekle",
+            favRemoveLabel: "Favorilerden Çıkar",
+            toastLangChanged: "Dil Türkçe olarak güncellendi 🇹🇷",
             
             // Toasts
             toastFavAdded: "⭐ İlan favorilere eklendi.",
@@ -185,7 +192,7 @@
             // Stats Explorer
             statTotal: "Total Opportunités",
             statCcift: "🤝 Membres CCIFT & DEİK",
-            statNoFrench: "🇬🇧 Sans Français Obligatoire",
+            statNoFrench: "✅ Sans Français Obligatoire",
             statReloc: "✈️ Visa / Relocalisation",
             
             // CCIFT Encart
@@ -201,7 +208,7 @@
             searchPlaceholder: "🔍 Rechercher poste, ville (Paris, Lyon, Strasbourg...), institution (OCDE, Beko, THY...)...",
             filterCatAll: "Toutes Catégories",
             filterCatCcift: "🤝 Membres CCIFT & DEİK",
-            filterCatNoFrench: "🇬🇧 Français Non Requis",
+            filterCatNoFrench: "✅ Français Non Requis",
             filterCatInstitutions: "🏛️ Institutions Internationales",
             filterCatCompanies: "🏢 Multinationales Turques",
             filterCatLogistics: "📦 Logistique & Commerce",
@@ -253,6 +260,13 @@
             modalBtnSave: "Enregistrer",
             modalBtnCancel: "Annuler",
             modalBtnDelete: "Supprimer du suivi",
+
+            // Kanban tactile & favoris (accessibilité)
+            kanbanMoveLabel: "Statut",
+            kanbanBadgeNoFrench: "✅ Sans Français",
+            favAddLabel: "Ajouter aux favoris",
+            favRemoveLabel: "Retirer des favoris",
+            toastLangChanged: "Langue basculée en Français 🇫🇷",
             
             // Toasts
             toastFavAdded: "⭐ Offre ajoutée aux favoris.",
@@ -295,6 +309,8 @@
         setLang(lang) {
             try {
                 localStorage.setItem(STORAGE_KEYS.LANG, lang);
+                // Clé lue par pwa_module.js et drawer_cover_letter_module.js
+                localStorage.setItem('bilateral_lang', lang);
             } catch (e) {}
         },
 
@@ -423,6 +439,13 @@
                 localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checklist));
             } catch (e) {}
         }
+    };
+
+    // Retour haptique léger (Android) - silencieux si non supporté
+    const haptic = (ms = 10) => {
+        try {
+            if (navigator.vibrate) navigator.vibrate(ms);
+        } catch (e) {}
     };
 
     // --------------------------------------------------------------------------
@@ -816,6 +839,7 @@
                 if (newStatus === 'offer') statusName = dict.colOfferTitle;
 
                 ToastService.show(`${dict.toastTrackUpdated} ➔ ${statusName}`, 'success');
+                haptic();
                 this.render();
                 UIController.syncExplorerCards();
             }
@@ -924,7 +948,7 @@
 
             const displayTitle = lang === 'fr' ? (app.title_fr || app.title) : app.title;
             const cciftBadge = app.is_ccift_deik ? '<span class="kanban-badge-ccift">🤝 CCIFT/DEİK</span>' : '';
-            const noFrenchBadge = !app.french_required ? `<span class="kanban-badge-nofrench">${lang === 'fr' ? '🇬🇧 Sans Français' : '🇬🇧 No French'}</span>` : '';
+            const noFrenchBadge = !app.french_required ? `<span class="kanban-badge-nofrench">${dict.kanbanBadgeNoFrench}</span>` : '';
 
             // Badge de Voie Prioritaire
             let trackBadge = '';
@@ -953,6 +977,18 @@
             const lblLink = lang === 'fr' ? '🔗 Offre ↗' : '🔗 İlan ↗';
             const lblBack = lang === 'fr' ? '◀ Reculer' : '◀ Geri';
             const lblForward = lang === 'fr' ? 'Avancer ▶' : 'İlerlet ▶';
+            const lblFav = isFavorite ? dict.favRemoveLabel : dict.favAddLabel;
+
+            // Sélecteur tactile de statut (alternative au glisser-déposer, inopérant au doigt)
+            const statusLabels = {
+                saved: dict.colSavedTitle,
+                applied: dict.colAppliedTitle,
+                interview: dict.colInterviewTitle,
+                offer: dict.colOfferTitle
+            };
+            const moveOptionsHtml = this.columns.map(colKey =>
+                `<option value="${colKey}" ${colKey === app.status ? 'selected' : ''}>${statusLabels[colKey] || colKey}</option>`
+            ).join('');
 
             card.innerHTML = `
                 <div class="kanban-card-header">
@@ -960,7 +996,7 @@
                         <strong class="kanban-company">${app.company}</strong>
                         <span class="kanban-location">📍 ${app.location}</span>
                     </div>
-                    <button class="kanban-fav-btn ${isFavorite ? 'active' : ''}" onclick="window.TrackerEngine.toggleBookmark(${app.id}, event)" title="${lang === 'fr' ? 'Favori' : 'Favorilere Ekle'}">
+                    <button class="kanban-fav-btn ${isFavorite ? 'active' : ''}" onclick="window.TrackerEngine.toggleBookmark(${app.id}, event)" title="${lblFav}" aria-label="${lblFav}" aria-pressed="${isFavorite ? 'true' : 'false'}">
                         ${isFavorite ? '★' : '☆'}
                     </button>
                 </div>
@@ -992,7 +1028,25 @@
                         ${lblForward}
                     </button>
                 </div>
+
+                <label class="kanban-move-label" style="display: block; margin-top: 8px; font-size: 0.8em; opacity: 0.8;">
+                    ${dict.kanbanMoveLabel}
+                    <select class="kanban-move-select" aria-label="${dict.kanbanMoveLabel}" style="display: block; width: 100%; min-height: 44px; font-size: 16px; margin-top: 4px; padding: 0 8px; color: inherit; background-color: transparent; border: 1px solid currentColor; border-radius: 8px; font-family: inherit;">
+                        ${moveOptionsHtml}
+                    </select>
+                </label>
             `;
+
+            // Changement de statut au doigt : même logique que le drop
+            const moveSelect = card.querySelector('.kanban-move-select');
+            if (moveSelect) {
+                moveSelect.addEventListener('change', (e) => {
+                    const newStatus = e.target.value;
+                    if (newStatus && newStatus !== app.status) {
+                        this.moveToStatus(app.id, newStatus);
+                    }
+                });
+            }
 
             return card;
         }
@@ -1105,13 +1159,18 @@
     // --------------------------------------------------------------------------
     // 7. GESTIONNAIRE DES ONGLETS & CONTRÔLEUR D'INTERFACE
     // --------------------------------------------------------------------------
+    // Identifiant d'overlay de la modale d'édition (contrat d'historique, voir section 7bis)
+    const TRACKER_MODAL_ID = 'tracker-modal';
+
     const UIController = {
         currentTab: 'explore',
+        scrollPositions: {},
 
         init() {
             // Initialisation de la langue mémorisée
+            // (silencieux : pas de toast de changement de langue au lancement)
             const savedLang = StorageService.getLang();
-            this.applyLanguage(savedLang);
+            this.applyLanguage(savedLang, { silent: true });
 
             // Initialisation des favoris et états sur les cartes d'exploration
             this.syncExplorerCards();
@@ -1129,9 +1188,17 @@
 
             // Modal events
             this.setupModalEvents();
+
+            // Routage historique (bouton Retour Android) + onglet initial selon le hash
+            HistoryRouter.init();
         },
 
+        // Affichage d'un onglet (rendu pur, sans toucher à l'historique : voir HistoryRouter)
         switchTab(tabKey) {
+            const previousTab = this.currentTab;
+            if (previousTab !== tabKey) {
+                this.scrollPositions[previousTab] = window.scrollY || 0;
+            }
             this.currentTab = tabKey;
 
             // Boutons d'onglets
@@ -1161,13 +1228,21 @@
                 KanbanTracker.render();
             }
 
-            // Scroll fluide vers le haut de la vue
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Retour sur Keşfet : restauration de la position dans la liste ; sinon haut de page
+            const savedScroll = (tabKey === 'explore' && previousTab !== tabKey) ? (this.scrollPositions.explore || 0) : 0;
+            if (savedScroll > 0) {
+                window.scrollTo({ top: savedScroll, behavior: 'auto' });
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         },
 
-        applyLanguage(lang) {
+        applyLanguage(lang, options = {}) {
             StorageService.setLang(lang);
             const dict = I18N_DICTIONARY[lang] || I18N_DICTIONARY.tr;
+
+            // Langue du document (lecteurs d'écran, césure, traduction auto de Chrome)
+            document.documentElement.lang = lang;
 
             // Bascule visuelle des boutons de langue
             const btnTR = document.getElementById('btnTR');
@@ -1358,8 +1433,6 @@
                 if (btnPitchSpan) btnPitchSpan.textContent = lang === 'fr' ? '✍️ Lettre & Pitch' : '✍️ Ön Yazı';
                 const btnWaSpan = card.querySelector('.action-btn-wa span');
                 if (btnWaSpan) btnWaSpan.textContent = lang === 'fr' ? '💬 Partager' : '💬 Paylaş';
-                const btnTrackSpan = card.querySelector('.tracker-action-btn span');
-                if (btnTrackSpan) btnTrackSpan.textContent = lang === 'fr' ? 'Suivre' : 'Takip';
                 const btnLinkSpan = card.querySelector('.secondary-btn span');
                 if (btnLinkSpan) btnLinkSpan.textContent = lang === 'fr' ? 'Lien' : 'Link';
 
@@ -1387,6 +1460,9 @@
                 }
             });
 
+            // Bouton de suivi & favoris des cartes (libellés + title/aria-label dans la langue courante)
+            this.syncExplorerCards();
+
             // Rafraîchissement des cartes du Kanban
             KanbanTracker.render();
             // Réapplication du filtre
@@ -1394,7 +1470,10 @@
 
             // Notification aux autres composants
             window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }));
-            ToastService.show(lang === 'fr' ? 'Langue basculée en Français 🇫🇷' : 'Dil Türkçe olarak güncellendi 🇹🇷', 'success');
+            // Toast uniquement sur action utilisateur (pas à l'initialisation)
+            if (!options.silent) {
+                ToastService.show(dict.toastLangChanged, 'success');
+            }
         },
 
         getTagClass(tag) {
@@ -1422,7 +1501,12 @@
                 const favBtn = card.querySelector('.bookmark-btn');
                 if (favBtn) {
                     favBtn.classList.toggle('active', isFav);
-                    favBtn.querySelector('.star-icon').textContent = isFav ? '★' : '☆';
+                    const starIcon = favBtn.querySelector('.star-icon');
+                    if (starIcon) starIcon.textContent = isFav ? '★' : '☆';
+                    const favLabel = isFav ? dict.favRemoveLabel : dict.favAddLabel;
+                    favBtn.title = favLabel;
+                    favBtn.setAttribute('aria-label', favLabel);
+                    favBtn.setAttribute('aria-pressed', isFav ? 'true' : 'false');
                 }
 
                 // Bouton de suivi dans le footer
@@ -1471,10 +1555,10 @@
             const form = document.getElementById('tracker-form');
             const deleteBtn = document.getElementById('modal-delete-btn');
 
-            if (closeBtn) closeBtn.onclick = () => this.closeModal();
-            if (cancelBtn) cancelBtn.onclick = () => this.closeModal();
+            if (closeBtn) closeBtn.onclick = () => this.requestCloseModal();
+            if (cancelBtn) cancelBtn.onclick = () => this.requestCloseModal();
             modal.onclick = (e) => {
-                if (e.target === modal) this.closeModal();
+                if (e.target === modal) this.requestCloseModal();
             };
 
             if (form) {
@@ -1492,7 +1576,7 @@
                         const lang = StorageService.getLang();
                         const dict = I18N_DICTIONARY[lang] || I18N_DICTIONARY.tr;
                         ToastService.show(dict.toastTrackDeleted, 'info');
-                        this.closeModal();
+                        this.requestCloseModal();
                         KanbanTracker.render();
                         this.syncExplorerCards();
                         FilterEngine.apply();
@@ -1503,6 +1587,13 @@
             // Touche Échap
             window.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && modal.style.display === 'flex') {
+                    this.requestCloseModal();
+                }
+            });
+
+            // Bouton/geste Retour Android : fermeture sans toucher à l'historique
+            window.addEventListener('popstate', (event) => {
+                if (modal.style.display === 'flex' && (event.state || {}).fransaOverlay !== TRACKER_MODAL_ID) {
                     this.closeModal();
                 }
             });
@@ -1554,6 +1645,7 @@
             }
 
             modal.style.display = 'flex';
+            HistoryRouter.pushOverlay(TRACKER_MODAL_ID);
             setTimeout(() => {
                 notesInput.focus();
             }, 50);
@@ -1591,15 +1683,22 @@
             const lang = StorageService.getLang();
             const dict = I18N_DICTIONARY[lang] || I18N_DICTIONARY.tr;
             ToastService.show(dict.toastTrackUpdated, 'success');
+            haptic();
 
-            this.closeModal();
+            this.requestCloseModal();
             KanbanTracker.render();
             this.syncExplorerCards();
             FilterEngine.apply();
         },
 
+        // Fermeture demandée par l'UI (X, fond, Échap, Enregistrer, Supprimer)
+        requestCloseModal() {
+            HistoryRouter.closeOverlay(TRACKER_MODAL_ID, () => this.closeModal());
+        },
+
+        // Fermeture effective (appelée directement ou depuis le handler popstate)
         closeModal() {
-            const modal = document.getElementById('tracker-modal');
+            const modal = document.getElementById(TRACKER_MODAL_ID);
             if (!modal) return;
             modal.style.display = 'none';
         },
@@ -1643,6 +1742,106 @@
     };
 
     // --------------------------------------------------------------------------
+    // 7bis. ROUTEUR D'HISTORIQUE (BOUTON / GESTE RETOUR ANDROID)
+    // --------------------------------------------------------------------------
+    // Contrat partagé avec drawer_cover_letter_module.js :
+    //  - overlay ouvert : pushState({ fransaOverlay: '<id>' }, '')
+    //  - fermeture UI   : si state.fransaOverlay === '<id>' → history.back(), sinon fermeture directe
+    //  - popstate       : chaque module ferme son overlay si state.fransaOverlay !== '<id>'
+    //  - onglets        : Keşfet = état de base (hash vide ou #explore) ; Takip/Rehber poussés
+    //                     depuis Keşfet (#tracker, #guide), remplacés entre eux.
+    const TAB_KEYS = ['explore', 'tracker', 'guide'];
+
+    const HistoryRouter = {
+        // Onglet correspondant au hash (vide → explore ; hash inconnu → null = ancre interne, ignorée)
+        tabFromHash() {
+            const h = (window.location.hash || '').replace(/^#/, '').toLowerCase();
+            if (!h) return 'explore';
+            return TAB_KEYS.includes(h) ? h : null;
+        },
+
+        baseUrl() {
+            return window.location.pathname + window.location.search;
+        },
+
+        // Onglet poussé par la navigation (une entrée Keşfet existe dessous dans l'historique)
+        isPushedTab(state) {
+            return Boolean(state && state.fransaTab && !state.fransaInitial && !state.fransaOverlay);
+        },
+
+        init() {
+            const st = (history.state && typeof history.state === 'object') ? history.state : {};
+            const tab = this.tabFromHash() || 'explore';
+
+            // Au chargement : on respecte le hash (raccourcis du manifest) via replaceState.
+            // Un éventuel état d'overlay résiduel (rechargement modale ouverte) est nettoyé.
+            try {
+                if (tab === 'explore') {
+                    if (st.fransaOverlay || st.fransaTab) history.replaceState(null, '');
+                } else if (!(st.fransaTab === tab && !st.fransaOverlay)) {
+                    history.replaceState({ fransaTab: tab, fransaInitial: true }, '', '#' + tab);
+                }
+            } catch (e) {}
+
+            if (tab !== UIController.currentTab) {
+                UIController.switchTab(tab);
+            }
+
+            window.addEventListener('popstate', (event) => {
+                const state = event.state || {};
+                if (state.fransaOverlay) return; // géré par le module propriétaire de l'overlay
+                const target = this.tabFromHash();
+                if (target && target !== UIController.currentTab) {
+                    UIController.switchTab(target);
+                }
+            });
+        },
+
+        // Navigation par la barre d'onglets / boutons internes
+        navigateToTab(tabKey) {
+            if (!TAB_KEYS.includes(tabKey)) tabKey = 'explore';
+            const current = UIController.currentTab;
+            const st = history.state || {};
+
+            if (tabKey !== current) {
+                try {
+                    if (tabKey === 'explore') {
+                        if (this.isPushedTab(st)) {
+                            history.back(); // l'affichage se fait dans le handler popstate
+                            return;
+                        }
+                        history.replaceState(null, '', this.baseUrl());
+                    } else if (current === 'explore') {
+                        history.pushState({ fransaTab: tabKey }, '', '#' + tabKey);
+                    } else {
+                        const newState = this.isPushedTab(st)
+                            ? { fransaTab: tabKey }
+                            : { fransaTab: tabKey, fransaInitial: true };
+                        history.replaceState(newState, '', '#' + tabKey);
+                    }
+                } catch (e) {}
+            }
+
+            UIController.switchTab(tabKey);
+        },
+
+        pushOverlay(id) {
+            try {
+                if (history.state && history.state.fransaOverlay === id) return;
+                history.pushState({ fransaOverlay: id }, '');
+            } catch (e) {}
+        },
+
+        closeOverlay(id, closeFn) {
+            if (history.state && history.state.fransaOverlay === id) {
+                history.back(); // la fermeture effective se fait dans le handler popstate
+            } else {
+                closeFn();
+            }
+        }
+    };
+
+    // --------------------------------------------------------------------------
     // 8. API PUBLIQUE EXPOSÉE SUR WINDOW.TrackerEngine
     // --------------------------------------------------------------------------
     window.TrackerEngine = {
@@ -1665,6 +1864,7 @@
             const lang = StorageService.getLang();
             const dict = I18N_DICTIONARY[lang] || I18N_DICTIONARY.tr;
             ToastService.show(isFav ? dict.toastFavAdded : dict.toastFavRemoved, isFav ? 'star' : 'info');
+            if (isFav) haptic();
         },
 
         openTrackerModal(jobId) {
@@ -1696,7 +1896,7 @@
         },
 
         switchTab(tabKey) {
-            UIController.switchTab(tabKey);
+            HistoryRouter.navigateToTab(tabKey);
         },
 
         setLanguage(lang) {
@@ -1711,14 +1911,29 @@
             const card = document.querySelector(`.job-card[data-id="${jobId}"]`);
             const title = card ? card.getAttribute('data-title-tr') || card.querySelector('.job-title')?.textContent.trim() : 'Fransa İş Fırsatı';
             const company = card ? card.getAttribute('data-company') : '';
-            const url = card ? card.getAttribute('data-url') : window.location.href;
-            const text = encodeURIComponent(
+            const url = (card && card.getAttribute('data-url')) || window.location.href;
+            const baseText =
                 `Aşkım / Merhaba, Fransa için şu ilanı buldum, sence başvurayım mı?\n\n` +
                 `💼 Pozisyon: ${title}\n` +
-                `🏢 Şirket: ${company}\n` +
-                `🔗 İlan Linki: ${url}`
-            );
-            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+                `🏢 Şirket: ${company}`;
+
+            // Fallback historique : lien WhatsApp direct
+            const openWhatsApp = () => {
+                const text = encodeURIComponent(`${baseText}\n🔗 İlan Linki: ${url}`);
+                window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+            };
+
+            // Feuille de partage native Android (WhatsApp, Telegram, SMS, e-mail...)
+            if (navigator.share) {
+                navigator.share({ title: `${title}${company ? ' - ' + company : ''}`, text: baseText, url })
+                    .catch((err) => {
+                        if (err && err.name === 'AbortError') return; // partage annulé par l'utilisatrice
+                        console.warn('Partage natif indisponible, fallback WhatsApp:', err);
+                        openWhatsApp();
+                    });
+                return;
+            }
+            openWhatsApp();
         },
 
         Toast: ToastService
