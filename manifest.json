@@ -1,0 +1,61 @@
+{
+  "name": "Fransa Kariyer & Vize Rehberi",
+  "short_name": "Fransaİş",
+  "description": "Türkiye'den Fransa'ya Vize ve Relokasyon Destekli İş Fırsatları & Başvuru Takip Portalı",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#090d16",
+  "theme_color": "#0f172a",
+  "lang": "tr",
+  "dir": "ltr",
+  "categories": [
+    "business",
+    "productivity",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "İlanları Keşfet",
+      "short_name": "Keşfet",
+      "description": "Güncel iş fırsatlarını ve açık pozisyonları listele",
+      "url": "./index.html#explore",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Başvuru Takibi (Kanban)",
+      "short_name": "Takip",
+      "description": "Kişisel başvuru sürecinizi takip edin",
+      "url": "./index.html#tracker",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Vize & Evrak Rehberi",
+      "short_name": "Rehber",
+      "description": "Passeport Talent ve Vize prosedürleri",
+      "url": "./index.html#guide",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

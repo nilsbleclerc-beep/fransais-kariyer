@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+    <defs>
+        <!-- Dégradé de fond obsidian profond -->
+        <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0f172a" />
+            <stop offset="100%" stop-color="#090d16" />
+        </linearGradient>
+        
+        <!-- Dégradé or pour l'anneau VIP -->
+        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#f59e0b" />
+            <stop offset="50%" stop-color="#d97706" />
+            <stop offset="100%" stop-color="#b45309" />
+        </linearGradient>
+        
+        <!-- Dégradé bleu France -->
+        <linearGradient id="frBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2563eb" />
+            <stop offset="100%" stop-color="#1d4ed8" />
+        </linearGradient>
+
+        <!-- Dégradé rouge Turquie -->
+        <linearGradient id="trRedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ef4444" />
+            <stop offset="100%" stop-color="#dc2626" />
+        </linearGradient>
+        
+        <!-- Ombre portée -->
+        <filter id="dropGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#2563eb" flood-opacity="0.25"/>
+        </filter>
+    </defs>
+
+    <!-- Fond squircle moderne style iOS / Android Adaptive -->
+    <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#bgGrad)" stroke="url(#goldGrad)" stroke-width="6" />
+
+    <!-- Disque central avec halo -->
+    <g transform="translate(256.0, 256.0)">
+        <!-- Cercle de fond interne -->
+        <circle cx="0" cy="0" r="160" fill="#141e33" stroke="rgba(255,255,255,0.08)" stroke-width="3" filter="url(#dropGlow)" />
+        
+        <!-- Côté gauche : Rouge Turquie -->
+        <path d="M 0 -150 A 150 150 0 0 0 0 150 Z" fill="url(#trRedGrad)" opacity="0.9" />
+        
+        <!-- Côté droit : Bleu France -->
+        <path d="M 0 -150 A 150 150 0 0 1 0 150 Z" fill="url(#frBlueGrad)" opacity="0.9" />
+        
+        <!-- Séparateur blanc central subtil -->
+        <line x1="0" y1="-150" x2="0" y2="150" stroke="#ffffff" stroke-width="4" stroke-opacity="0.8" />
+        
+        <!-- Croissant de lune Turquie (Côté gauche) -->
+        <g transform="translate(-65, -10) scale(0.95)">
+            <circle cx="0" cy="0" r="42" fill="#ffffff" />
+            <circle cx="12" cy="0" r="34" fill="#dc2626" />
+            <!-- Étoile turque -->
+            <polygon points="26,0 34,-6 31,3 38,8 29,8 26,16 23,8 14,8 21,3 18,-6" fill="#ffffff" transform="rotate(-15, 26, 0) scale(1.1)" />
+        </g>
+        
+        <!-- Emblème France (Côté droit) : Tour Eiffel stylisée & Étoile talent -->
+        <g transform="translate(65, -5) scale(0.95)">
+            <!-- Silhouette Tour Eiffel / Flèche montante -->
+            <path d="M -24,48 L -14,10 L -4,-40 L 4,-40 L 14,10 L 24,48 L 10,48 L 7,20 L -7,20 L -10,48 Z" fill="#ffffff" />
+            <circle cx="0" cy="-44" r="5" fill="#f59e0b" />
+            <line x1="-12" y1="20" x2="12" y2="20" stroke="#2563eb" stroke-width="3" />
+        </g>
+
+        <!-- Bandeau horizontal central avec symbole bilatéral ⇄ -->
+        <rect x="-80" y="55" width="160" height="38" rx="19" fill="#0f172a" stroke="url(#goldGrad)" stroke-width="3" />
+        <text x="0" y="80" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="20" font-weight="800" fill="#f8fafc" text-anchor="middle" letter-spacing="2">TR ⇄ FR</text>
+
+        <!-- Couronne supérieure : Étoile dorée Passeport Talent -->
+        <g transform="translate(0, -115) scale(0.85)">
+            <polygon points="0,-18 5,-5 18,-5 8,4 12,17 0,9 -12,17 -8,4 -18,-5 -5,-5" fill="#f59e0b" />
+        </g>
+    </g>
+    
+    <!-- Typographie inférieure -->
+    <text x="256.0" y="464" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="28" font-weight="800" fill="#f8fafc" text-anchor="middle" letter-spacing="3">FRANSA İŞ</text>
+</svg>
