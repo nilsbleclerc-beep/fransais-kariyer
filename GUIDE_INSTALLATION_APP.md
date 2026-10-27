@@ -12,7 +12,7 @@ Vous pouvez lui envoyer directement ce court message en turc :
 Aşkım, Fransa'daki iş fırsatlarını ve vize süreçlerini kolayca takip edebilmen için sana özel bir mobil uygulama hazırladım ❤️ 
 
 Aşağıdaki linke telefonundan tıkla:
-👉 https://<VOTRE-PSEUDO-GITHUB>.github.io/<NOM-DU-DEPOT>/
+👉 https://nilsbleclerc-beep.github.io/fransais-kariyer/
 
 📲 Telefondan Açınca 30 Saniyede Uygulama Olarak Yüklemek İçin:
 - iPhone (Safari): Alttaki [Paylaş] simgesine bas ➔ "Ana Ekrana Ekle"ye dokun.
