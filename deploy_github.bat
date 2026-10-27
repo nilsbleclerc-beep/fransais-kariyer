@@ -72,7 +72,7 @@ if %errorlevel% equ 0 (
     echo 1. Rendez-vous sur votre dépôt GitHub :
     echo    Allez dans 'Settings' (Paramètres) ➔ 'Pages'
     echo 2. Dans 'Build and deployment' ➔ 'Source' :
-    echo    Choisissez 'GitHub Actions' (recommandé) OU 'Deploy from a branch' (master / root)
+    echo    Choisissez 'Deploy from a branch' ➔ branche 'master', dossier '/ (root)'
     echo 3. GitHub vous donnera votre lien Web public, sous la forme :
     echo    https://<votre-pseudo>.github.io/<nom-du-depot>/
     echo.

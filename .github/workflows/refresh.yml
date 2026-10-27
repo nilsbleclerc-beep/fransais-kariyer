@@ -15,11 +15,10 @@ on:
       - 'exporter.py'
       - 'pwa_*'
 
-# Permissions pour mettre à jour le dépôt et déployer sur GitHub Pages
+# Permission pour commiter les nouvelles offres.
+# Le déploiement est fait par GitHub Pages (source : branche master) à chaque push du robot.
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
   group: "bilateral-refresh"
@@ -69,15 +68,3 @@ jobs:
           else
             echo "Aucun changement détecté dans les offres."
           fi
-
-      - name: 🌐 Configurer GitHub Pages
-        uses: actions/configure-pages@v4
-
-      - name: 📦 Préparer l'artefact GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-
-      - name: 🚀 Déployer sur GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4

@@ -67,7 +67,7 @@ Bitti! Artık telefonunun ana ekranında bir mobil uygulama gibi yer alacak. İl
 3. Le script va envoyer tous les fichiers (PWA, icônes, workflows, HTML).
 4. Rendez-vous sur votre dépôt GitHub :
    * Cliquez sur **Settings** ➔ **Pages**
-   * Dans **Source**, sélectionnez **GitHub Actions**
+   * Dans **Source**, sélectionnez **Deploy from a branch** ➔ branche `master`, dossier `/ (root)`
 5. Copiez votre lien public et envoyez-le à votre compagne !
 
 ---
