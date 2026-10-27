@@ -107,7 +107,7 @@
         currentJob: null,
         currentTrack: "voie_2",
         generatorTab: "email", // 'email' | 'letter'
-        lang: "tr"
+        lang: (typeof localStorage !== 'undefined' && localStorage.getItem('bilateral_lang')) || "tr"
     };
 
     function detectTrackForJob(company, title, tags, isCcift) {
@@ -270,15 +270,51 @@
             if (atsBtn) atsBtn.href = job.url;
 
             // Fiche Visa étape par étape
-            this.renderTimeline(job.track);
+            this.renderTimeline(job.track, lang);
         },
 
-        renderTimeline(track) {
+        setLanguage(lang) {
+            State.lang = lang;
+            if (State.currentJob) {
+                this.render();
+            }
+        },
+
+        renderTimeline(track, lang = 'tr') {
             const timelineEl = document.getElementById('bld-drawer-timeline');
             if (!timelineEl) return;
 
             if (track === 'voie_1') {
-                timelineEl.innerHTML = `
+                timelineEl.innerHTML = (lang === 'fr') ? `
+                    <div class="timeline-step">
+                        <div class="timeline-num">1</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Nomination & Engagement Officiel</div>
+                            <div class="timeline-desc">Notification d'engagement délivrée par l'Organisation (Conseil de l'Europe, OCDE, UNESCO). Le quota de la Turquie (membre fondateur) s'applique.</div>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-num">2</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Note Verbale & Instruction MEAE</div>
+                            <div class="timeline-desc">Le département juridique notifie le Protocole du Ministère des Affaires Étrangères (MEAE) pour instruction prioritaire auprès des Consulats en Turquie.</div>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-num">3</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Visa Protocolaire Gratuit (72h - 5 jours)</div>
+                            <div class="timeline-desc">Le Consulat Général de France à Istanbul ou l'Ambassade à Ankara délivre le visa de courtoisie sans frais et sans démarche de droit commun.</div>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-num">4</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Titre Spécial MEAE & Installation</div>
+                            <div class="timeline-desc">Délivrance directe du Titre de Séjour Spécial à l'arrivée. Traitement net d'impôt, indemnités d'expatriation et déménagement pris en charge à 100%.</div>
+                        </div>
+                    </div>
+                ` : `
                     <div class="timeline-step">
                         <div class="timeline-num">1</div>
                         <div class="timeline-content">
@@ -309,7 +345,36 @@
                     </div>
                 `;
             } else if (track === 'voie_2') {
-                timelineEl.innerHTML = `
+                timelineEl.innerHTML = (lang === 'fr') ? `
+                    <div class="timeline-step">
+                        <div class="timeline-num">1</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Avenant de Mobilité Intra-Groupe (ICT)</div>
+                            <div class="timeline-desc">Convention de détachement établie entre le siège en Turquie et la filiale française (Beko, THY, Ekol, Barsan, Şişecam). Ancienneté minimale 3 à 6 mois.</div>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-num">2</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Convention Bilatérale 1972 & Dossier Cerfa</div>
+                            <div class="timeline-desc">Application de la convention bilatérale de sécurité sociale et formalités Cerfa. Exonération totale du test du marché du travail (opposabilité de l'emploi).</div>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-num">3</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Dépôt Consulaire VFS Global (10 - 15 Jours)</div>
+                            <div class="timeline-desc">Dépôt du dossier au centre VFS (Istanbul, Ankara ou Izmir). Traitement accéléré grâce à l'agrément bilatéral CCIFT / DEİK.</div>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-num">4</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Arrivée en France & Validation ANEF</div>
+                            <div class="timeline-desc">Validation en ligne du visa de long séjour valant titre de séjour (VLS-TS ICT). Droit de travail direct pour le conjoint accompagnant.</div>
+                        </div>
+                    </div>
+                ` : `
                     <div class="timeline-step">
                         <div class="timeline-num">1</div>
                         <div class="timeline-content">
@@ -340,7 +405,36 @@
                     </div>
                 `;
             } else if (track === 'voie_3') {
-                timelineEl.innerHTML = `
+                timelineEl.innerHTML = (lang === 'fr') ? `
+                    <div class="timeline-step">
+                        <div class="timeline-num">1</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Contrat de Travail & Promesse d'Embauche</div>
+                            <div class="timeline-desc">Signature de l'offre auprès de la scale-up parisienne avec rémunération brute annuelle ≥ 2x SMIC légal. Équipe technique 100% anglophone.</div>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-num">2</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Statut Entreprise Innovante & Dossier ANEF</div>
+                            <div class="timeline-desc">Validation via le statut JEI / French Tech. Aucune obligation de français et dispense de publication Pôle Emploi.</div>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-num">3</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Dépôt Consulaire VFS "Passeport Talent"</div>
+                            <div class="timeline-desc">Dépôt du formulaire VLS-TS Passeport Talent dans les centres VFS en Turquie. Instruction rapide sous 15 jours ouvrés.</div>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-num">4</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Titre Pluriannuel 4 Ans & Travail Conjoint</div>
+                            <div class="timeline-desc">Octroi direct d'une carte de séjour pluriannuelle de 4 ans renouvelable. Plein droit d'exercice professionnel immédiat pour le conjoint.</div>
+                        </div>
+                    </div>
+                ` : `
                     <div class="timeline-step">
                         <div class="timeline-num">1</div>
                         <div class="timeline-content">
@@ -371,7 +465,36 @@
                     </div>
                 `;
             } else {
-                timelineEl.innerHTML = `
+                timelineEl.innerHTML = (lang === 'fr') ? `
+                    <div class="timeline-step">
+                        <div class="timeline-num">1</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Contrat de Travail (CDI / CDD)</div>
+                            <div class="timeline-desc">Finalisation des conditions d'embauche avec l'entreprise établie en France.</div>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-num">2</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Autorisation de Travail ANEF (DREETS)</div>
+                            <div class="timeline-desc">L'employeur dépose la demande d'autorisation de travail pour salarié étranger sur le portail dématérialisé ANEF.</div>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-num">3</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Dépôt Visa VLS-TS au Centre VFS</div>
+                            <div class="timeline-desc">Dépôt consulaire auprès de VFS Global en Turquie avec l'attestation ministérielle d'autorisation de travail.</div>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-num">4</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Validation OFII & Installation</div>
+                            <div class="timeline-desc">Validation en ligne de la vignette OFII sur le site de l'ANEF dans les 3 mois suivant l'entrée en France.</div>
+                        </div>
+                    </div>
+                ` : `
                     <div class="timeline-step">
                         <div class="timeline-num">1</div>
                         <div class="timeline-content">
@@ -744,6 +867,15 @@ ${candTitle}`;
     window.CoverLetterGenerator = CoverLetterGenerator;
     window.MobilityGuide = MobilityGuide;
     window.BilateralToast = Toast;
+
+    // Écoute des changements de langue globaux
+    window.addEventListener('languageChanged', (e) => {
+        const newLang = (e && e.detail && e.detail.lang) || localStorage.getItem('bilateral_lang') || 'tr';
+        State.lang = newLang;
+        if (State.currentJob) {
+            BilateralDrawer.render();
+        }
+    });
 
     // Fermeture par touche ESC
     document.addEventListener('keydown', (e) => {

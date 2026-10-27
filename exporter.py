@@ -42,6 +42,82 @@ SVG_ICONS = {
     "copy": '<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>'
 }
 
+
+VISA_TRANSLATIONS = {
+    "Birleşmiş Milletler Memur Statüsü: BM Laissez-Passer ve Fransa MEAE Özel Kartı. BM Paris yaşam tazminatı, taşınma ödeneği.":
+        "Statut Fonctionnaire ONU : Laissez-Passer ONU & Titre Spécial MEAE. Indemnité d'expatriation Paris & prise en charge intégrale du déménagement.",
+    "DSÖ / BM Uluslararası Memur Statüsü: MEAE Özel Oturma Kartı, vergisiz BM maaşı ve taşınma ödeneği.":
+        "Statut Fonctionnaire International OMS/ONU : Titre Spécial MEAE, traitement exonéré d'impôt et prime de réinstallation.",
+    "French Tech Visa / Passeport Talent sponsorluğu, uçak bileti ve Paris konaklama desteği.":
+        "Sponsoring French Tech Visa / Passeport Talent, billet d'avion et aide au logement à Paris.",
+    "Hükümetlerarası Kuruluş Memuru Statüsü: Fransa MEAE Özel Oturma İzni.":
+        "Statut d'Organisation Intergouvernementale : Titre de séjour spécial délivré par le protocole du MEAE.",
+    "Kamu Sözleşmeli Personeli + Passeport Talent (Chercheur/Enseignant) veya VLS-TS Çalışma Vizesi (Üniversite Ev Sahipliği Sözleşmesi ile).":
+        "Agent Public Contractuel + Passeport Talent (Chercheur/Enseignant) ou Visa VLS-TS (Convention d'accueil universitaire).",
+    "Passeport Talent (Nitelikli Çalışan / Gazeteci Vizesi - CCIJP Basın Kartı). Euronews sözleşmesiyle doğrudan Türkiye'den çok yıllık vize.":
+        "Passeport Talent (Salarié Qualifié / Journaliste - Carte CCIJP). Visa pluriannuel direct depuis la Turquie avec contrat Euronews.",
+    "Passeport Talent (Nitelikli Çalışan / Uluslararası Hukukçu) veya Mesleki Eğitim / Staj Vizesi.":
+        "Passeport Talent (Salarié Qualifié / Juriste International) ou Visa Stage / Formation Professionnelle.",
+    "Passeport Talent (Yenilikçi Şirket Vizesi) + Doğrudan Paris'e taşınma ve relokasyon desteği.":
+        "Passeport Talent (Entreprise Innovante JEI) + Package complet de relocalisation directe à Paris.",
+    "Passeport Talent sponsorluğu + Settlesweet relokasyon paketi (ev bulma ve vize işlemleri %100 karşılanır).":
+        "Sponsoring Passeport Talent + Pack relocalisation Settlesweet (logement et démarches visa pris en charge à 100%).",
+    "Passeport Talent vize sponsorluğu + Kapsamlı Uluslararası Relokasyon Paketi.":
+        "Sponsoring Passeport Talent + Package d'installation et de relocalisation internationale.",
+    "Uluslararası Memur Statüsü: Fransa MEAE Özel Diplomatik Oturma Kartı. Klasik vize aranmaz, taşınma ve yerleşme masrafları kurumca %100 karşılanır.":
+        "Statut de Fonctionnaire International : Titre de séjour spécial diplomatique MEAE. Pas de visa classique requis, frais de réinstallation pris en charge à 100%.",
+    "Uluslararası Memur Statüsü: Fransa MEAE Özel Oturma Kartı.":
+        "Statut de Fonctionnaire International : Titre de séjour spécial diplomatique délivré par le MEAE.",
+    "Uluslararası Memur Statüsü: Fransa MEAE Özel Oturma İzni. Tam relokasyon ve uluslararası muafiyetler.":
+        "Statut de Fonctionnaire International : Titre spécial MEAE. Relocalisation complète et immunités internationales.",
+    "Uluslararası Memur Statüsü: Fransa MEAE Özel Statülü Oturma Kartı. Gelir vergisinden muaf maaş, gurbet tazminatı ve aile taşınma paketi.":
+        "Statut Fonctionnaire International : Titre spécial MEAE. Salaire net exonéré d'impôt, indemnité d'expatriation et pack famille.",
+    "İkili Sektörel Sözleşme / Passeport Talent":
+        "Accord Sectoriel Bilatéral / Passeport Talent",
+    "İş İlanında Belirtilen Şartlar":
+        "Selon les termes de l'offre d'emploi",
+    "İşverenle Görüşülmeli":
+        "À définir directement avec l'employeur",
+    "Şirket İçi Transfer (ICT) / Relokasyon Vizesi":
+        "Détachement Intra-Groupe (Salarié Détaché ICT) / Visa Relocalisation"
+}
+
+def get_visa_fr(visa_tr: str) -> str:
+    if not visa_tr:
+        return "Visa / Relocalisation Prise en Charge"
+    if visa_tr in VISA_TRANSLATIONS:
+        return VISA_TRANSLATIONS[visa_tr]
+    for k, v in VISA_TRANSLATIONS.items():
+        if k in visa_tr or visa_tr in k:
+            return v
+    if "ICT" in visa_tr or "Transfer" in visa_tr:
+        return "Détachement Intra-Groupe (Salarié Détaché ICT) / Visa Relocalisation"
+    if "Passeport Talent" in visa_tr:
+        return "Sponsoring Visa Passeport Talent / French Tech"
+    if "MEAE" in visa_tr or "Memur" in visa_tr or "Diplomatik" in visa_tr:
+        return "Statut International : Titre Spécial Délivré par le MEAE"
+    return "Visa / Relocalisation Prise en Charge"
+
+
+def determine_job_domain(j: JobOpportunity) -> str:
+    """Classifie le poste dans un des 7 grands domaines professionnels."""
+    if j.domain:
+        return j.domain
+    txt = f"{j.title} {j.title_fr} {j.category} {j.category_fr} {j.snippet} {' '.join(j.tags)}".lower()
+    if any(k in txt for k in ["software", "yazılım", "developer", "engineer", "cloud", "tech", "data", "ai", "intelligence artificielle", "yapay zeka", "it ", "devops"]):
+        return "it"
+    if any(k in txt for k in ["lojistik", "logistique", "supply chain", "tedarik", "nakliye", "fret", "transport", "depo", "entrepôt"]):
+        return "logistics"
+    if any(k in txt for k in ["satış", "vente", "sales", "business development", "ihracat", "export", "account manager", "commercial"]):
+        return "sales"
+    if any(k in txt for k in ["hukuk", "droit", "juridique", "legal", "policy", "avocat", "international relations", "diplomatie"]):
+        return "legal_policy"
+    if any(k in txt for k in ["çeviri", "traduction", "tercüman", "medya", "média", "journaliste", "gazeteci", "rédacteur", "content"]):
+        return "media_trans"
+    if any(k in txt for k in ["ik ", "rh ", "ressources humaines", "insan kaynakları", "talent", "recruitment", "admin", "yönetim"]):
+        return "hr_admin"
+    return "craft_pme"
+
 def determine_job_track(j: JobOpportunity) -> str:
     """Classifie l'offre selon les 3 Voies Prioritaires définies."""
     tags_all = " ".join(j.tags + j.tags_fr).lower()
@@ -139,6 +215,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         score_color = "#10b981" if j.relevance_score >= 80 else ("#f59e0b" if j.relevance_score >= 60 else "#6b7280")
         is_ccift = j.is_ccift_deik or any("CCIFT" in t or "DEİK" in t for t in j.tags)
         track = determine_job_track(j)
+        domain = determine_job_domain(j)
         track_counts[track] = track_counts.get(track, 0) + 1
         
         tags_tr_str = "|".join(j.tags)
@@ -152,6 +229,8 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         cat_fr_safe = html.escape(j.category_fr or j.category, quote=True)
         working_lang_safe = html.escape(j.working_language, quote=True)
         visa_safe = html.escape(j.visa_sponsorship, quote=True)
+        visa_fr = get_visa_fr(j.visa_sponsorship)
+        visa_fr_safe = html.escape(visa_fr, quote=True)
         company_safe = html.escape(j.company, quote=True)
         loc_safe = html.escape(j.location, quote=True)
         source_safe = html.escape(j.source, quote=True)
@@ -196,7 +275,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             ccift_ribbon = f'''
             <div class="ccift-card-ribbon ccift-badge-shimmer">
                 {SVG_ICONS["shield_check"]}
-                <span>CCIFT &amp; DEİK Üyesi / Membre Officiel</span>
+                <span data-tr="CCIFT &amp; DEİK Üyesi / Membre Officiel" data-fr="CCIFT &amp; DEİK Membre Officiel">CCIFT &amp; DEİK Üyesi / Membre Officiel</span>
             </div>
             '''
 
@@ -204,6 +283,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         <div class="job-card {'job-card-ccift' if is_ccift else ''} {'card-track-1' if track == 'voie_1' else ''} {'card-track-3' if track == 'voie_3' else ''}" 
              data-id="{idx}"
              data-track="{track}"
+             data-domain="{domain}"
              data-category-tr="{cat_tr_safe}"
              data-category-fr="{cat_fr_safe}"
              data-title-tr="{title_tr_safe}"
@@ -221,6 +301,8 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
              data-no-french="{'true' if not j.french_required else 'false'}"
              data-working-lang="{working_lang_safe}"
              data-visa="{visa_safe}"
+             data-visa-tr="{visa_safe}"
+             data-visa-fr="{visa_fr_safe}"
              data-search="{j.title.lower()} {j.company.lower()} {j.location.lower()} {j.snippet.lower()} {j.working_language.lower()} {'ccift deik' if is_ccift else ''} {'kapi 1 uluslararasi kurum' if track == 'voie_1' else ''} {'kapi 2 holding ict' if track == 'voie_2' else ''} {'kapi 3 passeport talent tech' if track == 'voie_3' else ''}">
             
             {track_ribbon}
@@ -249,11 +331,11 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             
             <div class="visa-and-lang-box">
                 <div class="val-item">
-                    <span class="val-label">{SVG_ICONS["plane"]} Vize / Relokasyon:</span>
-                    <span class="val-val val-visa">{visa_safe}</span>
+                    <span class="val-label">{SVG_ICONS["plane"]} <span data-tr="Vize / Relokasyon:" data-fr="Visa / Relocalisation :">Vize / Relokasyon:</span></span>
+                    <span class="val-val val-visa" data-visa-tr="{visa_safe}" data-visa-fr="{visa_fr_safe}">{visa_safe}</span>
                 </div>
                 <div class="val-item">
-                    <span class="val-label">{SVG_ICONS["languages"]} Dil Durumu:</span>
+                    <span class="val-label">{SVG_ICONS["languages"]} <span data-tr="Dil Durumu:" data-fr="Exigence Linguistique :">Dil Durumu:</span></span>
                     <span class="val-val {lang_badge_class}" data-lang-badge="true" data-tr="{lang_badge_text_tr}" data-fr="{lang_badge_text_fr}">{lang_badge_text_tr}</span>
                 </div>
             </div>
@@ -267,20 +349,20 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             <div class="card-tracker-status" style="display: none;"></div>
             
             <div class="card-footer">
-                <button class="action-btn-primary" onclick="if(window.BilateralDrawer) window.BilateralDrawer.open({idx})" title="Vize Yol Haritası, İK Bilgileri &amp; İlan Detayı">
-                    <span>👁️ İlan &amp; Vize</span>
+                <button class="action-btn-primary" onclick="if(window.BilateralDrawer) window.BilateralDrawer.open({idx})" title="Vize Yol Haritası, İK Bilgileri &amp; İlan Detayı" data-tooltip-tr="Vize Yol Haritası, İK Bilgileri &amp; İlan Detayı" data-tooltip-fr="Détails de l'Offre, Contacts RH &amp; Feuille de Route Visa">
+                    <span data-tr="👁️ İlan &amp; Vize" data-fr="👁️ Offre &amp; Visa">👁️ İlan &amp; Vize</span>
                 </button>
-                <button class="action-btn-pitch" onclick="if(window.CoverLetterGenerator) window.CoverLetterGenerator.open({idx})" title="Bu İlana Özel Fransızca Ön Yazı ve Pitch Oluştur">
-                    <span>✍️ Ön Yazı</span>
+                <button class="action-btn-pitch" onclick="if(window.CoverLetterGenerator) window.CoverLetterGenerator.open({idx})" title="Bu İlana Özel Fransızca Ön Yazı ve Pitch Oluştur" data-tooltip-tr="Bu İlana Özel Fransızca Ön Yazı ve Pitch Oluştur" data-tooltip-fr="Générer une Lettre de Motivation &amp; Pitch en Français">
+                    <span data-tr="✍️ Ön Yazı" data-fr="✍️ Lettre &amp; Pitch">✍️ Ön Yazı</span>
                 </button>
-                <button class="action-btn-wa" onclick="if(window.TrackerEngine &amp;&amp; window.TrackerEngine.shareWhatsApp) window.TrackerEngine.shareWhatsApp({idx})" title="WhatsApp ile Gönder / Paylaş">
-                    <span>💬 Paylaş</span>
+                <button class="action-btn-wa" onclick="if(window.TrackerEngine &amp;&amp; window.TrackerEngine.shareWhatsApp) window.TrackerEngine.shareWhatsApp({idx})" title="WhatsApp ile Gönder / Paylaş" data-tooltip-tr="WhatsApp ile Gönder / Paylaş" data-tooltip-fr="Partager cette offre sur WhatsApp">
+                    <span data-tr="💬 Paylaş" data-fr="💬 Partager">💬 Paylaş</span>
                 </button>
-                <button class="tracker-action-btn" onclick="window.TrackerEngine.openTrackerModal({idx})" title="Başvuru Takibine Ekle">
-                    {SVG_ICONS["bookmark"]} <span>Takip</span>
+                <button class="tracker-action-btn" onclick="window.TrackerEngine.openTrackerModal({idx})" title="Başvuru Takibine Ekle" data-tooltip-tr="Başvuru Takibine Ekle" data-tooltip-fr="Ajouter au suivi des candidatures">
+                    {SVG_ICONS["bookmark"]} <span data-tr="Takip" data-fr="Suivre">Takip</span>
                 </button>
-                <a href="{j.url}" target="_blank" rel="noopener noreferrer" class="secondary-btn" title="Orijinal İlan Sayfası">
-                    <span>Link</span> {SVG_ICONS["external_link"]}
+                <a href="{j.url}" target="_blank" rel="noopener noreferrer" class="secondary-btn" title="Orijinal İlan Sayfası" data-tooltip-tr="Orijinal İlan Sayfası" data-tooltip-fr="Lien officiel de l'offre">
+                    <span data-tr="Link" data-fr="Lien">Link</span> {SVG_ICONS["external_link"]}
                 </a>
             </div>
         </div>
@@ -1002,6 +1084,40 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         }}
 
         /* Filtres Multi-Facettes Linear Style */
+        .filter-controls-row {{
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 14px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }}
+        .control-group {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        .control-label {{
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }}
+        .filter-select {{
+            padding: 8px 14px;
+            border-radius: 9px;
+            border: 1px solid var(--border-default);
+            background: var(--surface-card);
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }}
+        .filter-select:focus {{
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }}
         .filter-panel {{
             max-width: 1280px;
             margin: 0 auto 20px auto;
@@ -2084,17 +2200,17 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
     <nav class="main-tabs-nav">
         <button class="tab-nav-btn active" id="tabBtnExplore" onclick="window.TrackerEngine.switchTab('explore')">
             {SVG_ICONS["briefcase"]}
-            <span id="i18n-tab-explore">Keşfet &amp; İlanlar</span>
+            <span id="i18n-tab-explore" data-tr="Keşfet &amp; İlanlar" data-fr="Explorer les Offres">Keşfet &amp; İlanlar</span>
             <span class="tab-badge" id="badge-explore-count">{total}</span>
         </button>
         <button class="tab-nav-btn" id="tabBtnTracker" onclick="window.TrackerEngine.switchTab('tracker')">
             {SVG_ICONS["bookmark"]}
-            <span id="i18n-tab-tracker">Başvuru Takibi (Kanban)</span>
+            <span id="i18n-tab-tracker" data-tr="Başvuru Takibi (Kanban)" data-fr="Suivi Candidatures (Kanban)">Başvuru Takibi (Kanban)</span>
             <span class="tab-badge" id="badge-tracker-count">0</span>
         </button>
         <button class="tab-nav-btn" id="tabBtnGuide" onclick="window.TrackerEngine.switchTab('guide')">
             {SVG_ICONS["file_text"]}
-            <span id="i18n-tab-guide">Rehber, Vize &amp; Belgeler</span>
+            <span id="i18n-tab-guide" data-tr="Rehber, Vize &amp; Belgeler" data-fr="Guide Visa &amp; Outils">Rehber, Vize &amp; Belgeler</span>
         </button>
     </nav>
 
@@ -2106,29 +2222,29 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         <!-- GUIDE DE DÉMARRAGE RAPIDE 3 ÉTAPES (MOBILE & DESKTOP) -->
         <div class="quick-start-banner">
             <div class="quick-start-header">
-                <span class="quick-start-badge">🚀 HIZLI BAŞLANGIÇ</span>
-                <h3 id="i18n-qs-title">Fransa'ya Başvuru İçin 3 Kolay Adım :</h3>
+                <span class="quick-start-badge" data-tr="🚀 HIZLI BAŞLANGIÇ" data-fr="🚀 DÉMARRAGE RAPIDE">🚀 HIZLI BAŞLANGIÇ</span>
+                <h3 id="i18n-qs-title" data-tr="Fransa'ya Başvuru İçin 3 Kolay Adım :" data-fr="3 étapes simples pour postuler en France :">Fransa'ya Başvuru İçin 3 Kolay Adım :</h3>
             </div>
             <div class="quick-start-steps">
-                <div class="quick-step" onclick="window.TrackerEngine.Filter.toggleNoFrench();" title="Sadece İngilizce veya Türkçe yeterli olan ilanlar">
+                <div class="quick-step" onclick="window.TrackerEngine.Filter.toggleNoFrench();" title="Sadece İngilizce veya Türkçe yeterli olan ilanlar" data-tooltip-tr="Sadece İngilizce veya Türkçe yeterli olan ilanlar" data-tooltip-fr="Offres où l'anglais ou le turc est suffisant">
                     <div class="step-num">1</div>
                     <div class="step-text">
-                        <strong>🇬🇧 Fransızca Şart Değil</strong>
-                        <span>İngilizce veya Türkçe yeterli ilanları filtrele</span>
+                        <strong data-tr="🇬🇧 Fransızca Şart Değil" data-fr="🇬🇧 Français Non Requis">🇬🇧 Fransızca Şart Değil</strong>
+                        <span data-tr="İngilizce veya Türkçe yeterli ilanları filtrele" data-fr="Filtrer les offres en anglais ou turc">İngilizce veya Türkçe yeterli ilanları filtrele</span>
                     </div>
                 </div>
-                <div class="quick-step" onclick="window.TrackerEngine.Filter.setTrack('voie_2')" title="Şirket içi transfer ile en hızlı vize">
+                <div class="quick-step" onclick="window.TrackerEngine.Filter.setTrack('voie_2')" title="Şirket içi transfer ile en hızlı vize" data-tooltip-tr="Şirket içi transfer ile en hızlı vize" data-tooltip-fr="Détachement intra-groupe ICT ultra-rapide">
                     <div class="step-num">2</div>
                     <div class="step-text">
-                        <strong>🏢 Türk Holdingi veya Kurum Seç</strong>
-                        <span>Beko, THY veya Uluslararası Kurumlar</span>
+                        <strong data-tr="🏢 Türk Holdingi veya Kurum Seç" data-fr="🏢 Groupes Turcs ou Institutions">🏢 Türk Holdingi veya Kurum Seç</strong>
+                        <span data-tr="Beko, THY veya Uluslararası Kurumlar" data-fr="Beko, THY ou Organisations Internationales">Beko, THY veya Uluslararası Kurumlar</span>
                     </div>
                 </div>
-                <div class="quick-step" onclick="window.TrackerEngine.switchTab('guide')" title="Hazır Fransızca dilekçe ve vize rehberi">
+                <div class="quick-step" onclick="window.TrackerEngine.switchTab('guide')" title="Hazır Fransızca dilekçe ve vize rehberi" data-tooltip-tr="Hazır Fransızca dilekçe ve vize rehberi" data-tooltip-fr="Générateur de lettre et guide visa">
                     <div class="step-num">3</div>
                     <div class="step-text">
-                        <strong>✍️ 1-Tıkla Ön Yazını Üret</strong>
-                        <span>Fransızca resmi başvuru mektubun anında hazır</span>
+                        <strong data-tr="✍️ 1-Tıkla Ön Yazını Üret" data-fr="✍️ Générer la Lettre en 1 Clic">✍️ 1-Tıkla Ön Yazını Üret</strong>
+                        <span data-tr="Fransızca resmi başvuru mektubun anında hazır" data-fr="Votre lettre en français prête instantanément">Fransızca resmi başvuru mektubun anında hazır</span>
                     </div>
                 </div>
             </div>
@@ -2141,33 +2257,33 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
 
         <!-- 3 PORTES D'ACCÈS PRIORITAIRES (VOIE 1 / VOIE 2 / VOIE 3) -->
         <div class="priority-tracks-bar">
-            <div class="tracks-bar-title" id="i18n-tracks-title">{SVG_ICONS["filter"]} 3 ÖNCELİKLİ YASAL İSTİHDAM KAPISI (VİZE / RELOKASYON) :</div>
+            <div class="tracks-bar-title" id="i18n-tracks-title" data-tr="🚪 3 ÖNCELİKLİ YASAL İSTİHDAM KAPISI (VİZE / RELOKASYON) :" data-fr="🚪 LES 3 PORTES D'ACCÈS PRIORITAIRES (VISA / RELOCALISATION) :">{SVG_ICONS["filter"]} 3 ÖNCELİKLİ YASAL İSTİHDAM KAPISI (VİZE / RELOKASYON) :</div>
             <div class="tracks-buttons-group">
                 <button class="track-btn active" data-track="all" onclick="window.TrackerEngine.Filter.setTrack('all', this)" id="btn-track-all">
                     <div class="track-btn-left">
                         <span class="track-icon">{SVG_ICONS["globe"]}</span>
-                        <span class="track-name" id="i18n-track-all">Tüm Kapılar / Tümü</span>
+                        <span class="track-name" id="i18n-track-all" data-tr="Tüm Kapılar / Tümü" data-fr="Toutes les Voies / Tout">Tüm Kapılar / Tümü</span>
                     </div>
                     <span class="track-badge-count" id="count-track-all">{total}</span>
                 </button>
                 <button class="track-btn track-btn-1" data-track="voie_1" onclick="window.TrackerEngine.Filter.setTrack('voie_1', this)" id="btn-track-1">
                     <div class="track-btn-left">
                         <span class="track-icon">{SVG_ICONS["landmark"]}</span>
-                        <span class="track-name" id="i18n-track-1">KAPI 1: Uluslararası Kurumlar</span>
+                        <span class="track-name" id="i18n-track-1" data-tr="KAPI 1: Uluslararası Kurumlar" data-fr="VOIE 1 : Institutions Internationales">KAPI 1: Uluslararası Kurumlar</span>
                     </div>
                     <span class="track-badge-count" id="count-track-1">{track_counts['voie_1']}</span>
                 </button>
                 <button class="track-btn track-btn-2" data-track="voie_2" onclick="window.TrackerEngine.Filter.setTrack('voie_2', this)" id="btn-track-2">
                     <div class="track-btn-left">
                         <span class="track-icon">{SVG_ICONS["shield_check"]}</span>
-                        <span class="track-name" id="i18n-track-2">KAPI 2: Türk Holdingleri (ICT)</span>
+                        <span class="track-name" id="i18n-track-2" data-tr="KAPI 2: Türk Holdingleri (ICT)" data-fr="VOIE 2 : Multinationales Turques (ICT)">KAPI 2: Türk Holdingleri (ICT)</span>
                     </div>
                     <span class="track-badge-count" id="count-track-2">{track_counts['voie_2']}</span>
                 </button>
                 <button class="track-btn track-btn-3" data-track="voie_3" onclick="window.TrackerEngine.Filter.setTrack('voie_3', this)" id="btn-track-3">
                     <div class="track-btn-left">
                         <span class="track-icon">{SVG_ICONS["rocket"]}</span>
-                        <span class="track-name" id="i18n-track-3">KAPI 3: Yetenek Pasaportu (Tech)</span>
+                        <span class="track-name" id="i18n-track-3" data-tr="KAPI 3: Yetenek Pasaportu (Tech)" data-fr="VOIE 3 : Passeport Talent (Tech)">KAPI 3: Yetenek Pasaportu (Tech)</span>
                     </div>
                     <span class="track-badge-count" id="count-track-3">{track_counts['voie_3']}</span>
                 </button>
@@ -2218,40 +2334,64 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         <!-- BARRE DE RECHERCHE ET FILTRES MULTI-FACETTES -->
         <div class="filter-panel">
             <div class="search-bar-row">
-                <input type="text" id="searchInput" class="search-input" placeholder="Pozisyon, şehir (Paris, Lyon, Strazburg...), kurum (OECD, Beko, THY, Ekol...) ara...">
+                <input type="text" id="searchInput" class="search-input" placeholder="Pozisyon, şehir (Paris, Lyon, Strazburg...), kurum (OECD, Beko, THY, Ekol...) ara..." data-placeholder-tr="🔍 Pozisyon, şehir (Paris, Lyon, Strazburg...), kurum (OECD, Beko, THY, Ekol...) ara..." data-placeholder-fr="🔍 Rechercher poste, ville (Paris, Lyon, Strasbourg...), institution (OCDE, Beko, THY...)...">
+            </div>
+            
+            <div class="filter-controls-row">
+                <div class="control-group">
+                    <label class="control-label" id="i18n-domain-label" for="domainSelect" data-tr="📂 Uzmanlık Alanı :" data-fr="📂 Domaine d'activité :">📂 Uzmanlık Alanı :</label>
+                    <select id="domainSelect" class="filter-select" onchange="window.TrackerEngine.Filter.setDomain(this.value)">
+                        <option value="all" id="opt-domain-all" data-tr="🌐 Tüm Alanlar" data-fr="🌐 Tous les domaines">🌐 Tüm Alanlar</option>
+                        <option value="it" id="opt-domain-it" data-tr="💻 IT, Yazılım &amp; AI" data-fr="💻 IT, Logiciel &amp; IA">💻 IT, Yazılım &amp; AI</option>
+                        <option value="logistics" id="opt-domain-logistics" data-tr="📦 Lojistik &amp; Taşımacılık" data-fr="📦 Logistique &amp; Transport">📦 Lojistik &amp; Taşımacılık</option>
+                        <option value="sales" id="opt-domain-sales" data-tr="💼 Satış &amp; İhracat" data-fr="💼 Vente, Export &amp; Marketing">💼 Satış &amp; İhracat</option>
+                        <option value="legal_policy" id="opt-domain-legal" data-tr="⚖️ Hukuk &amp; Uluslararası İlişkiler" data-fr="⚖️ Droit &amp; Relations Internationales">⚖️ Hukuk &amp; Uluslararası İlişkiler</option>
+                        <option value="media_trans" id="opt-domain-media" data-tr="🗣️ Çeviri &amp; Medya" data-fr="🗣️ Traduction &amp; Médias">🗣️ Çeviri &amp; Medya</option>
+                        <option value="hr_admin" id="opt-domain-hr" data-tr="👥 İK &amp; Yönetim" data-fr="👥 RH &amp; Administration">👥 İK &amp; Yönetim</option>
+                        <option value="craft_pme" id="opt-domain-craft" data-tr="🛠️ Zanaat &amp; Saha İşleri" data-fr="🛠️ Métiers de Terrain &amp; PME">🛠️ Zanaat &amp; Saha İşleri</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" id="i18n-sort-label" for="sortSelect" data-tr="🔄 Sıralama :" data-fr="🔄 Trier par :">🔄 Sıralama :</label>
+                    <select id="sortSelect" class="filter-select" onchange="window.TrackerEngine.Filter.setSort(this.value)">
+                        <option value="score_desc" id="opt-sort-score" data-tr="🎯 En Yüksek Uygunluk (Azalan)" data-fr="🎯 Score de Pertinence (Décroissant)">🎯 En Yüksek Uygunluk (Azalan)</option>
+                        <option value="date_desc" id="opt-sort-date" data-tr="📅 En Yeni İlanlar (Tarih)" data-fr="📅 Date de Publication (Plus Récent)">📅 En Yeni İlanlar (Tarih)</option>
+                        <option value="company_asc" id="opt-sort-company" data-tr="🏢 Şirket Adı (A-Z)" data-fr="🏢 Entreprise (A-Z)">🏢 Şirket Adı (A-Z)</option>
+                    </select>
+                </div>
             </div>
             
             <div class="filter-facets-row">
-                <button class="filter-pill-btn active" data-filter-val="all" onclick="window.TrackerEngine.Filter.setCategory('all'); document.querySelectorAll('.filter-pill-btn[data-filter-val]').forEach(b=>b.classList.remove('active')); this.classList.add('active');">Tümü</button>
+                <button class="filter-pill-btn active" data-filter-val="all" data-tr="Tümü" data-fr="Toutes" onclick="window.TrackerEngine.Filter.setCategory('all'); document.querySelectorAll('.filter-pill-btn[data-filter-val]').forEach(b=>b.classList.remove('active')); this.classList.add('active');">Tümü</button>
                 <button class="filter-pill-btn pill-ccift" id="filter-btn-ccift" onclick="window.TrackerEngine.Filter.toggleCcift(); this.classList.toggle('active');">
-                    {SVG_ICONS["shield_check"]} CCIFT & DEİK Üyeleri
+                    {SVG_ICONS["shield_check"]} <span data-tr="CCIFT &amp; DEİK Üyeleri" data-fr="Membres CCIFT &amp; DEİK">CCIFT &amp; DEİK Üyeleri</span>
                 </button>
                 <button class="filter-pill-btn pill-no-french" id="filter-btn-no-french" onclick="window.TrackerEngine.Filter.toggleNoFrench(); this.classList.toggle('active');">
-                    {SVG_ICONS["check_circle"]} Fransızca Şart Değil
+                    {SVG_ICONS["check_circle"]} <span data-tr="Fransızca Şart Değil" data-fr="Sans Français Obligatoire">Fransızca Şart Değil</span>
                 </button>
                 <button class="filter-pill-btn" data-filter-val="institutions" onclick="window.TrackerEngine.Filter.setCategory('institutions'); document.querySelectorAll('.filter-pill-btn[data-filter-val]').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    {SVG_ICONS["landmark"]} Uluslararası Kurumlar
+                    {SVG_ICONS["landmark"]} <span data-tr="Uluslararası Kurumlar" data-fr="Institutions Internationales">Uluslararası Kurumlar</span>
                 </button>
                 <button class="filter-pill-btn" data-filter-val="companies" onclick="window.TrackerEngine.Filter.setCategory('companies'); document.querySelectorAll('.filter-pill-btn[data-filter-val]').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    {SVG_ICONS["building"]} Türk Holdingleri
+                    {SVG_ICONS["building"]} <span data-tr="Türk Holdingleri" data-fr="Multinationales Turques">Türk Holdingleri</span>
                 </button>
                 <button class="filter-pill-btn" data-filter-val="logistics" onclick="window.TrackerEngine.Filter.setCategory('logistics'); document.querySelectorAll('.filter-pill-btn[data-filter-val]').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    {SVG_ICONS["plane"]} Lojistik & Ticaret
+                    {SVG_ICONS["plane"]} <span data-tr="Lojistik &amp; Ticaret" data-fr="Logistique &amp; Commerce">Lojistik &amp; Ticaret</span>
                 </button>
                 <button class="filter-pill-btn" data-filter-val="tech" onclick="window.TrackerEngine.Filter.setCategory('tech'); document.querySelectorAll('.filter-pill-btn[data-filter-val]').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    {SVG_ICONS["rocket"]} Tech & Scale-ups
+                    {SVG_ICONS["rocket"]} <span data-tr="Tech &amp; Scale-ups" data-fr="Tech &amp; Scale-ups">Tech &amp; Scale-ups</span>
                 </button>
                 <button class="filter-pill-btn" data-filter-val="pme" onclick="window.TrackerEngine.Filter.setCategory('pme'); document.querySelectorAll('.filter-pill-btn[data-filter-val]').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    {SVG_ICONS["briefcase"]} KOBİ & Saha
+                    {SVG_ICONS["briefcase"]} <span data-tr="KOBİ &amp; Saha" data-fr="PME &amp; Terrain">KOBİ &amp; Saha</span>
                 </button>
                 
                 <span style="color: var(--border-default); font-size: 1.2rem;">|</span>
                 
                 <button class="filter-pill-btn pill-fav" onclick="const isFav = this.classList.toggle('active'); window.TrackerEngine.Filter.setStatusFilter(isFav ? 'fav' : 'all');">
-                    {SVG_ICONS["bookmark"]} Sadece Favoriler
+                    {SVG_ICONS["bookmark"]} <span data-tr="Sadece Favoriler" data-fr="Favoris Uniquement">Sadece Favoriler</span>
                 </button>
                 <button class="filter-pill-btn pill-tracked" onclick="const isTracked = this.classList.toggle('active'); window.TrackerEngine.Filter.setStatusFilter(isTracked ? 'tracked' : 'all');">
-                    {SVG_ICONS["file_text"]} Takip Edilenler
+                    {SVG_ICONS["file_text"]} <span data-tr="Takip Edilenler" data-fr="Candidatures Suivies">Takip Edilenler</span>
                 </button>
             </div>
 
@@ -2264,8 +2404,8 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         </div>
 
         <div id="no-results-box" style="display: none; text-align: center; padding: 40px; background: var(--surface-card); border-radius: 14px; border: 1px solid var(--border-default); max-width: 600px; margin: 30px auto;">
-            <p style="font-size: 1.1rem; color: var(--text-tertiary); margin-bottom: 14px;">Aradığınız kriterlere uygun fırsat bulunamadı.</p>
-            <button class="apply-btn" style="max-width: 220px; margin: 0 auto;" onclick="window.TrackerEngine.Filter.resetAll()">Filtreleri Temizle 🔄</button>
+            <p style="font-size: 1.1rem; color: var(--text-tertiary); margin-bottom: 14px;" data-tr="Aradığınız kriterlere uygun fırsat bulunamadı." data-fr="Aucune opportunité ne correspond à vos critères de recherche.">Aradığınız kriterlere uygun fırsat bulunamadı.</p>
+            <button class="apply-btn" style="max-width: 220px; margin: 0 auto;" onclick="window.TrackerEngine.Filter.resetAll()" data-tr="Filtreleri Temizle 🔄" data-fr="Effacer les Filtres 🔄">Filtreleri Temizle 🔄</button>
         </div>
 
         <!-- GRILLE COMPLÈTE DES CARTES -->
@@ -2289,36 +2429,36 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         <div class="tracker-stats-grid">
             <div class="tracker-stat-box">
                 <div class="t-num" id="tracker-stat-total">0</div>
-                <div class="t-lbl">Toplam Takipte</div>
+                <div class="t-lbl" data-tr="Toplam Takipte" data-fr="Total Suivi">Toplam Takipte</div>
             </div>
             <div class="tracker-stat-box box-applied">
                 <div class="t-num" id="tracker-stat-applied">0</div>
-                <div class="t-lbl">Başvuruldu / Süreçte</div>
+                <div class="t-lbl" data-tr="Başvuruldu / Süreçte" data-fr="Postulé / En cours">Başvuruldu / Süreçte</div>
             </div>
             <div class="tracker-stat-box box-interview">
                 <div class="t-num" id="tracker-stat-interview">0</div>
-                <div class="t-lbl">Mülakat Planlandı</div>
+                <div class="t-lbl" data-tr="Mülakat Planlandı" data-fr="Entretien Prévu">Mülakat Planlandı</div>
             </div>
             <div class="tracker-stat-box box-offer">
                 <div class="t-num" id="tracker-stat-offer">0</div>
-                <div class="t-lbl">Kabul / Teklif</div>
+                <div class="t-lbl" data-tr="Kabul / Teklif" data-fr="Offre / Acceptée">Kabul / Teklif</div>
             </div>
         </div>
 
         <!-- TOOLBAR DU TRACKER -->
         <div class="tracker-toolbar">
-            <input type="text" id="trackerSearchInput" class="tracker-search-input" placeholder="Takip edilen başvurularda ara...">
+            <input type="text" id="trackerSearchInput" class="tracker-search-input" placeholder="Takip edilen başvurularda ara..." data-placeholder-tr="Takip edilen başvurularda ara..." data-placeholder-fr="Rechercher dans les candidatures suivies...">
             <div class="tracker-actions-group">
-                <button class="btn-action-tracker btn-export-csv" id="btn-export-csv" onclick="window.TrackerEngine.exportCSV()">CSV Dışa Aktar (Superviseur FR)</button>
-                <button class="btn-action-tracker btn-export-json" id="btn-export-json" onclick="window.TrackerEngine.exportJSON()">JSON Dışa Aktar</button>
-                <button class="btn-action-tracker btn-clear-tracker" id="btn-clear-tracker" onclick="window.TrackerEngine.clearAllApplications()">Listeyi Temizle</button>
+                <button class="btn-action-tracker btn-export-csv" id="btn-export-csv" data-tr="CSV Dışa Aktar (Superviseur FR)" data-fr="Exporter en CSV (Superviseur FR)" onclick="window.TrackerEngine.exportCSV()">CSV Dışa Aktar (Superviseur FR)</button>
+                <button class="btn-action-tracker btn-export-json" id="btn-export-json" data-tr="JSON Dışa Aktar" data-fr="Exporter en JSON" onclick="window.TrackerEngine.exportJSON()">JSON Dışa Aktar</button>
+                <button class="btn-action-tracker btn-clear-tracker" id="btn-clear-tracker" data-tr="Listeyi Temizle" data-fr="Effacer la Liste" onclick="window.TrackerEngine.clearAllApplications()">Listeyi Temizle</button>
             </div>
         </div>
 
         <div id="tracker-empty-notice" class="tracker-empty-board" style="display: none;">
-            <h3>Henüz takibe alınmış bir başvuru yok</h3>
-            <p>İlanlar sekmesinde ilgilendiğiniz ilanların altındaki <strong>'Takip Et'</strong> butonuna tıklayarak veya kartı favorilere ekleyerek takip sürecinizi başlatabilirsiniz.</p>
-            <button class="apply-btn" style="max-width: 240px; margin: 0 auto;" onclick="window.TrackerEngine.switchTab('explore')">İlanları Keşfetmeye Başla</button>
+            <h3 data-tr="Henüz takibe alınmış bir başvuru yok" data-fr="Aucune candidature enregistrée pour le moment">Henüz takibe alınmış bir başvuru yok</h3>
+            <p data-tr="İlanlar sekmesinde ilgilendiğiniz ilanların altındaki 'Takip Et' butonuna tıklayarak veya kartı favorilere ekleyerek takip sürecinizi başlatabilirsiniz." data-fr="Dans l'onglet Explorer, cliquez sur 'Suivre' pour ajouter une offre à votre tableau de bord.">İlanlar sekmesinde ilgilendiğiniz ilanların altındaki 'Takip Et' butonuna tıklayarak veya kartı favorilere ekleyerek takip sürecinizi başlatabilirsiniz.</p>
+            <button class="apply-btn" style="max-width: 240px; margin: 0 auto;" onclick="window.TrackerEngine.switchTab('explore')" data-tr="İlanları Keşfetmeye Başla" data-fr="Commencer à Explorer les Offres">İlanları Keşfetmeye Başla</button>
         </div>
 
         <!-- PIPELINE KANBAN (4 ÉTAPES) -->
@@ -2384,36 +2524,36 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         <div class="guide-container">
             
             <div class="tracker-header-box" style="margin-bottom: 26px;">
-                <h2>Fransa İstihdam, Vize & Başvuru Rehberi</h2>
-                <p>Türkiye'den Fransa'ya transfer süreçleri, vize prosedürleri ve hazır başvuru şablonları.</p>
+                <h2 data-tr="Fransa İstihdam, Vize &amp; Başvuru Rehberi" data-fr="Guide Emploi en France, Visas &amp; Outils Bilatéraux">Fransa İstihdam, Vize &amp; Başvuru Rehberi</h2>
+                <p data-tr="Türkiye'den Fransa'ya transfer süreçleri, vize prosedürleri ve hazır başvuru şablonları." data-fr="Procédures de transfert Turquie-France, démarches visas et modèles de candidature prêts à l'emploi.">Türkiye'den Fransa'ya transfer süreçleri, vize prosedürleri ve hazır başvuru şablonları.</p>
             </div>
 
             <!-- SECTION A : LES 4 VOIES LÉGALES DE VISA -->
             <div class="guide-card-section">
                 <div class="guide-section-header">
-                    <h3>{SVG_ICONS["plane"]} 1. Türkiye'den Fransa'ya 4 Yasal İstihdam ve Vize Yolu</h3>
-                    <p>Klasik çalışma izni engeline takılmadan Fransa'ya geçiş sağlayan öncelikli statüler.</p>
+                    <h3 data-tr="1. Türkiye'den Fransa'ya 4 Yasal İstihdam ve Vize Yolu" data-fr="1. Les 4 Voies Légales d'Emploi et de Visa Turquie ➔ France">{SVG_ICONS["plane"]} 1. Türkiye'den Fransa'ya 4 Yasal İstihdam ve Vize Yolu</h3>
+                    <p data-tr="Klasik çalışma izni engeline takılmadan Fransa'ya geçiş sağlayan öncelikli statüler." data-fr="Statuts prioritaires permettant de s'installer en France sans blocage d'autorisation de travail standard.">Klasik çalışma izni engeline takılmadan Fransa'ya geçiş sağlayan öncelikli statüler.</p>
                 </div>
                 <div class="guide-grid-2">
                     <div class="visa-method-card">
-                        <span class="method-tag">Şirket İçi Transfer (ICT)</span>
-                        <h4>{SVG_ICONS["shield_check"]} 1. Salarié Détaché ICT (CCIFT & DEİK Üyeleri)</h4>
-                        <p>Beko, THY, Ekol, Barsan, Şişecam gibi holdinglerin Türkiye merkezinde en az 3-6 ay çalışan uzman veya yöneticilerin Fransa şubelerine tayin edilmesi. <strong>Yerel işgücü piyasası araştırması (opposabilité de l'emploi) ve dil sınavı aranmaz!</strong> En hızlı vize yoludur.</p>
+                        <span class="method-tag" data-tr="Şirket İçi Transfer (ICT)" data-fr="Détachement Intra-Groupe (ICT)">Şirket İçi Transfer (ICT)</span>
+                        <h4>{SVG_ICONS["shield_check"]} <span data-tr="1. Salarié Détaché ICT (CCIFT &amp; DEİK Üyeleri)" data-fr="1. Salarié Détaché ICT (Membres CCIFT &amp; DEİK)">1. Salarié Détaché ICT (CCIFT &amp; DEİK Üyeleri)</span></h4>
+                        <p data-tr="Beko, THY, Ekol, Barsan, Şişecam gibi holdinglerin Türkiye merkezinde en az 3-6 ay çalışan uzman veya yöneticilerin Fransa şubelerine tayin edilmesi. <strong>Yerel işgücü piyasası araştırması (opposabilité de l'emploi) ve dil sınavı aranmaz!</strong> En hızlı vize yoludur." data-fr="Détachement d'experts ou cadres d'un groupe en Turquie (Beko, THY, Ekol, Barsan, Şişecam...) vers sa filiale française. <strong>Exonération totale du test du marché de l'emploi et dispense de test de langue !</strong> Procédure bilatérale ultra-rapide (Convention 1972).">Beko, THY, Ekol, Barsan, Şişecam gibi holdinglerin Türkiye merkezinde en az 3-6 ay çalışan uzman veya yöneticilerin Fransa şubelerine tayin edilmesi. <strong>Yerel işgücü piyasası araştırması (opposabilité de l'emploi) ve dil sınavı aranmaz!</strong> En hızlı vize yoludur.</p>
                     </div>
                     <div class="visa-method-card">
-                        <span class="method-tag">Passeport Talent</span>
-                        <h4>{SVG_ICONS["rocket"]} 2. Yetenek Pasaportu (Passeport Talent - Salarié Qualifié)</h4>
-                        <p>Fransa'daki teknoloji scale-up'ları (Mistral AI, Datadog, Qonto) ve yenilikçi şirketler tarafından verilir. Yüksek lisans veya brüt asgari ücretin en az 2 katı (yaklaşık 43.000 €/yıl) maaş teklifi durumunda eş ve çocuklara da doğrudan tam çalışma hakkı sağlar.</p>
+                        <span class="method-tag" data-tr="Passeport Talent" data-fr="Passeport Talent">Passeport Talent</span>
+                        <h4>{SVG_ICONS["rocket"]} <span data-tr="2. Yetenek Pasaportu (Passeport Talent - Salarié Qualifié)" data-fr="2. Passeport Talent (Tech &amp; Entreprise Innovante)">2. Yetenek Pasaportu (Passeport Talent - Salarié Qualifié)</span></h4>
+                        <p data-tr="Fransa'daki teknoloji scale-up'ları (Mistral AI, Datadog, Qonto) ve yenilikçi şirketler tarafından verilir. Yüksek lisans veya brüt asgari ücretin en az 2 katı (yaklaşık 43.000 €/yıl) maaş teklifi durumunda eş ve çocuklara da doğrudan tam çalışma hakkı sağlar." data-fr="Délivré par les scale-ups tech (Mistral AI, Datadog, Qonto) et entreprises innovantes. Sur offre de salaire ≥ 2x SMIC (env. 43 000 €/an), octroie un titre pluriannuel de 4 ans avec droit de travail immédiat pour le conjoint.">Fransa'daki teknoloji scale-up'ları (Mistral AI, Datadog, Qonto) ve yenilikçi şirketler tarafından verilir. Yüksek lisans veya brüt asgari ücretin en az 2 katı (yaklaşık 43.000 €/yıl) maaş teklifi durumunda eş ve çocuklara da doğrudan tam çalışma hakkı sağlar.</p>
                     </div>
                     <div class="visa-method-card">
-                        <span class="method-tag">Özel MEAE Diplomatik Statüsü</span>
-                        <h4>{SVG_ICONS["landmark"]} 3. Uluslararası & Avrupa Kuruluşları (OECD, CoE, UNESCO)</h4>
-                        <p>Türkiye'nin kurucu veya tam üye olduğu kurumlarda istihdam. Standart Fransa çalışma vizesi aranmaz; Dışişleri Bakanlığı (MEAE) tarafından doğrudan özel uluslararası diplomatik oturum kartı verilir. Taşınma masrafları kurumca karşılanır.</p>
+                        <span class="method-tag" data-tr="Özel MEAE Diplomatik Statüsü" data-fr="Statut Diplomatique MEAE">Özel MEAE Diplomatik Statüsü</span>
+                        <h4>{SVG_ICONS["landmark"]} <span data-tr="3. Uluslararası &amp; Avrupa Kuruluşları (OECD, CoE, UNESCO)" data-fr="3. Organisations Internationales &amp; Européennes (OCDE, Conseil de l'Europe, UNESCO)">3. Uluslararası &amp; Avrupa Kuruluşları (OECD, CoE, UNESCO)</span></h4>
+                        <p data-tr="Türkiye'nin kurucu veya tam üye olduğu kurumlarda istihdam. Standart Fransa çalışma vizesi aranmaz; Dışişleri Bakanlığı (MEAE) tarafından doğrudan özel uluslararası diplomatik oturum kartı verilir. Taşınma masrafları kurumca karşılanır." data-fr="Emploi au sein d'institutions dont la Turquie est membre fondateur. Aucun visa de travail classique requis : délivrance directe d'un Titre Spécial MEAE protocolaire. Exonération fiscale et prise en charge intégrale du déménagement.">Türkiye'nin kurucu veya tam üye olduğu kurumlarda istihdam. Standart Fransa çalışma vizesi aranmaz; Dışişleri Bakanlığı (MEAE) tarafından doğrudan özel uluslararası diplomatik oturum kartı verilir. Taşınma masrafları kurumca karşılanır.</p>
                     </div>
                     <div class="visa-method-card">
-                        <span class="method-tag">Klasik Çalışma İzni</span>
-                        <h4>{SVG_ICONS["file_text"]} 4. Salarié de Droit Commun & Métiers en Tension</h4>
-                        <p>Fransa'da personel açığı bulunan sektörlerde (bilişim, lojistik, inşaat, mühendislik) Fransız işverenin İçişleri Bakanlığı yabancı işçi portalından (ANEF) çalışma izni almasıyla verilen oturum türü.</p>
+                        <span class="method-tag" data-tr="Klasik Çalışma İzni" data-fr="Droit Commun (Métiers en Tension)">Klasik Çalışma İzni</span>
+                        <h4>{SVG_ICONS["file_text"]} <span data-tr="4. Salarié de Droit Commun &amp; Métiers en Tension" data-fr="4. Salarié de Droit Commun &amp; Métiers en Tension">4. Salarié de Droit Commun &amp; Métiers en Tension</span></h4>
+                        <p data-tr="Fransa'da personel açığı bulunan sektörlerde (bilişim, lojistik, inşaat, mühendislik) Fransız işverenin İçişleri Bakanlığı yabancı işçi portalından (ANEF) çalışma izni almasıyla verilen oturum türü." data-fr="Pour les métiers en tension en France (IT, logistique, BTP, ingénierie). Demande d'autorisation de travail déposée par l'employeur sur le portail ANEF du Ministère de l'Intérieur.">Fransa'da personel açığı bulunan sektörlerde (bilişim, lojistik, inşaat, mühendislik) Fransız işverenin İçişleri Bakanlığı yabancı işçi portalından (ANEF) çalışma izni almasıyla verilen oturum türü.</p>
                     </div>
                 </div>
             </div>
@@ -2421,29 +2561,29 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             <!-- SECTION B : CHECKLIST INTERACTIVE -->
             <div class="guide-card-section">
                 <div class="guide-section-header">
-                    <h3>{SVG_ICONS["check_circle"]} 2. Başvuru Öncesi İnteraktif Aday Kontrol Listesi (Checklist)</h3>
-                    <p>İlerlemenizi işaretleyin; durumunuz otomatik olarak tarayıcınızda saklanır.</p>
+                    <h3 data-tr="2. Başvuru Öncesi İnteraktif Aday Kontrol Listesi (Checklist)" data-fr="2. Checklist Interactive Avant Candidature">{SVG_ICONS["check_circle"]} 2. Başvuru Öncesi İnteraktif Aday Kontrol Listesi (Checklist)</h3>
+                    <p data-tr="İlerlemenizi işaretleyin; durumunuz otomatik olarak tarayıcınızda saklanır." data-fr="Cochez vos étapes terminées ; votre progression est automatiquement sauvegardée dans votre navigateur.">İlerlemenizi işaretleyin; durumunuz otomatik olarak tarayıcınızda saklanır.</p>
                 </div>
                 <div class="checklist-items-box">
                     <label class="checklist-item" for="chk-passport">
                         <input type="checkbox" id="chk-passport" class="guide-checkbox">
-                        <span class="checklist-label">Pasaport Geçerlilik Süresi: Planlanan seyahat tarihinden itibaren en az 12 ay geçerli bordo/yeşil pasaport.</span>
+                        <span class="checklist-label" data-tr="Pasaport Geçerlilik Süresi: Planlanan seyahat tarihinden itibaren en az 12 ay geçerli bordo/yeşil pasaport." data-fr="Validité du Passeport : Passeport valide au moins 12 mois à compter de la date de départ envisagée.">Pasaport Geçerlilik Süresi: Planlanan seyahat tarihinden itibaren en az 12 ay geçerli bordo/yeşil pasaport.</span>
                     </label>
                     <label class="checklist-item" for="chk-cv">
                         <input type="checkbox" id="chk-cv" class="guide-checkbox">
-                        <span class="checklist-label">Avrupa Standartlarında CV (Europass / ATS Uyumlu): Fotoğrafsız veya nötr fotoğraflı, İngilizce veya Fransızca 1-2 sayfalık özgeçmiş.</span>
+                        <span class="checklist-label" data-tr="Avrupa Standartlarında CV (Europass / ATS Uyumlu): Fotoğrafsız veya nötr fotoğraflı, İngilizce veya Fransızca 1-2 sayfalık özgeçmiş." data-fr="CV aux Normes Européennes (Compatible Europass / ATS) : 1 à 2 pages en anglais ou français, clair et synthétique.">Avrupa Standartlarında CV (Europass / ATS Uyumlu): Fotoğrafsız veya nötr fotoğraflı, İngilizce veya Fransızca 1-2 sayfalık özgeçmiş.</span>
                     </label>
                     <label class="checklist-item" for="chk-diploma">
                         <input type="checkbox" id="chk-diploma" class="guide-checkbox">
-                        <span class="checklist-label">Diploma & Transkript Çevirileri: Yeminli tercüman onaylı, tercihen apostilli lisans/yüksek lisans belgeleri.</span>
+                        <span class="checklist-label" data-tr="Diploma &amp; Transkript Çevirileri: Yeminli tercüman onaylı, tercihen apostilli lisans/yüksek lisans belgeleri." data-fr="Diplômes et Relevés de Notes Traduits : Traduction assermentée en français/anglais, avec apostille si possible.">Diploma &amp; Transkript Çevirileri: Yeminli tercüman onaylı, tercihen apostilli lisans/yüksek lisans belgeleri.</span>
                     </label>
                     <label class="checklist-item" for="chk-linkedin">
                         <input type="checkbox" id="chk-linkedin" class="guide-checkbox">
-                        <span class="checklist-label">LinkedIn Profilinin Güncellenmesi: Profil dilinin İngilizce ve/veya Fransızca yapılması, 'Open to Work' konumunun Fransa olarak işaretlenmesi.</span>
+                        <span class="checklist-label" data-tr="LinkedIn Profilinin Güncellenmesi: Profil dilinin İngilizce ve/veya Fransızca yapılması, 'Open to Work' konumunun Fransa olarak işaretlenmesi." data-fr="Mise à jour du profil LinkedIn : Titre et résumé en anglais/français, statut 'Open to Work' ciblé sur la France.">LinkedIn Profilinin Güncellenmesi: Profil dilinin İngilizce ve/veya Fransızca yapılması, 'Open to Work' konumunun Fransa olarak işaretlenmesi.</span>
                     </label>
                     <label class="checklist-item" for="chk-adli-sicil">
                         <input type="checkbox" id="chk-adli-sicil" class="guide-checkbox">
-                        <span class="checklist-label">Adli Sicil Kaydı (e-Devlet): Fransızca veya İngilizce barkodlu adli sicil belgesi.</span>
+                        <span class="checklist-label" data-tr="Adli Sicil Kaydı (e-Devlet): Fransızca veya İngilizce barkodlu adli sicil belgesi." data-fr="Extrait de Casier Judiciaire (e-Devlet) : Document officiel avec code QR / code-barres en français ou anglais.">Adli Sicil Kaydı (e-Devlet): Fransızca veya İngilizce barkodlu adli sicil belgesi.</span>
                     </label>
                 </div>
             </div>
@@ -2451,16 +2591,16 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             <!-- SECTION C : TEMPLATES D'EMAIL BILINGUES -->
             <div class="guide-card-section">
                 <div class="guide-section-header">
-                    <h3>{SVG_ICONS["file_text"]} 3. Hazır E-posta & Motivasyon Mektubu Şablonları (1-Tık Kopyala)</h3>
-                    <p>Fransa'daki Türk yöneticilere veya uluslararası İK temsilcilerine doğrudan gönderebileceğiniz taslaklar.</p>
+                    <h3 data-tr="3. Hazır E-posta &amp; Motivasyon Mektubu Şablonları (1-Tık Kopyala)" data-fr="3. Modèles d'Email &amp; Lettres de Motivation (Copie en 1-Clic)">{SVG_ICONS["file_text"]} 3. Hazır E-posta &amp; Motivasyon Mektubu Şablonları (1-Tık Kopyala)</h3>
+                    <p data-tr="Fransa'daki Türk yöneticilere veya uluslararası İK temsilcilerine doğrudan gönderebileceğiniz taslaklar." data-fr="Modèles prêts à l'envoi pour contacter directement les dirigeants de groupes turcs ou les RH internationaux en France.">Fransa'daki Türk yöneticilere veya uluslararası İK temsilcilerine doğrudan gönderebileceğiniz taslaklar.</p>
                 </div>
 
                 <!-- ŞABLON 1 : TÜRK HOLDİNGİ FRANSA ŞUBESİ (ICT) -->
                 <div class="template-block">
                     <div class="template-top">
-                        <span class="template-title">Şablon 1 : Türk Holdingi Fransa Şubesi Direktörüne Doğrudan Başvuru</span>
+                        <span class="template-title" data-tr="Şablon 1 : Türk Holdingi Fransa Şubesi Direktörüne Doğrudan Başvuru" data-fr="Modèle 1 : Prise de Contact Directe avec la Direction / DRH d'une Filiale Turque en France">Şablon 1 : Türk Holdingi Fransa Şubesi Direktörüne Doğrudan Başvuru</span>
                         <button class="copy-template-btn" onclick="window.TrackerEngine.copyTemplate('tmpl-1', this)">
-                            {SVG_ICONS["copy"]} Metni Kopyala
+                            {SVG_ICONS["copy"]} <span data-tr="Metni Kopyala" data-fr="Copier le Texte">Metni Kopyala</span>
                         </button>
                     </div>
                     <div class="template-content" id="tmpl-1">Sayın İlgili / Cher(e) Responsable RH,
@@ -2478,9 +2618,9 @@ Saygılarımla / Cordialement,
                 <!-- ŞABLON 2 : PARIS TECH & SCALE-UP (ANGLAIS) -->
                 <div class="template-block">
                     <div class="template-top">
-                        <span class="template-title">Şablon 2 : Paris Tech & Scale-up Başvurusu (%100 İngilizce - Passeport Talent)</span>
+                        <span class="template-title" data-tr="Şablon 2 : Paris Tech &amp; Scale-up Başvurusu (%100 İngilizce - Passeport Talent)" data-fr="Modèle 2 : Candidature Scale-up Tech Paris (100% Anglais - Passeport Talent)">Şablon 2 : Paris Tech &amp; Scale-up Başvurusu (%100 İngilizce - Passeport Talent)</span>
                         <button class="copy-template-btn" onclick="window.TrackerEngine.copyTemplate('tmpl-2', this)">
-                            {SVG_ICONS["copy"]} Metni Kopyala
+                            {SVG_ICONS["copy"]} <span data-tr="Metni Kopyala" data-fr="Copier le Texte">Metni Kopyala</span>
                         </button>
                     </div>
                     <div class="template-content" id="tmpl-2">Dear Hiring Team,
@@ -2501,25 +2641,25 @@ Best regards,
             <!-- SECTION D : LIENS OFFICIELS -->
             <div class="guide-card-section">
                 <div class="guide-section-header">
-                    <h3>{SVG_ICONS["globe"]} 4. Resmi Vize ve İkili Kurum Portalları</h3>
-                    <p>Doğrudan mevzuat ve başvuru takibi yapabileceğiniz yetkili platformlar.</p>
+                    <h3 data-tr="4. Resmi Vize ve İkili Kurum Portalları" data-fr="4. Portails Officiels des Visas &amp; Organismes Bilatéraux">{SVG_ICONS["globe"]} 4. Resmi Vize ve İkili Kurum Portalları</h3>
+                    <p data-tr="Doğrudan mevzuat ve başvuru takibi yapabileceğiniz yetkili platformlar." data-fr="Plateformes administratives et institutionnelles de référence.">Doğrudan mevzuat ve başvuru takibi yapabileceğiniz yetkili platformlar.</p>
                 </div>
                 <div class="guide-grid-2">
                     <div class="visa-method-card">
-                        <h4>{SVG_ICONS["external_link"]} France-Visas (Resmi Portal)</h4>
-                        <p>Fransa vize türlerinin şartları, evrak listeleri ve resmi başvuru kılavuzu: <br><a href="https://france-visas.gouv.fr/" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); font-weight: 700;">france-visas.gouv.fr ↗</a></p>
+                        <h4>{SVG_ICONS["external_link"]} <span data-tr="France-Visas (Resmi Portal)" data-fr="France-Visas (Portail Officiel)">France-Visas (Resmi Portal)</span></h4>
+                        <p><span data-tr="Fransa vize türlerinin şartları, evrak listeleri ve resmi başvuru kılavuzu: " data-fr="Conditions d'octroi des visas, listes de pièces justificatives et guide officiel de dépôt : ">Fransa vize türlerinin şartları, evrak listeleri ve resmi başvuru kılavuzu: </span><br><a href="https://france-visas.gouv.fr/" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); font-weight: 700;">france-visas.gouv.fr ↗</a></p>
                     </div>
                     <div class="visa-method-card">
-                        <h4>{SVG_ICONS["external_link"]} ANEF (Yabancılar Dijital Portalı)</h4>
-                        <p>Fransız İçişleri Bakanlığı çalışma izni ve Yetenek Pasaportu online işlem platformu: <br><a href="https://administration-etrangers-en-france.interieur.gouv.fr/" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); font-weight: 700;">administration-etrangers-en-france.interieur.gouv.fr ↗</a></p>
+                        <h4>{SVG_ICONS["external_link"]} <span data-tr="ANEF (Yabancılar Dijital Portalı)" data-fr="ANEF (Administration Numérique pour les Étrangers)">ANEF (Yabancılar Dijital Portalı)</span></h4>
+                        <p><span data-tr="Fransız İçişleri Bakanlığı çalışma izni ve Yetenek Pasaportu online işlem platformu: " data-fr="Plateforme dématérialisée du Ministère de l'Intérieur pour les autorisations de travail et Passeport Talent : ">Fransız İçişleri Bakanlığı çalışma izni ve Yetenek Pasaportu online işlem platformu: </span><br><a href="https://administration-etrangers-en-france.interieur.gouv.fr/" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); font-weight: 700;">administration-etrangers-en-france.interieur.gouv.fr ↗</a></p>
                     </div>
                     <div class="visa-method-card">
-                        <h4>{SVG_ICONS["shield_check"]} CCIFT (Fransız-Türk Ticaret Odası)</h4>
-                        <p>İkili ticaret ağı, üye şirketler ve istihdam rehberi: <br><a href="https://www.ccift.com/" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); font-weight: 700;">ccift.com ↗</a></p>
+                        <h4>{SVG_ICONS["shield_check"]} <span data-tr="CCIFT (Fransız-Türk Ticaret Odası)" data-fr="CCIFT (Chambre de Commerce Franco-Turque)">CCIFT (Fransız-Türk Ticaret Odası)</span></h4>
+                        <p><span data-tr="İkili ticaret ağı, üye şirketler ve istihdam rehberi: " data-fr="Réseau bilatéral, annuaire des entreprises membres et guide d'investissement : ">İkili ticaret ağı, üye şirketler ve istihdam rehberi: </span><br><a href="https://www.ccift.com/" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); font-weight: 700;">ccift.com ↗</a></p>
                     </div>
                     <div class="visa-method-card">
-                        <h4>{SVG_ICONS["shield_check"]} DEİK Türkiye-Fransa İş Konseyi</h4>
-                        <p>Dış Ekonomik İlişkiler Kurulu Türkiye-Fransa ikili iş konseyi portali: <br><a href="https://www.deik.org.tr/" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); font-weight: 700;">deik.org.tr ↗</a></p>
+                        <h4>{SVG_ICONS["shield_check"]} <span data-tr="DEİK Türkiye-Fransa İş Konseyi" data-fr="DEİK Conseil d'Affaires Turquie-France">DEİK Türkiye-Fransa İş Konseyi</span></h4>
+                        <p><span data-tr="Dış Ekonomik İlişkiler Kurulu Türkiye-Fransa ikili iş konseyi portali: " data-fr="Conseil des Relations Économiques Extérieures de Turquie (partenariats bilatéraux) : ">Dış Ekonomik İlişkiler Kurulu Türkiye-Fransa ikili iş konseyi portali: </span><br><a href="https://www.deik.org.tr/" target="_blank" rel="noopener noreferrer" style="color: var(--accent-primary); font-weight: 700;">deik.org.tr ↗</a></p>
                     </div>
                 </div>
             </div>
@@ -2534,7 +2674,7 @@ Best regards,
     <div id="tracker-modal" class="modal-overlay" style="display: none;">
         <div class="modal-box">
             <div class="modal-header">
-                <h3 id="i18n-modal-title">Başvuru Takip Detayları</h3>
+                <h3 id="i18n-modal-title" data-tr="Başvuru Takip Detayları" data-fr="Modifier les détails de la candidature">Başvuru Takip Detayları</h3>
                 <button type="button" class="modal-close-btn" id="modal-close-btn">&times;</button>
             </div>
             
@@ -2547,36 +2687,36 @@ Best regards,
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="modal-status">Aşama / Durum (Pipeline):</label>
+                    <label class="form-label" for="modal-status" data-tr="Aşama / Durum (Pipeline):" data-fr="Étape / Statut :">Aşama / Durum (Pipeline):</label>
                     <select id="modal-status" class="form-control">
-                        <option value="saved">Kaydedildi / Hedef (Enregistré)</option>
-                        <option value="applied">Başvuruldu (Postulé)</option>
-                        <option value="interview">Mülakat Aşamasında (Entretien)</option>
-                        <option value="offer">Kabul / Teklif Alındı (Offre Reçue)</option>
+                        <option value="saved" data-tr="Kaydedildi / Hedef (Enregistré)" data-fr="Enregistré / Cible">Kaydedildi / Hedef (Enregistré)</option>
+                        <option value="applied" data-tr="Başvuruldu (Postulé)" data-fr="Postulé">Başvuruldu (Postulé)</option>
+                        <option value="interview" data-tr="Mülakat Aşamasında (Entretien)" data-fr="Entretien en Cours">Mülakat Aşamasında (Entretien)</option>
+                        <option value="offer" data-tr="Kabul / Teklif Alındı (Offre Reçue)" data-fr="Offre Reçue / Accord">Kabul / Teklif Alındı (Offre Reçue)</option>
                     </select>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     <div class="form-group">
-                        <label class="form-label" for="modal-applied-date">Başvuru Tarihi:</label>
+                        <label class="form-label" for="modal-applied-date" data-tr="Başvuru Tarihi:" data-fr="Date de candidature :">Başvuru Tarihi:</label>
                         <input type="date" id="modal-applied-date" class="form-control">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="modal-interview-date">Mülakat Tarihi:</label>
+                        <label class="form-label" for="modal-interview-date" data-tr="Mülakat Tarihi:" data-fr="Date d'entretien :">Mülakat Tarihi:</label>
                         <input type="date" id="modal-interview-date" class="form-control">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="modal-notes">Kişisel Notlar &amp; Takip Bilgileri:</label>
-                    <textarea id="modal-notes" class="form-control" placeholder="Örn: LinkedIn'den İK müdürüne yazıldı, Europass İngilizce CV gönderildi, 2 hafta içinde geri dönüş bekleniyor..."></textarea>
+                    <label class="form-label" for="modal-notes" data-tr="Kişisel Notlar &amp; Takip Bilgileri:" data-fr="Notes personnelles &amp; suivi :">Kişisel Notlar &amp; Takip Bilgileri:</label>
+                    <textarea id="modal-notes" class="form-control" placeholder="Örn: LinkedIn'den İK müdürüne yazıldı, Europass İngilizce CV gönderildi, 2 hafta içinde geri dönüş bekleniyor..." data-placeholder-tr="Örn: LinkedIn'den İK müdürüne yazıldı, Europass İngilizce CV gönderildi, 2 hafta içinde geri dönüş bekleniyor..." data-placeholder-fr="Ex: Prise de contact sur LinkedIn avec le responsable RH, CV en anglais envoyé..."></textarea>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="modal-btn modal-btn-delete" id="modal-delete-btn" style="display: none;">Takibi Bırak</button>
+                    <button type="button" class="modal-btn modal-btn-delete" id="modal-delete-btn" style="display: none;" data-tr="Takibi Bırak" data-fr="Supprimer du suivi">Takibi Bırak</button>
                     <div style="display: flex; gap: 8px;">
-                        <button type="button" class="modal-btn modal-btn-cancel" id="modal-cancel-btn">İptal</button>
-                        <button type="submit" class="modal-btn modal-btn-save">Kaydet</button>
+                        <button type="button" class="modal-btn modal-btn-cancel" id="modal-cancel-btn" data-tr="İptal" data-fr="Annuler">İptal</button>
+                        <button type="submit" class="modal-btn modal-btn-save" data-tr="Kaydet" data-fr="Enregistrer">Kaydet</button>
                     </div>
                 </div>
             </form>

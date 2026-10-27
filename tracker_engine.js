@@ -924,13 +924,13 @@
 
             const displayTitle = lang === 'fr' ? (app.title_fr || app.title) : app.title;
             const cciftBadge = app.is_ccift_deik ? '<span class="kanban-badge-ccift">🤝 CCIFT/DEİK</span>' : '';
-            const noFrenchBadge = !app.french_required ? '<span class="kanban-badge-nofrench">🇬🇧 No French</span>' : '';
+            const noFrenchBadge = !app.french_required ? `<span class="kanban-badge-nofrench">${lang === 'fr' ? '🇬🇧 Sans Français' : '🇬🇧 No French'}</span>` : '';
 
             // Badge de Voie Prioritaire
             let trackBadge = '';
-            if (app.track === 'voie_1') trackBadge = '<span class="kanban-badge-track track-col-1">🏛️ KAPI 1</span>';
-            if (app.track === 'voie_2') trackBadge = '<span class="kanban-badge-track track-col-2">🏢 KAPI 2</span>';
-            if (app.track === 'voie_3') trackBadge = '<span class="kanban-badge-track track-col-3">🚀 KAPI 3</span>';
+            if (app.track === 'voie_1') trackBadge = `<span class="kanban-badge-track track-col-1">${lang === 'fr' ? '🏛️ VOIE 1' : '🏛️ KAPI 1'}</span>`;
+            if (app.track === 'voie_2') trackBadge = `<span class="kanban-badge-track track-col-2">${lang === 'fr' ? '🏢 VOIE 2' : '🏢 KAPI 2'}</span>`;
+            if (app.track === 'voie_3') trackBadge = `<span class="kanban-badge-track track-col-3">${lang === 'fr' ? '🚀 VOIE 3' : '🚀 KAPI 3'}</span>`;
 
             const currentIndex = this.columns.indexOf(app.status);
             const canGoBack = currentIndex > 0;
@@ -949,13 +949,18 @@
                 notesPreview = `<div class="kanban-notes-preview" title="${app.notes.replace(/"/g, '&quot;')}">📝 ${app.notes}</div>`;
             }
 
+            const lblEdit = lang === 'fr' ? '✏️ Note / Détail' : '✏️ Not / Detay';
+            const lblLink = lang === 'fr' ? '🔗 Offre ↗' : '🔗 İlan ↗';
+            const lblBack = lang === 'fr' ? '◀ Reculer' : '◀ Geri';
+            const lblForward = lang === 'fr' ? 'Avancer ▶' : 'İlerlet ▶';
+
             card.innerHTML = `
                 <div class="kanban-card-header">
                     <div class="kanban-company-box">
                         <strong class="kanban-company">${app.company}</strong>
                         <span class="kanban-location">📍 ${app.location}</span>
                     </div>
-                    <button class="kanban-fav-btn ${isFavorite ? 'active' : ''}" onclick="window.TrackerEngine.toggleBookmark(${app.id}, event)" title="Favori">
+                    <button class="kanban-fav-btn ${isFavorite ? 'active' : ''}" onclick="window.TrackerEngine.toggleBookmark(${app.id}, event)" title="${lang === 'fr' ? 'Favori' : 'Favorilere Ekle'}">
                         ${isFavorite ? '★' : '☆'}
                     </button>
                 </div>
@@ -974,17 +979,17 @@
 
                 <div class="kanban-actions-row">
                     <button class="kanban-btn-action" onclick="window.TrackerEngine.openTrackerModal(${app.id})" title="${dict.modalTitle}">
-                        ✏️ Not / Detay
+                        ${lblEdit}
                     </button>
-                    ${app.url ? `<a href="${app.url}" target="_blank" class="kanban-btn-link" title="İlan">🔗 İlan ↗</a>` : ''}
+                    ${app.url ? `<a href="${app.url}" target="_blank" class="kanban-btn-link" title="${lblLink}">${lblLink}</a>` : ''}
                 </div>
 
                 <div class="kanban-move-row">
-                    <button class="kanban-move-btn" onclick="window.TrackerEngine.advanceKanban(${app.id}, -1)" ${canGoBack ? '' : 'disabled'} title="Geri Al">
-                        ◀ Geri
+                    <button class="kanban-move-btn" onclick="window.TrackerEngine.advanceKanban(${app.id}, -1)" ${canGoBack ? '' : 'disabled'} title="${lblBack}">
+                        ${lblBack}
                     </button>
-                    <button class="kanban-move-btn btn-forward" onclick="window.TrackerEngine.advanceKanban(${app.id}, 1)" ${canGoForward ? '' : 'disabled'} title="İlerlet">
-                        İlerlet ▶
+                    <button class="kanban-move-btn btn-forward" onclick="window.TrackerEngine.advanceKanban(${app.id}, 1)" ${canGoForward ? '' : 'disabled'} title="${lblForward}">
+                        ${lblForward}
                     </button>
                 </div>
             `;
@@ -1170,6 +1175,32 @@
             if (btnTR) btnTR.classList.toggle('active', lang === 'tr');
             if (btnFR) btnFR.classList.toggle('active', lang === 'fr');
 
+            // 1. MOTEUR UNIVERSEL DATA-TR / DATA-FR
+            document.querySelectorAll('[data-tr][data-fr]').forEach((el) => {
+                const text = (lang === 'fr') ? el.getAttribute('data-fr') : el.getAttribute('data-tr');
+                if (text !== null && text !== undefined) {
+                    const svg = el.querySelector('svg.svg-icon, svg');
+                    if (svg && el.children.length === 1 && !text.includes('<svg')) {
+                        const cloneSvg = svg.cloneNode(true);
+                        el.innerHTML = '';
+                        el.appendChild(cloneSvg);
+                        el.appendChild(document.createTextNode(' ' + text));
+                    } else {
+                        el.innerHTML = text;
+                    }
+                }
+            });
+
+            // 2. MOTEUR UNIVERSEL DE PLACEHOLDERS
+            document.querySelectorAll('[data-placeholder-tr][data-placeholder-fr]').forEach((el) => {
+                el.placeholder = (lang === 'fr') ? el.getAttribute('data-placeholder-fr') : el.getAttribute('data-placeholder-tr');
+            });
+
+            // 3. MOTEUR UNIVERSEL DE TOOLTIPS / TITRES
+            document.querySelectorAll('[data-tooltip-tr][data-tooltip-fr]').forEach((el) => {
+                el.title = (lang === 'fr') ? el.getAttribute('data-tooltip-fr') : el.getAttribute('data-tooltip-tr');
+            });
+
             // Traduction des onglets
             const tabExplore = document.getElementById('i18n-tab-explore');
             if (tabExplore) tabExplore.textContent = dict.tabExplore;
@@ -1280,21 +1311,21 @@
             // Traduction des cartes d'offres de l'onglet Explorer
             const cards = document.querySelectorAll('#cardsGrid .job-card');
             cards.forEach(card => {
-                const title = lang === 'tr' ? card.getAttribute('data-title-tr') : card.getAttribute('data-title-fr');
+                const title = lang === 'fr' ? (card.getAttribute('data-title-fr') || card.getAttribute('data-title-tr')) : card.getAttribute('data-title-tr');
                 const titleEl = card.querySelector('.job-title');
                 if (titleEl) {
                     titleEl.textContent = title;
                     titleEl.setAttribute('data-original-text', title);
                 }
 
-                const snippet = lang === 'tr' ? card.getAttribute('data-snippet-tr') : card.getAttribute('data-snippet-fr');
+                const snippet = lang === 'fr' ? (card.getAttribute('data-snippet-fr') || card.getAttribute('data-snippet-tr')) : card.getAttribute('data-snippet-tr');
                 const snippetEl = card.querySelector('.snippet');
                 if (snippetEl) {
                     snippetEl.textContent = snippet;
                     snippetEl.setAttribute('data-original-text', snippet);
                 }
 
-                const cat = lang === 'tr' ? card.getAttribute('data-category-tr') : card.getAttribute('data-category-fr');
+                const cat = lang === 'fr' ? (card.getAttribute('data-category-fr') || card.getAttribute('data-category-tr')) : card.getAttribute('data-category-tr');
                 const catBadge = card.querySelector('.card-cat-badge');
                 if (catBadge) catBadge.textContent = cat;
 
@@ -1311,9 +1342,30 @@
                     langBadge.textContent = lang === 'tr' ? langBadge.getAttribute('data-tr') : langBadge.getAttribute('data-fr');
                 }
 
+                // Traduction du Visa
+                const visaEl = card.querySelector('.val-visa');
+                if (visaEl) {
+                    const visaVal = (lang === 'fr')
+                        ? (card.getAttribute('data-visa-fr') || card.getAttribute('data-visa-tr') || card.getAttribute('data-visa'))
+                        : (card.getAttribute('data-visa-tr') || card.getAttribute('data-visa'));
+                    if (visaVal) visaEl.textContent = visaVal;
+                }
+
+                // Boutons d'actions de la carte
+                const btnDrawerSpan = card.querySelector('.action-btn-primary span');
+                if (btnDrawerSpan) btnDrawerSpan.textContent = lang === 'fr' ? '👁️ Offre & Visa' : '👁️ İlan & Vize';
+                const btnPitchSpan = card.querySelector('.action-btn-pitch span');
+                if (btnPitchSpan) btnPitchSpan.textContent = lang === 'fr' ? '✍️ Lettre & Pitch' : '✍️ Ön Yazı';
+                const btnWaSpan = card.querySelector('.action-btn-wa span');
+                if (btnWaSpan) btnWaSpan.textContent = lang === 'fr' ? '💬 Partager' : '💬 Paylaş';
+                const btnTrackSpan = card.querySelector('.tracker-action-btn span');
+                if (btnTrackSpan) btnTrackSpan.textContent = lang === 'fr' ? 'Suivre' : 'Takip';
+                const btnLinkSpan = card.querySelector('.secondary-btn span');
+                if (btnLinkSpan) btnLinkSpan.textContent = lang === 'fr' ? 'Lien' : 'Link';
+
                 // Ruban Voie Prioritaire
                 const track = card.getAttribute('data-track');
-                const trackRibbon = card.querySelector('.track-ribbon');
+                const trackRibbon = card.querySelector('.track-ribbon-text');
                 if (trackRibbon) {
                     if (track === 'voie_1') trackRibbon.textContent = dict.badgeTrack1;
                     if (track === 'voie_2') trackRibbon.textContent = dict.badgeTrack2;
@@ -1339,6 +1391,10 @@
             KanbanTracker.render();
             // Réapplication du filtre
             FilterEngine.apply();
+
+            // Notification aux autres composants
+            window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }));
+            ToastService.show(lang === 'fr' ? 'Langue basculée en Français 🇫🇷' : 'Dil Türkçe olarak güncellendi 🇹🇷', 'success');
         },
 
         getTagClass(tag) {

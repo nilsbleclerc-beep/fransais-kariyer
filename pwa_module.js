@@ -366,10 +366,15 @@
                 const lang = localStorage.getItem('bilateral_lang') || 'tr';
                 document.querySelectorAll('[data-tr][data-fr]').forEach((el) => {
                     const text = (lang === 'fr') ? el.getAttribute('data-fr') : el.getAttribute('data-tr');
-                    if (text) {
-                        // Si le nœud a des enfants d'icône, ne remplacer que le texte
-                        if (el.children.length === 0) {
-                            el.textContent = text;
+                    if (text !== null && text !== undefined) {
+                        const svg = el.querySelector('svg.svg-icon, svg');
+                        if (svg && el.children.length === 1 && !text.includes('<svg')) {
+                            const cloneSvg = svg.cloneNode(true);
+                            el.innerHTML = '';
+                            el.appendChild(cloneSvg);
+                            el.appendChild(document.createTextNode(' ' + text));
+                        } else {
+                            el.innerHTML = text;
                         }
                     }
                 });
