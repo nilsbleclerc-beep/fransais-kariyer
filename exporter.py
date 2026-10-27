@@ -13,6 +13,7 @@ import csv
 import json
 import html
 import os
+import re
 from typing import List
 from models import JobOpportunity
 
@@ -41,6 +42,541 @@ SVG_ICONS = {
     "sparkles": '<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>',
     "copy": '<svg class="svg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>'
 }
+
+
+# ==========================================
+# SPRITE D'ICÔNES (format Lucide : 24px, stroke 2, currentColor)
+# Usage : <svg class="ic"><use href="#i-star"/></svg>
+# ==========================================
+ICON_SPRITE = """<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+  <symbol id="i-star-filled" viewBox="0 0 24 24"><polygon fill="currentColor" points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+  <symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-building" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></symbol>
+  <symbol id="i-languages" viewBox="0 0 24 24"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></symbol>
+  <symbol id="i-plane" viewBox="0 0 24 24"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></symbol>
+  <symbol id="i-external-link" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-briefcase" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+  <symbol id="i-book-open" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+  <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></symbol>
+</svg>"""
+
+# Bootstrap des données : défini AVANT tous les autres scripts (contrat partagé
+# avec drawer_cover_letter_module.js : window.FransaData.jobs / .get(id)).
+FRANSA_DATA_BOOTSTRAP = """<script>
+        (function () {
+            var el = document.getElementById('fransa-jobs');
+            var jobs = [];
+            try { jobs = JSON.parse(el ? el.textContent : '[]') || []; } catch (e) { console.error('FransaData JSON invalide', e); }
+            window.FransaData = {
+                jobs: jobs,
+                get(id) { return this.jobs.find(j => j.id === Number(id)) || null; }
+            };
+        })();
+    </script>"""
+
+# ==========================================
+# UI MOBILE v4 : TOKENS + ÉCRAN KEŞFET + BOTTOM SHEET (chaîne brute, accolades simples)
+# Injectée en fin de <style> pour primer sur les anciennes règles.
+# ==========================================
+UI_V4_CSS = """
+        /* ==========================================================================
+           FRANSAİŞ UI v4 : design tokens mobiles (Material 3, HONOR Magic7 Lite)
+           ========================================================================== */
+        :root {
+            --font-sans: system-ui, Roboto, "HONOR Sans", sans-serif;
+            --font-mono: ui-monospace, "Roboto Mono", monospace;
+            /* Échelle typographique : 12 / 14 / 16 / 20 + titre 24 */
+            --fs-xs: 12px;
+            --fs-sm: 14px;
+            --fs-md: 16px;
+            --fs-lg: 20px;
+            --fs-xl: 24px;
+            /* Espacements (multiples de 4 / 8) */
+            --sp-1: 4px;
+            --sp-2: 8px;
+            --sp-3: 12px;
+            --sp-4: 16px;
+            --sp-6: 24px;
+            --sp-8: 32px;
+            /* Rayons */
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 28px;
+            --tap: 48px;
+            --ease-std: cubic-bezier(0.2, 0, 0, 1);
+        }
+        body {
+            font-family: var(--font-sans);
+            font-feature-settings: normal;
+        }
+        .ic {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            vertical-align: middle;
+        }
+        .sr-only {
+            position: absolute !important;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        .tab-nav-btn > .ic { width: 20px; height: 20px; }
+
+        /* ---------- Keşfet : en-tête ---------- */
+        #tab-content-explore { max-width: 1280px; margin: 0 auto; }
+        .ex-head { margin: var(--sp-2) 0 var(--sp-4); }
+        .ex-hello {
+            font-size: var(--fs-xl);
+            line-height: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .ex-sub {
+            margin-top: var(--sp-1);
+            font-size: var(--fs-sm);
+            line-height: 20px;
+            color: var(--text-tertiary);
+        }
+        .ex-sub strong { color: var(--accent-primary); font-weight: 600; }
+
+        /* ---------- Recherche + bouton Filtres ---------- */
+        .ex-toolbar { display: flex; align-items: center; gap: var(--sp-2); }
+        .ex-search {
+            flex: 1;
+            min-width: 0;
+            height: var(--tap);
+            display: flex;
+            align-items: center;
+            gap: var(--sp-2);
+            padding: 0 var(--sp-4);
+            background: var(--surface-subtle);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            color: var(--text-tertiary);
+            transition: border-color 150ms var(--ease-std), background-color 150ms var(--ease-std);
+        }
+        .ex-search:focus-within { border-color: var(--accent-primary); background: var(--surface-card); }
+        .ex-search .ic { width: 20px; height: 20px; }
+        .ex-search-input {
+            flex: 1;
+            min-width: 0;
+            height: 100%;
+            border: 0;
+            outline: none;
+            background: transparent;
+            font: inherit;
+            font-size: var(--fs-md);
+            color: var(--text-primary);
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .ex-search-input::placeholder { color: var(--text-tertiary); opacity: 1; }
+        .ex-filter-btn {
+            position: relative;
+            flex: 0 0 auto;
+            width: var(--tap);
+            height: var(--tap);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-default);
+            border-radius: 50%;
+            background: var(--surface-card);
+            color: var(--text-primary);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ex-filter-btn .ic { width: 20px; height: 20px; }
+        .ex-filter-btn.has-filters {
+            background: var(--accent-primary-subtle);
+            border-color: var(--accent-primary-border);
+            color: var(--accent-primary);
+        }
+        .ex-filter-count {
+            position: absolute;
+            top: 0;
+            right: 0;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            border-radius: 10px;
+            border: 2px solid var(--surface-canvas);
+            background: var(--accent-primary);
+            color: #ffffff;
+            font-size: var(--fs-xs);
+            font-weight: 700;
+            line-height: 16px;
+            text-align: center;
+        }
+        .ex-filter-count[hidden] { display: none; }
+
+        /* ---------- Pastilles (chips) ---------- */
+        .ex-chips {
+            display: flex;
+            gap: var(--sp-2);
+            margin: var(--sp-3) 0 var(--sp-3);
+            padding: var(--sp-1) 0;
+            overflow-x: auto;
+            overscroll-behavior-x: contain;
+            scrollbar-width: none;
+        }
+        .ex-chips::-webkit-scrollbar { display: none; }
+        .chip {
+            position: relative;
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 40px;
+            padding: 0 var(--sp-4);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-sm);
+            background: var(--surface-card);
+            color: var(--text-secondary);
+            font: inherit;
+            font-size: var(--fs-sm);
+            font-weight: 500;
+            white-space: nowrap;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            transition: background-color 150ms var(--ease-std), border-color 150ms var(--ease-std);
+        }
+        /* zone tactile 48dp */
+        .chip::after { content: ''; position: absolute; left: 0; right: 0; top: -4px; bottom: -4px; }
+        .chip .ic { width: 16px; height: 16px; }
+        .chip[aria-pressed="true"] {
+            background: var(--accent-primary-subtle);
+            border-color: var(--accent-primary-border);
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+        .chip-count {
+            font-size: var(--fs-xs);
+            color: var(--text-tertiary);
+            font-variant-numeric: tabular-nums;
+        }
+        .chip[aria-pressed="true"] .chip-count { color: inherit; }
+        .chip-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--kapi-0); }
+        .chip-dot.kapi-1 { background: var(--kapi-1); }
+        .chip-dot.kapi-2 { background: var(--kapi-2); }
+        .chip-dot.kapi-3 { background: var(--kapi-3); }
+
+        /* ---------- Carte d'offre compacte ---------- */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: var(--sp-3);
+        }
+        .jc {
+            position: relative;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            padding: var(--sp-3) var(--sp-4) var(--sp-4);
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-xs);
+            transition: box-shadow 150ms var(--ease-std), transform 100ms var(--ease-std);
+        }
+        .jc:active { transform: scale(0.99); }
+        @media (hover: hover) {
+            .jc:hover { box-shadow: var(--shadow-md); border-color: var(--border-default); }
+        }
+        .jc-top {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-2);
+            min-height: 24px;
+            padding-right: 40px;
+            min-width: 0;
+        }
+        .jc-kapi, .jc-new {
+            display: inline-flex;
+            align-items: center;
+            height: 24px;
+            padding: 0 var(--sp-2);
+            border-radius: var(--radius-sm);
+            font-size: var(--fs-xs);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .jc-kapi { min-width: 0; overflow: hidden; text-overflow: ellipsis; display: block; line-height: 24px; color: var(--kapi-0); background: var(--kapi-0-bg); }
+        .jc-kapi.kapi-1 { color: var(--kapi-1); background: var(--kapi-1-bg); }
+        .jc-kapi.kapi-2 { color: var(--kapi-2); background: var(--kapi-2-bg); }
+        .jc-kapi.kapi-3 { color: var(--kapi-3); background: var(--kapi-3-bg); }
+        .jc-new { flex: 0 0 auto; background: var(--accent-primary); color: #ffffff; }
+        .jc-title {
+            margin-top: var(--sp-2);
+            padding-right: 32px;
+            font-size: var(--fs-md);
+            line-height: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            overflow-wrap: anywhere;
+        }
+        .jc-meta {
+            margin-top: 2px;
+            font-size: var(--fs-sm);
+            line-height: 20px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .jc-pills { display: flex; gap: var(--sp-2); margin-top: var(--sp-2); min-width: 0; overflow: hidden; }
+        .pill {
+            flex: 0 1 auto;
+            min-width: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--sp-1);
+            height: 24px;
+            padding: 0 var(--sp-2);
+            border-radius: var(--radius-sm);
+            background: var(--surface-subtle);
+            color: var(--text-secondary);
+            font-size: var(--fs-xs);
+            font-weight: 500;
+        }
+        .pill .ic { width: 14px; height: 14px; }
+        .pill-txt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .pill-ok { background: var(--status-success-subtle); color: var(--status-success-text); }
+        .pill-gold { background: var(--status-amber-subtle); color: var(--status-amber-text); }
+        /* Toute la carte est cliquable (bouton étiré), l'étoile reste au-dessus */
+        .jc-hit {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            border-radius: inherit;
+            background: transparent;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .jc-hit:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+        .jc-star {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            z-index: 2;
+            width: var(--tap);
+            height: var(--tap);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .jc-star:active { background: var(--surface-subtle); }
+        .jc-star:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: -4px; }
+        .jc-star[aria-pressed="true"] { color: var(--gold-primary); }
+        .jc-star[aria-pressed="true"] .ic { fill: currentColor; }
+
+        /* ---------- Charger plus / état vide ---------- */
+        .ex-more {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: var(--tap);
+            margin: var(--sp-4) auto 0;
+            padding: 0 var(--sp-6);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            background: var(--surface-card);
+            color: var(--accent-primary);
+            font: inherit;
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .ex-more[hidden], .ex-empty[hidden] { display: none; }
+        .ex-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--sp-2);
+            padding: var(--sp-8) var(--sp-4);
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        .ex-empty > .ic { width: 48px; height: 48px; stroke-width: 1.5; color: var(--text-muted); }
+        .ex-empty-title { font-size: var(--fs-lg); line-height: 28px; font-weight: 600; color: var(--text-primary); }
+        .ex-empty-text { font-size: var(--fs-sm); max-width: 32ch; margin-bottom: var(--sp-2); }
+
+        /* ---------- Boutons M3 ---------- */
+        .btn-filled, .btn-text {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--sp-2);
+            min-height: var(--tap);
+            padding: 0 var(--sp-6);
+            border: 0;
+            border-radius: var(--radius-lg);
+            font: inherit;
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-filled { background: var(--accent-primary); color: #ffffff; }
+        .btn-filled .ic { width: 18px; height: 18px; }
+        .btn-text { background: transparent; color: var(--accent-primary); padding: 0 var(--sp-4); }
+        .icon-btn {
+            width: var(--tap);
+            height: var(--tap);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        /* ---------- Bottom sheet Filtres ---------- */
+        .sheet { position: fixed; inset: 0; z-index: 3000; }
+        .sheet[hidden] { display: none; }
+        .sheet-scrim {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transition: opacity 200ms var(--ease-std);
+        }
+        .sheet-panel {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            max-width: 640px;
+            max-height: 88vh;
+            max-height: 88dvh;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            background: var(--surface-card);
+            color: var(--text-primary);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            box-shadow: var(--shadow-xl);
+            padding-bottom: env(safe-area-inset-bottom);
+            transform: translateY(100%);
+            transition: transform 250ms var(--ease-std);
+        }
+        .sheet.is-open .sheet-scrim { opacity: 1; }
+        .sheet.is-open .sheet-panel { transform: none; }
+        .sheet-handle { flex: 0 0 auto; width: 32px; height: 4px; margin: var(--sp-3) auto var(--sp-1); border-radius: 2px; background: var(--border-strong); }
+        .sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 0 var(--sp-2) 0 var(--sp-6); }
+        .sheet-title { font-size: var(--fs-lg); line-height: 28px; font-weight: 600; }
+        .sheet-body { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; padding: 0 var(--sp-6) var(--sp-4); }
+        .sheet-label { margin: var(--sp-4) 0 var(--sp-2); font-size: var(--fs-sm); font-weight: 600; color: var(--text-secondary); }
+        .chip-wrap { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+        .switch-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--sp-4);
+            min-height: 56px;
+            margin-top: var(--sp-4);
+            padding-top: var(--sp-4);
+            border-top: 1px solid var(--border-subtle);
+            cursor: pointer;
+        }
+        .switch-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .switch-text strong { font-size: var(--fs-md); font-weight: 500; color: var(--text-primary); }
+        .switch-text small { font-size: var(--fs-xs); color: var(--text-tertiary); }
+        .switch {
+            -webkit-appearance: none;
+            appearance: none;
+            position: relative;
+            flex: 0 0 auto;
+            width: 52px;
+            height: 32px;
+            border-radius: 16px;
+            border: 2px solid var(--border-strong);
+            background: var(--surface-muted);
+            cursor: pointer;
+            transition: background-color 150ms var(--ease-std), border-color 150ms var(--ease-std);
+        }
+        .switch::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 6px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--border-strong);
+            transform: translateY(-50%);
+            transition: all 150ms var(--ease-std);
+        }
+        .switch:checked { background: var(--accent-primary); border-color: var(--accent-primary); }
+        .switch:checked::before { left: 22px; width: 24px; height: 24px; background: #ffffff; }
+        .switch:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+        .sheet-foot {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-3);
+            padding: var(--sp-3) var(--sp-6) var(--sp-4);
+            border-top: 1px solid var(--border-subtle);
+        }
+        .sheet-foot .btn-filled { flex: 1; }
+        body.sheet-locked { overflow: hidden; }
+
+        /* ---------- Rehber : blocs d'introduction déplacés depuis Keşfet ---------- */
+        .guide-intro-blocks { margin-bottom: var(--sp-6); }
+
+        @media (max-width: 768px) {
+            .ex-chips {
+                margin-left: calc(-1 * var(--m3-gutter-left));
+                margin-right: calc(-1 * var(--m3-gutter-right));
+                padding-left: var(--m3-gutter-left);
+                padding-right: var(--m3-gutter-right);
+                scroll-padding-left: var(--m3-gutter-left);
+            }
+            .cards-grid { grid-template-columns: minmax(0, 1fr); }
+        }
+        @media (min-width: 769px) {
+            .ex-chips { flex-wrap: wrap; overflow: visible; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .sheet-panel, .sheet-scrim, .jc { transition: none; }
+        }
+"""
 
 
 VISA_TRANSLATIONS = {
@@ -104,7 +640,8 @@ def determine_job_domain(j: JobOpportunity) -> str:
     if j.domain:
         return j.domain
     txt = f"{j.title} {j.title_fr} {j.category} {j.category_fr} {j.snippet} {' '.join(j.tags)}".lower()
-    if any(k in txt for k in ["software", "yazılım", "developer", "engineer", "cloud", "tech", "data", "ai", "intelligence artificielle", "yapay zeka", "it ", "devops"]):
+    # Mots courts ("ai", "it", "data", "tech") comparés en mots entiers : "ai" dans "mail" ou "paris" n'est pas de l'IT
+    if any(k in txt for k in ["software", "yazılım", "developer", "engineer", "cloud", "intelligence artificielle", "yapay zeka", "devops"])             or re.search(r"(ai|it|data|tech)", txt):
         return "it"
     if any(k in txt for k in ["lojistik", "logistique", "supply chain", "tedarik", "nakliye", "fret", "transport", "depo", "entrepôt"]):
         return "logistics"
@@ -210,163 +747,40 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
 
     track_counts = {"voie_1": 0, "voie_2": 0, "voie_3": 0, "autre": 0}
 
-    cards_html = ""
+    jobs_data = []
     for idx, j in enumerate(jobs):
-        score_color = "#10b981" if j.relevance_score >= 80 else ("#f59e0b" if j.relevance_score >= 60 else "#6b7280")
         is_ccift = j.is_ccift_deik or any("CCIFT" in t or "DEİK" in t for t in j.tags)
         track = determine_job_track(j)
-        domain = determine_job_domain(j)
         track_counts[track] = track_counts.get(track, 0) + 1
-        
-        tags_tr_str = "|".join(j.tags)
-        tags_fr_str = "|".join(j.tags_fr if j.tags_fr else j.tags)
-        
-        title_tr_safe = html.escape(j.title, quote=True)
-        title_fr_safe = html.escape(j.title_fr or j.title, quote=True)
-        snippet_tr_safe = html.escape(j.snippet, quote=True)
-        snippet_fr_safe = html.escape(j.snippet_fr or j.snippet, quote=True)
-        cat_tr_safe = html.escape(j.category, quote=True)
-        cat_fr_safe = html.escape(j.category_fr or j.category, quote=True)
-        working_lang_safe = html.escape(j.working_language, quote=True)
-        visa_safe = html.escape(j.visa_sponsorship, quote=True)
-        visa_fr = get_visa_fr(j.visa_sponsorship)
-        visa_fr_safe = html.escape(visa_fr, quote=True)
-        company_safe = html.escape(j.company, quote=True)
-        loc_safe = html.escape(j.location, quote=True)
-        source_safe = html.escape(j.source, quote=True)
-
-        lang_badge_class = "tag-no-french" if not j.french_required else "tag-french-req"
-        lang_badge_text_tr = "Fransızca Şart Değil (İngilizce/Türkçe)" if not j.french_required else "Fransızca B2+ Gerekli"
-        lang_badge_text_fr = "Français Non Requis (Anglais/Turc)" if not j.french_required else "Français B2+ Requis"
-
-        # ÉCUSSON D'EN-TÊTE TRÈS VISIBLE SELON LA VOIE (CLIENT SPEC)
-        track_ribbon = ""
-        if track == "voie_1":
-            track_ribbon = f'''
-            <div class="track-ribbon ribbon-voie-1">
-                {SVG_ICONS["landmark"]}
-                <span class="track-ribbon-text" data-tr="🏛️ KAPI 1 : ULUSLARARASI KURUM (ÖZEL MAE STATÜSÜ)" data-fr="🏛️ VOIE 1 : INSTITUTION INTERNATIONALE (STATUT MAE)">🏛️ KAPI 1 : ULUSLARARASI KURUM (ÖZEL MAE STATÜSÜ)</span>
-            </div>
-            '''
-        elif track == "voie_2":
-            track_ribbon = f'''
-            <div class="track-ribbon ribbon-voie-2 ccift-badge-shimmer">
-                {SVG_ICONS["shield_check"]}
-                <span class="track-ribbon-text" data-tr="🏢 KAPI 2 : TÜRK HOLDİNGİ (ŞİRKET İÇİ TRANSFER ICT)" data-fr="🏢 VOIE 2 : GROUPE TURC (DÉTACHEMENT INTRA-GROUPE ICT)">🏢 KAPI 2 : TÜRK HOLDİNGİ (ŞİRKET İÇİ TRANSFER ICT)</span>
-            </div>
-            '''
-        elif track == "voie_3":
-            track_ribbon = f'''
-            <div class="track-ribbon ribbon-voie-3">
-                {SVG_ICONS["rocket"]}
-                <span class="track-ribbon-text" data-tr="🚀 KAPI 3 : PASSEPORT TALENT (VİZE SPONSORLUĞU)" data-fr="🚀 VOIE 3 : PASSEPORT TALENT (SPONSORISÉ)">🚀 KAPI 3 : PASSEPORT TALENT (VİZE SPONSORLUĞU)</span>
-            </div>
-            '''
-        else:
-            track_ribbon = f'''
-            <div class="track-ribbon ribbon-voie-4">
-                {SVG_ICONS["building"]}
-                <span class="track-ribbon-text" data-tr="🏪 KAPI 4 : TÜRK İŞLETMELERİ (YEREL İSTİHDAM / İZİN)" data-fr="🏪 VOIE 4 : COMMERCES &amp; PME (EMPLOI LOCAL / TITRE)">🏪 KAPI 4 : TÜRK İŞLETMELERİ (YEREL İSTİHDAM / İZİN)</span>
-            </div>
-            '''
-
-        ccift_ribbon = ""
-        if is_ccift and track != "voie_2":
-            ccift_ribbon = f'''
-            <div class="ccift-card-ribbon ccift-badge-shimmer">
-                {SVG_ICONS["shield_check"]}
-                <span data-tr="CCIFT &amp; DEİK Üyesi / Membre Officiel" data-fr="CCIFT &amp; DEİK Membre Officiel">CCIFT &amp; DEİK Üyesi / Membre Officiel</span>
-            </div>
-            '''
-
-        cards_html += f"""
-        <div class="job-card {'job-card-ccift' if is_ccift else ''} {'card-track-1' if track == 'voie_1' else ''} {'card-track-3' if track == 'voie_3' else ''}" 
-             data-id="{idx}"
-             data-track="{track}"
-             data-domain="{domain}"
-             data-category-tr="{cat_tr_safe}"
-             data-category-fr="{cat_fr_safe}"
-             data-title-tr="{title_tr_safe}"
-             data-title-fr="{title_fr_safe}"
-             data-company="{company_safe}"
-             data-location="{loc_safe}"
-             data-url="{j.url}"
-             data-source="{source_safe}"
-             data-score="{j.relevance_score}"
-             data-snippet-tr="{snippet_tr_safe}"
-             data-snippet-fr="{snippet_fr_safe}"
-             data-tags-tr="{tags_tr_str}"
-             data-tags-fr="{tags_fr_str}"
-             data-ccift="{'true' if is_ccift else 'false'}"
-             data-no-french="{'true' if not j.french_required else 'false'}"
-             data-working-lang="{working_lang_safe}"
-             data-visa="{visa_safe}"
-             data-visa-tr="{visa_safe}"
-             data-visa-fr="{visa_fr_safe}"
-             data-search="{j.title.lower()} {j.company.lower()} {j.location.lower()} {j.snippet.lower()} {j.working_language.lower()} {'ccift deik' if is_ccift else ''} {'kapi 1 uluslararasi kurum' if track == 'voie_1' else ''} {'kapi 2 holding ict' if track == 'voie_2' else ''} {'kapi 3 passeport talent tech' if track == 'voie_3' else ''}">
-            
-            {track_ribbon}
-            {ccift_ribbon}
-
-            <div class="card-header">
-                <div class="header-badges">
-                    <span class="source-badge">{j.source}</span>
-                    <span class="category-badge card-cat-badge">{j.category}</span>
-                </div>
-                <div class="header-right-actions">
-                    <div class="score-badge" style="background-color: {score_color}">
-                        {SVG_ICONS["sparkles"]} <span class="score-prefix">Uygunluk: </span>%{j.relevance_score}
-                    </div>
-                    <button class="bookmark-btn" onclick="window.TrackerEngine.toggleBookmark({idx}, event)" aria-label="Favorilere Ekle" title="Favorilere Ekle" aria-pressed="false">
-                        <span class="star-icon" aria-hidden="true">☆</span>
-                    </button>
-                </div>
-            </div>
-            
-            <h3 class="job-title" data-original-text="{title_tr_safe}">{j.title}</h3>
-            
-            <div class="company-loc">
-                <span class="company-name-text" data-original-text="{company_safe}">{SVG_ICONS["building"]} <strong>{j.company}</strong></span><span class="loc-sep" aria-hidden="true">·</span><span class="company-loc-place">{SVG_ICONS["map_pin"]} {j.location}</span>
-            </div>
-            
-            <div class="visa-and-lang-box">
-                <div class="val-item">
-                    <span class="val-label">{SVG_ICONS["plane"]} <span data-tr="Vize / Relokasyon:" data-fr="Visa / Relocalisation :">Vize / Relokasyon:</span></span>
-                    <span class="val-val val-visa" data-visa-tr="{visa_safe}" data-visa-fr="{visa_fr_safe}">{visa_safe}</span>
-                </div>
-                <div class="val-item">
-                    <span class="val-label">{SVG_ICONS["languages"]} <span data-tr="Dil Durumu:" data-fr="Exigence Linguistique :">Dil Durumu:</span></span>
-                    <span class="val-val {lang_badge_class}" data-lang-badge="true" data-tr="{lang_badge_text_tr}" data-fr="{lang_badge_text_fr}">{lang_badge_text_tr}</span>
-                </div>
-            </div>
-            
-            <p class="snippet" data-original-text="{snippet_tr_safe}">{j.snippet}</p>
-            
-            <div class="tags-container card-tags">
-                <!-- Rempli dynamiquement par JS selon la langue -->
-            </div>
-
-            <div class="card-tracker-status" style="display: none;"></div>
-            
-            <div class="card-footer">
-                <button class="action-btn-primary" onclick="if(window.BilateralDrawer) window.BilateralDrawer.open({idx})" title="Vize Yol Haritası, İK Bilgileri &amp; İlan Detayı" data-tooltip-tr="Vize Yol Haritası, İK Bilgileri &amp; İlan Detayı" data-tooltip-fr="Détails de l'Offre, Contacts RH &amp; Feuille de Route Visa">
-                    <span data-tr="👁️ İlan &amp; Vize" data-fr="👁️ Offre &amp; Visa">👁️ İlan &amp; Vize</span>
-                </button>
-                <button class="action-btn-pitch" onclick="if(window.CoverLetterGenerator) window.CoverLetterGenerator.open({idx})" title="Bu İlana Özel Fransızca Ön Yazı ve Pitch Oluştur" data-tooltip-tr="Bu İlana Özel Fransızca Ön Yazı ve Pitch Oluştur" data-tooltip-fr="Générer une Lettre de Motivation &amp; Pitch en Français">
-                    <span data-tr="✍️ Ön Yazı" data-fr="✍️ Lettre &amp; Pitch">✍️ Ön Yazı</span>
-                </button>
-                <button class="action-btn-wa" onclick="if(window.TrackerEngine &amp;&amp; window.TrackerEngine.shareWhatsApp) window.TrackerEngine.shareWhatsApp({idx})" title="Paylaş" data-tooltip-tr="Paylaş" data-tooltip-fr="Partager cette offre">
-                    <span data-tr="💬 Paylaş" data-fr="💬 Partager">💬 Paylaş</span>
-                </button>
-                <button class="tracker-action-btn" onclick="window.TrackerEngine.openTrackerModal({idx})" title="Başvuru Takibine Ekle" data-tooltip-tr="Başvuru Takibine Ekle" data-tooltip-fr="Ajouter au suivi des candidatures">
-                    {SVG_ICONS["bookmark"]} <span data-tr="Takip" data-fr="Suivre">Takip</span>
-                </button>
-                <a href="{j.url}" target="_blank" rel="noopener noreferrer" class="secondary-btn" title="Orijinal İlan Sayfası" data-tooltip-tr="Orijinal İlan Sayfası" data-tooltip-fr="Lien officiel de l'offre">
-                    <span data-tr="Link" data-fr="Lien">Link</span> {SVG_ICONS["external_link"]}
-                </a>
-            </div>
-        </div>
-        """
+        jobs_data.append({
+            "id": idx,
+            "title_tr": j.title,
+            "title_fr": j.title_fr or j.title,
+            "company": j.company,
+            "location": j.location,
+            "url": j.url,
+            "source": j.source,
+            "score": int(j.relevance_score or 0),
+            "snippet_tr": j.snippet,
+            "snippet_fr": j.snippet_fr or j.snippet,
+            "tags_tr": list(j.tags or []),
+            "tags_fr": list(j.tags_fr or j.tags or []),
+            "category_tr": j.category,
+            "category_fr": j.category_fr or j.category,
+            "ccift": bool(is_ccift),
+            "no_french": not j.french_required,
+            "working_lang": j.working_language,
+            "visa_tr": j.visa_sponsorship,
+            "visa_fr": get_visa_fr(j.visa_sponsorship),
+            "track": track,
+            "domain": determine_job_domain(j),
+            "discovered_at": j.discovered_at or "",
+            "contact_info": j.contact_info or "",
+        })
+    # JSON inline sûr dans <script> : « </ » → « <\/ » et « <!-- » neutralisé
+    jobs_json = (json.dumps(jobs_data, ensure_ascii=False, separators=(",", ":"))
+                 .replace("</", "<\\/")
+                 .replace("<!--", "\\u003c!--"))
 
     # Lecture des modules JS & CSS additionnels pour injection autonome
     base_dir = os.path.dirname(__file__)
@@ -432,9 +846,9 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
     <link rel="alternate icon" href="icon-192.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- DONNÉES DES OFFRES (JSON inline) + BOOTSTRAP window.FransaData : avant tout autre script -->
+    <script id="fransa-jobs" type="application/json">{jobs_json}</script>
+    {FRANSA_DATA_BOOTSTRAP}
     <script>
         (function() {{
             const savedTheme = localStorage.getItem('bilateral_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -520,6 +934,16 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             --shadow-gold: 0 8px 24px -4px rgba(217, 119, 6, 0.22), 0 2px 8px -1px rgba(245, 158, 11, 0.15);
             --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.25);
 
+            /* Couleurs des 3 Kapı (badges de voie) */
+            --kapi-0: #475569;
+            --kapi-0-bg: #f1f5f9;
+            --kapi-1: #0369a1;
+            --kapi-1-bg: #e0f2fe;
+            --kapi-2: #b45309;
+            --kapi-2-bg: #fef3c7;
+            --kapi-3: #6d28d9;
+            --kapi-3-bg: #ede9fe;
+
             /* Legacy Variables compatibility */
             --primary: #2563eb;
             --primary-dark: #1d4ed8;
@@ -604,6 +1028,16 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             --shadow-gold: 0 8px 32px -4px rgba(245, 158, 11, 0.25), 0 0 15px rgba(245, 158, 11, 0.15);
             --shadow-focus: 0 0 0 3px rgba(59, 130, 246, 0.35);
 
+            /* Couleurs des 3 Kapı (sombre) */
+            --kapi-0: #cbd5e1;
+            --kapi-0-bg: rgba(148, 163, 184, 0.16);
+            --kapi-1: #7dd3fc;
+            --kapi-1-bg: rgba(56, 189, 248, 0.16);
+            --kapi-2: #fbbf24;
+            --kapi-2-bg: rgba(245, 158, 11, 0.16);
+            --kapi-3: #c4b5fd;
+            --kapi-3-bg: rgba(167, 139, 250, 0.18);
+
             /* Legacy Variables compatibility in Dark */
             --primary: #3b82f6;
             --primary-dark: #60a5fa;
@@ -633,7 +1067,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         body {{
             background-color: var(--surface-canvas);
             color: var(--text-primary);
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: system-ui, Roboto, "HONOR Sans", sans-serif;
             font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
             padding: max(16px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) calc(60px + env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
             transition: background-color 260ms cubic-bezier(0.16, 1, 0.3, 1), color 260ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -644,12 +1078,12 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             overflow-x: clip; /* clip : ne crée pas de conteneur de défilement (préserve position:sticky) */
         }}
         /* Interactions tactiles : pas de flash bleu Android, pas de délai double-tap */
-        button, a, summary, label, select, .quick-step, .track-btn, .filter-pill-btn {{
+        button, a, summary, label, select, .quick-step, .track-btn {{
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
         }}
         /* Longs mots / URLs : coupure plutôt que débordement */
-        h1, h2, h3, h4, .job-title, .snippet, .company-loc, .val-val, .template-title,
+        h1, h2, h3, h4, .template-title,
         .checklist-label, .visa-method-card p, .visa-method-card a, .ccift-text, .bilateral-box p {{
             overflow-wrap: anywhere;
         }}
@@ -903,49 +1337,11 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             border-radius: 12px;
             min-width: 26px;
             text-align: center;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: ui-monospace, "Roboto Mono", monospace;
         }}
         .track-btn.active .track-badge-count {{
             background: rgba(255, 255, 255, 0.28);
             color: white;
-        }}
-
-        /* ÉCUSSONS TRÈS VISIBLES SUR LES CARTES (KAPI 1 / 2 / 3 / 4) */
-        .track-ribbon {{
-            font-size: 0.76rem;
-            font-weight: 800;
-            padding: 6px 12px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            align-self: flex-start;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            position: relative;
-            overflow: hidden;
-        }}
-        .ribbon-voie-1 {{
-            background: var(--status-sky-subtle);
-            color: var(--status-sky-text);
-            border: 1px solid var(--status-sky-border);
-        }}
-        .ribbon-voie-2 {{
-            background: var(--gold-ribbon-bg);
-            color: #ffffff;
-            border: 1px solid rgba(217, 119, 6, 0.4);
-            box-shadow: 0 2px 8px rgba(180, 83, 9, 0.25);
-        }}
-        .ribbon-voie-3 {{
-            background: var(--status-purple-subtle);
-            color: var(--status-purple-text);
-            border: 1px solid var(--status-purple-border);
-        }}
-        .ribbon-voie-4 {{
-            background: var(--surface-subtle);
-            color: var(--text-tertiary);
-            border: 1px solid var(--border-subtle);
         }}
 
         /* BALAYAGE LUMINEUX SHIMMER POUR CCIFT & KAPI 2 */
@@ -969,23 +1365,6 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         @keyframes goldShimmer {{
             0% {{ transform: translateX(-160%) skewX(-20deg); }}
             35%, 100% {{ transform: translateX(290%) skewX(-20deg); }}
-        }}
-
-        .ccift-card-ribbon {{
-            background: var(--status-amber-subtle);
-            color: var(--gold-primary);
-            border: 1px solid var(--status-amber-border);
-            font-weight: 800;
-            font-size: 0.74rem;
-            padding: 5px 10px;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            align-self: flex-start;
-            position: relative;
-            overflow: hidden;
         }}
 
         /* Stats Grid */
@@ -1013,7 +1392,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             font-size: 2.2rem;
             font-weight: 800;
             color: var(--accent-primary);
-            font-family: 'JetBrains Mono', monospace;
+            font-family: ui-monospace, "Roboto Mono", monospace;
             line-height: 1.1;
         }}
         .stat-card .num.highlight-green {{ color: var(--status-success); }}
@@ -1157,25 +1536,6 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         /* Libellés courts des onglets : visibles uniquement dans la barre du bas mobile */
         .tab-label-short {{
             display: none;
-        }}
-
-        /* Séparateurs neutres (remplacent les « | » textuels) */
-        .facet-separator {{
-            width: 1px;
-            align-self: stretch;
-            min-height: 24px;
-            background: var(--border-default);
-            margin: 0 4px;
-            flex-shrink: 0;
-        }}
-        .loc-sep {{
-            color: var(--text-muted);
-            font-weight: 700;
-        }}
-        .company-loc-place {{
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
         }}
 
         /* Contenu des cartes Kanban (markup généré par tracker_engine.js > createKanbanCardElement) */
@@ -1348,487 +1708,26 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             border: 1px dashed var(--border-default);
         }}
 
-        /* Filtres Multi-Facettes Linear Style */
-        .filter-controls-row {{
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-top: 14px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }}
-        .control-group {{
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }}
-        .control-label {{
-            font-size: 0.84rem;
-            font-weight: 700;
-            color: var(--text-secondary);
-        }}
-        .filter-select {{
-            padding: 8px 14px;
-            border-radius: 9px;
-            border: 1px solid var(--border-default);
-            background: var(--surface-card);
-            color: var(--text-primary);
-            font-size: 0.85rem;
-            font-weight: 600;
-            outline: none;
-            cursor: pointer;
-            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-        }}
-        .filter-select:focus {{
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-        }}
-        .filter-panel {{
-            max-width: 1280px;
-            margin: 0 auto 20px auto;
-            background: var(--surface-card);
-            border: 1px solid var(--border-default);
-            border-radius: 14px;
-            padding: 18px 22px;
-            box-shadow: var(--shadow-sm);
-        }}
-        .search-bar-row {{
-            display: flex;
-            gap: 12px;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-        }}
-        .search-input {{
-            flex: 1;
-            min-width: min(100%, 280px);
-            padding: 12px 18px;
-            border-radius: 10px;
-            border: 1px solid var(--border-default);
-            font-size: 0.96rem;
-            outline: none;
-            transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
-            background: var(--surface-card);
-            color: var(--text-primary);
-            font-family: inherit;
-        }}
-        .search-input:focus {{
-            border-color: var(--border-focus);
-            box-shadow: var(--shadow-focus);
-        }}
-
-        .filter-facets-row {{
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-        }}
-        .filter-pill-btn {{
-            background: var(--surface-subtle);
-            border: 1px solid var(--border-default);
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.86rem;
-            font-weight: 700;
-            color: var(--text-secondary);
-            transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }}
-        .filter-pill-btn:hover {{
-            background: var(--surface-muted);
-            border-color: var(--border-strong);
-            color: var(--text-primary);
-        }}
-        .filter-pill-btn.active {{
-            background: var(--accent-primary);
-            color: white;
-            border-color: var(--accent-primary);
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
-        }}
-        .filter-pill-btn.pill-no-french.active {{
-            background: var(--status-success);
-            color: white;
-            border-color: var(--status-success);
-        }}
-        .filter-pill-btn.pill-ccift.active {{
-            background: var(--gold-ribbon-bg);
-            color: white;
-            border-color: var(--gold-primary);
-            box-shadow: var(--shadow-gold);
-        }}
-        .filter-pill-btn.pill-fav.active {{
-            background: #f59e0b;
-            color: white;
-            border-color: #f59e0b;
-        }}
-        .filter-pill-btn.pill-tracked.active {{
-            background: var(--status-sky);
-            color: white;
-            border-color: var(--status-sky);
-        }}
-
-        .filter-status-row {{
-            margin-top: 14px;
-            padding-top: 12px;
-            border-top: 1px solid var(--border-subtle);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-        }}
-        .results-summary {{
-            font-size: 0.88rem;
-            color: var(--text-tertiary);
-        }}
-        .reset-filter-btn {{
-            background: transparent;
-            border: none;
-            color: var(--accent-primary);
-            font-size: 0.86rem;
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: underline;
-        }}
-
-        /* Grille des Offres (Linear & Stripe Cards) */
-        .cards-grid {{
-            max-width: 1280px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
-            gap: 22px;
-        }}
-        .job-card {{
-            background: var(--surface-card);
-            border-radius: 14px;
-            border: 1px solid var(--border-default);
-            padding: 22px;
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms, border-color 200ms;
-            position: relative;
-        }}
-        .job-card:hover {{
-            transform: translateY(-3px);
-            box-shadow: var(--shadow-card-hover);
-            border-color: var(--border-strong);
-        }}
-        .job-card.job-card-ccift {{
-            border: 1.5px solid rgba(245, 158, 11, 0.45);
-            background: var(--gold-bg-gradient);
-        }}
-        .job-card.job-card-ccift:hover {{
-            border-color: var(--gold-primary);
-            box-shadow: var(--shadow-gold), var(--shadow-card-hover);
-        }}
-        .job-card.card-track-1 {{
-            border-top: 3.5px solid #0284c7;
-        }}
-        .job-card.card-track-3 {{
-            border-top: 3.5px solid #7c3aed;
-        }}
-
-        .card-header {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            gap: 8px;
-        }}
-        .header-badges {{
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }}
-        .header-right-actions {{
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }}
-        .source-badge {{
-            background: var(--accent-primary-subtle);
-            color: var(--accent-primary);
-            padding: 4px 9px;
-            border-radius: 6px;
-            font-size: 0.74rem;
-            font-weight: 700;
-            text-transform: uppercase;
-        }}
-        .category-badge {{
-            background: var(--surface-subtle);
-            color: var(--text-tertiary);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.74rem;
-            font-weight: 600;
-        }}
-        .score-badge {{
-            color: white;
-            padding: 4px 9px;
-            border-radius: 10px;
-            font-size: 0.78rem;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-family: 'JetBrains Mono', monospace;
-        }}
-
-        .bookmark-btn {{
-            background: transparent;
-            border: 1px solid var(--border-default);
-            border-radius: 8px;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.1rem;
-            color: var(--text-muted);
-            transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
-        }}
-        .bookmark-btn:hover {{
-            border-color: #f59e0b;
-            color: #f59e0b;
-            transform: scale(1.1);
-        }}
-        .bookmark-btn.active {{
-            background: #fef3c7;
-            border-color: #f59e0b;
-            color: #d97706;
-        }}
-
-        .job-title {{
-            font-size: 1.15rem;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-            line-height: 1.35;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-        }}
-        .company-loc {{
-            font-size: 0.88rem;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }}
-        .company-name-text {{
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }}
-
-        .visa-and-lang-box {{
-            background: var(--surface-subtle);
-            border: 1px solid var(--border-subtle);
-            border-radius: 10px;
-            padding: 10px 12px;
-            margin-bottom: 12px;
-            font-size: 0.84rem;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }}
-        .val-item {{
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-        }}
-        .val-label {{
-            font-weight: 700;
-            color: var(--text-tertiary);
-            font-size: 0.82rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }}
-        .val-val {{
-            font-weight: 700;
-            text-align: right;
-        }}
-        .val-visa {{
-            color: var(--status-sky-text);
-            max-width: 60%;
-        }}
-        .tag-no-french {{
-            color: var(--status-success-text);
-            background: var(--status-success-subtle);
-            padding: 2px 8px;
-            border-radius: 5px;
-            border: 1px solid var(--status-success-border);
-        }}
-        .tag-french-req {{
-            color: var(--status-amber-text);
-            background: var(--status-amber-subtle);
-            padding: 2px 8px;
-            border-radius: 5px;
-            border: 1px solid var(--status-amber-border);
-        }}
-
-        .snippet {{
-            font-size: 0.88rem;
-            color: var(--text-secondary);
-            line-height: 1.5;
-            margin-bottom: 14px;
-            flex-grow: 1;
-        }}
-
-        .tags-container {{
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 14px;
-        }}
-        .tag {{
-            font-size: 0.74rem;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-weight: 600;
-        }}
-        .tag-ccift {{ background: var(--status-amber-subtle); color: var(--gold-primary); border: 1px solid var(--status-amber-border); font-weight: 800; }}
-        .tag-visa {{ background: var(--status-sky-subtle); color: var(--status-sky-text); border: 1px solid var(--status-sky-border); }}
-        .tag-corp {{ background: var(--status-purple-subtle); color: var(--status-purple-text); border: 1px solid var(--status-purple-border); }}
-        .tag-lang {{ background: var(--status-success-subtle); color: var(--status-success-text); border: 1px solid var(--status-success-border); }}
-        .tag-default {{ background: var(--surface-subtle); color: var(--text-tertiary); border: 1px solid var(--border-subtle); }}
-
-        .card-tracker-status {{
-            display: inline-block;
-            font-size: 0.76rem;
-            font-weight: 800;
-            padding: 4px 10px;
-            border-radius: 6px;
-            margin-bottom: 12px;
-            align-self: flex-start;
-        }}
-        .status-badge-saved {{ background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }}
-        .status-badge-applied {{ background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }}
-        .status-badge-interview {{ background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }}
-        .status-badge-offer {{ background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }}
-
-        .card-footer {{
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }}
+        /* Bouton plein (état vide du Kanban) */
         .apply-btn {{
-            flex: 1;
             text-align: center;
             background: var(--accent-primary);
             color: white;
             text-decoration: none;
             padding: 10px 14px;
-            border-radius: 10px;
+            border: 0;
+            border-radius: 12px;
+            font: inherit;
             font-size: 0.88rem;
             font-weight: 700;
-            transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
+            cursor: pointer;
         }}
         .apply-btn:hover {{
             background: var(--accent-primary-hover);
-            transform: translateY(-1px);
-        }}
-        .tracker-action-btn {{
-            background: var(--surface-subtle);
-            border: 1px solid var(--border-default);
-            color: var(--text-secondary);
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-size: 0.86rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }}
-        .tracker-action-btn:hover {{
-            background: var(--surface-muted);
-            color: var(--text-primary);
-        }}
-        .tracker-action-btn.in-pipeline {{
-            background: var(--status-success-subtle);
-            color: var(--status-success-text);
-            border-color: var(--status-success-border);
-        }}
-        /* NOUVEAUX BOUTONS D'ACTION RAPIDE (1-CLIC) & MOBILE */
-        .action-btn-primary {{
-            flex: 1.2;
-            text-align: center;
-            background: #0284c7;
-            color: white;
-            border: none;
-            padding: 9px 12px;
-            border-radius: 9px;
-            font-size: 0.84rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
-        }}
-        .action-btn-primary:hover {{
-            background: #0369a1;
-            transform: translateY(-1px);
-        }}
-        .action-btn-pitch {{
-            flex: 1.2;
-            text-align: center;
-            background: #7c3aed;
-            color: white;
-            border: none;
-            padding: 9px 12px;
-            border-radius: 9px;
-            font-size: 0.84rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            box-shadow: 0 2px 4px rgba(124, 58, 237, 0.25);
-        }}
-        .action-btn-pitch:hover {{
-            background: #6d28d9;
-            transform: translateY(-1px);
-        }}
-        .action-btn-wa {{
-            background: #25D366;
-            color: white;
-            border: none;
-            padding: 9px 12px;
-            border-radius: 9px;
-            font-size: 0.84rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            box-shadow: 0 2px 4px rgba(37, 211, 102, 0.3);
-        }}
-        .action-btn-wa:hover {{
-            background: #20bd5a;
-            transform: translateY(-1px);
         }}
 
         /* BANNIÈRE DE DÉMARRAGE RAPIDE EN 3 ÉTAPES */
@@ -1910,26 +1809,6 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             color: #94a3b8;
         }}
 
-        .secondary-btn {{
-            text-align: center;
-            background: var(--surface-subtle);
-            color: var(--text-secondary);
-            text-decoration: none;
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-size: 0.86rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            border: 1px solid var(--border-default);
-            transition: all 180ms;
-        }}
-        .secondary-btn:hover {{
-            background: var(--surface-muted);
-            color: var(--text-primary);
-        }}
-
         /* Onglet 2 : Pipeline Kanban */
         .tracker-header-box {{
             max-width: 1280px;
@@ -1966,7 +1845,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             font-size: 1.9rem;
             font-weight: 800;
             color: var(--text-primary);
-            font-family: 'JetBrains Mono', monospace;
+            font-family: ui-monospace, "Roboto Mono", monospace;
         }}
         .tracker-stat-box.box-saved .t-num {{ color: #2563eb; }}
         .tracker-stat-box.box-applied .t-num {{ color: #d97706; }}
@@ -2258,7 +2137,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             border: 1px solid var(--border-default);
             border-radius: 8px;
             padding: 14px;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: ui-monospace, "Roboto Mono", monospace;
             font-size: 0.84rem;
             line-height: 1.6;
             color: var(--text-secondary);
@@ -2762,281 +2641,6 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
                 justify-content: center;
             }}
 
-            /* ---------- Filtres ---------- */
-            .filter-panel {{
-                padding: 12px;
-                margin-bottom: 14px;
-            }}
-            .search-bar-row {{
-                margin-bottom: 10px;
-            }}
-            .search-input {{
-                width: 100%;
-                min-width: 0;
-                min-height: 48px;
-                font-size: 16px; /* évite le zoom automatique au focus */
-                padding: 10px 14px;
-            }}
-            .filter-controls-row {{
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 8px;
-                margin: 0 0 10px 0;
-            }}
-            .control-group {{
-                flex-direction: column;
-                align-items: stretch;
-                gap: 4px;
-                min-width: 0;
-            }}
-            .control-label {{
-                font-size: 0.74rem;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }}
-            .filter-select {{
-                width: 100%;
-                min-width: 0;
-                min-height: 48px;
-                font-size: 16px;
-                padding: 8px 10px;
-                text-overflow: ellipsis;
-            }}
-            .filter-facets-row {{
-                margin-top: 0;
-            }}
-            .filter-pill-btn {{
-                flex: 0 0 auto;
-                scroll-snap-align: start;
-                min-height: 48px;
-                padding: 0 14px;
-                border-radius: 24px;
-                white-space: nowrap;
-            }}
-            .filter-status-row {{
-                margin-top: 8px;
-                padding-top: 6px;
-                flex-wrap: nowrap;
-            }}
-            .results-summary {{
-                font-size: 0.8rem;
-                min-width: 0;
-            }}
-            .reset-filter-btn {{
-                min-height: 48px;
-                padding: 0 4px 0 8px;
-                flex-shrink: 0;
-                font-size: 0.82rem;
-            }}
-
-            /* ---------- Cartes d'offres compactes ---------- */
-            .cards-grid {{
-                gap: 12px;
-            }}
-            .job-card {{
-                padding: 12px 14px;
-                border-radius: 14px;
-            }}
-            .job-card:hover {{
-                transform: none;
-            }}
-            .track-ribbon,
-            .ccift-card-ribbon {{
-                max-width: 100%;
-                font-size: 0.66rem;
-                padding: 4px 8px;
-                margin-bottom: 6px;
-                gap: 5px;
-                white-space: nowrap;
-            }}
-            .track-ribbon-text,
-            .ccift-card-ribbon > span {{
-                overflow: hidden;
-                text-overflow: ellipsis;
-                min-width: 0;
-            }}
-            .card-header {{
-                margin-bottom: 6px;
-            }}
-            .header-badges {{
-                flex-wrap: nowrap;
-                min-width: 0;
-                overflow: hidden;
-            }}
-            .source-badge,
-            .category-badge {{
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                font-size: 0.68rem;
-            }}
-            .category-badge {{
-                min-width: 0;
-            }}
-            .header-right-actions {{
-                gap: 2px;
-                flex-shrink: 0;
-            }}
-            .score-badge .score-prefix {{
-                display: none;
-            }}
-            .bookmark-btn {{
-                width: 48px;
-                height: 48px;
-                margin: -8px -8px -8px 0;
-                border: none;
-                border-radius: 50%;
-                background: transparent;
-                font-size: 1.3rem;
-            }}
-            .bookmark-btn:hover {{
-                transform: none;
-            }}
-            .bookmark-btn.active {{
-                background: transparent;
-                color: #d97706;
-            }}
-            .job-title {{
-                font-size: 1.02rem;
-                margin-bottom: 4px;
-                line-height: 1.3;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-            }}
-            /* Entreprise · Lieu sur une seule ligne, chaque partie tronquée si besoin */
-            .company-loc {{
-                font-size: 0.82rem;
-                margin-bottom: 6px;
-                gap: 6px;
-                flex-wrap: nowrap;
-                min-width: 0;
-            }}
-            .company-name-text,
-            .company-loc-place {{
-                display: block;
-                flex: 0 1 auto;
-                min-width: 0;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }}
-            .company-name-text {{
-                flex-shrink: 0.6;
-            }}
-            .visa-and-lang-box {{
-                padding: 5px 10px;
-                margin-bottom: 6px;
-                gap: 2px;
-                font-size: 0.78rem;
-            }}
-            .val-item {{
-                gap: 8px;
-                min-width: 0;
-            }}
-            .val-label {{
-                font-size: 0.74rem;
-                flex-shrink: 0;
-            }}
-            .val-val {{
-                min-width: 0;
-                font-size: 0.76rem;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }}
-            .val-visa {{
-                max-width: none;
-            }}
-            .tag-no-french,
-            .tag-french-req {{
-                padding: 1px 6px;
-            }}
-            .snippet {{
-                font-size: 0.85rem;
-                line-height: 1.4;
-                margin-bottom: 6px;
-                display: -webkit-box;
-                -webkit-line-clamp: 3;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-                flex-grow: 0;
-            }}
-            .tags-container {{
-                gap: 4px;
-                margin-bottom: 8px;
-                max-height: 22px;
-                overflow: hidden;
-            }}
-            .tags-container .tag:nth-child(n+4) {{
-                display: none;
-            }}
-            .tag {{
-                font-size: 0.68rem;
-                padding: 2px 7px;
-                white-space: nowrap;
-                max-width: 100%;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }}
-            .card-tracker-status {{
-                margin-bottom: 8px;
-            }}
-
-            /* Pied de carte : 1 action pleine (accent) + actions tonales neutres en grille 2 col. */
-            .card-footer {{
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 6px 8px;
-            }}
-            .card-footer > * {{
-                min-height: 48px;
-                min-width: 0;
-                margin: 0;
-                padding: 0 10px;
-                border-radius: 24px;
-                font-size: 0.84rem;
-                font-weight: 700;
-                justify-content: center;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                box-shadow: none;
-            }}
-            .card-footer > *:hover {{
-                transform: none;
-            }}
-            .card-footer .action-btn-primary {{
-                grid-column: 1 / -1;
-                background: var(--accent-primary);
-                color: #ffffff;
-            }}
-            .card-footer .action-btn-primary:hover {{
-                background: var(--accent-primary-hover);
-            }}
-            .card-footer .action-btn-pitch,
-            .card-footer .action-btn-wa,
-            .card-footer .tracker-action-btn,
-            .card-footer .secondary-btn {{
-                background: var(--surface-subtle);
-                color: var(--text-primary);
-                border: 1px solid var(--border-default);
-            }}
-            .card-footer .action-btn-pitch:hover,
-            .card-footer .action-btn-wa:hover,
-            .card-footer .tracker-action-btn:hover,
-            .card-footer .secondary-btn:hover {{
-                background: var(--surface-muted);
-                color: var(--text-primary);
-            }}
-            .card-footer .tracker-action-btn.in-pipeline {{
-                background: var(--status-success-subtle);
-                color: var(--status-success-text);
-                border-color: var(--status-success-border);
-            }}
-
             /* ---------- Onglet Suivi / Kanban ---------- */
             .tracker-header-box {{
                 text-align: left;
@@ -3215,9 +2819,11 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
                 font-size: 0.6rem;
             }}
         }}
+        {UI_V4_CSS}
     </style>
 </head>
 <body>
+    {ICON_SPRITE}
 
     <!-- BARRE SUPÉRIEURE (MARQUE, INSTALLATION PWA, REFRESH, LANGUE & THÈME) -->
     <header class="top-nav">
@@ -3262,19 +2868,19 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
     <!-- Desktop : onglets segmentés en haut. Mobile (≤768px) : barre de navigation fixe en bas (Material 3). -->
     <nav class="main-tabs-nav" aria-label="Fransaİş">
         <button class="tab-nav-btn active" id="tabBtnExplore" onclick="window.TrackerEngine.switchTab('explore')">
-            {SVG_ICONS["briefcase"]}
+            <svg class="ic svg-icon" aria-hidden="true"><use href="#i-compass"/></svg>
             <span class="tab-label-long" id="i18n-tab-explore" data-tr="Keşfet &amp; İlanlar" data-fr="Explorer les Offres">Keşfet &amp; İlanlar</span>
             <span class="tab-label-short" data-tr="Keşfet" data-fr="Explorer">Keşfet</span>
             <span class="tab-badge" id="badge-explore-count">{total}</span>
         </button>
         <button class="tab-nav-btn" id="tabBtnTracker" onclick="window.TrackerEngine.switchTab('tracker')">
-            {SVG_ICONS["bookmark"]}
+            <svg class="ic svg-icon" aria-hidden="true"><use href="#i-briefcase"/></svg>
             <span class="tab-label-long" id="i18n-tab-tracker" data-tr="Başvuru Takibi (Kanban)" data-fr="Suivi Candidatures (Kanban)">Başvuru Takibi (Kanban)</span>
             <span class="tab-label-short" data-tr="Başvurularım" data-fr="Candidatures">Başvurularım</span>
             <span class="tab-badge" id="badge-tracker-count">0</span>
         </button>
         <button class="tab-nav-btn" id="tabBtnGuide" onclick="window.TrackerEngine.switchTab('guide')">
-            {SVG_ICONS["file_text"]}
+            <svg class="ic svg-icon" aria-hidden="true"><use href="#i-book-open"/></svg>
             <span class="tab-label-long" id="i18n-tab-guide" data-tr="Rehber, Vize &amp; Belgeler" data-fr="Guide Visa &amp; Outils">Rehber, Vize &amp; Belgeler</span>
             <span class="tab-label-short" data-tr="Rehber" data-fr="Guide">Rehber</span>
         </button>
@@ -3284,206 +2890,48 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
     <!-- ONGLET 1 : KEŞFET / EXPLORER (GRILLE ET FILTRES MULTI-FACETTES)        -->
     <!-- ==================================================================== -->
     <main id="tab-content-explore" class="tab-pane">
-        
-        <!-- GUIDE DE DÉMARRAGE RAPIDE 3 ÉTAPES (MOBILE & DESKTOP) -->
-        <div class="quick-start-banner">
-            <div class="quick-start-header">
-                <span class="quick-start-badge" data-tr="🚀 HIZLI BAŞLANGIÇ" data-fr="🚀 DÉMARRAGE RAPIDE">🚀 HIZLI BAŞLANGIÇ</span>
-                <h3 id="i18n-qs-title" data-tr="Fransa'ya Başvuru İçin 3 Kolay Adım :" data-fr="3 étapes simples pour postuler en France :">Fransa'ya Başvuru İçin 3 Kolay Adım :</h3>
+        <!-- En-tête compact -->
+        <section class="ex-head" aria-labelledby="ex-hello">
+            <h1 class="ex-hello" id="ex-hello" data-tr="Merhaba 👋" data-fr="Bonjour 👋">Merhaba 👋</h1>
+            <p class="ex-sub" id="ex-new-line">{total} ilan</p>
+        </section>
+
+        <!-- Recherche + Filtres -->
+        <div class="ex-toolbar">
+            <div class="ex-search" role="search">
+                <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+                <input type="search" id="searchInput" class="ex-search-input" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search"
+                       placeholder="Pozisyon, şirket veya şehir ara" aria-label="Pozisyon, şirket veya şehir ara"
+                       data-placeholder-tr="Pozisyon, şirket veya şehir ara" data-placeholder-fr="Poste, entreprise ou ville">
             </div>
-            <div class="quick-start-steps">
-                <div class="quick-step" onclick="window.TrackerEngine.Filter.toggleNoFrench();" title="Sadece İngilizce veya Türkçe yeterli olan ilanlar" data-tooltip-tr="Sadece İngilizce veya Türkçe yeterli olan ilanlar" data-tooltip-fr="Offres où l'anglais ou le turc est suffisant">
-                    <div class="step-num">1</div>
-                    <div class="step-text">
-                        <strong data-tr="✅ Fransızca Şart Değil" data-fr="✅ Français Non Requis">✅ Fransızca Şart Değil</strong>
-                        <span data-tr="İngilizce veya Türkçe yeterli ilanları filtrele" data-fr="Filtrer les offres en anglais ou turc">İngilizce veya Türkçe yeterli ilanları filtrele</span>
-                    </div>
-                </div>
-                <div class="quick-step" onclick="window.TrackerEngine.Filter.setTrack('voie_2')" title="Şirket içi transfer ile en hızlı vize" data-tooltip-tr="Şirket içi transfer ile en hızlı vize" data-tooltip-fr="Détachement intra-groupe ICT ultra-rapide">
-                    <div class="step-num">2</div>
-                    <div class="step-text">
-                        <strong data-tr="🏢 Türk Holdingi veya Kurum Seç" data-fr="🏢 Groupes Turcs ou Institutions">🏢 Türk Holdingi veya Kurum Seç</strong>
-                        <span data-tr="Beko, THY veya Uluslararası Kurumlar" data-fr="Beko, THY ou Organisations Internationales">Beko, THY veya Uluslararası Kurumlar</span>
-                    </div>
-                </div>
-                <div class="quick-step" onclick="window.TrackerEngine.switchTab('guide')" title="Hazır Fransızca dilekçe ve vize rehberi" data-tooltip-tr="Hazır Fransızca dilekçe ve vize rehberi" data-tooltip-fr="Générateur de lettre et guide visa">
-                    <div class="step-num">3</div>
-                    <div class="step-text">
-                        <strong data-tr="✍️ 1-Tıkla Ön Yazını Üret" data-fr="✍️ Générer la Lettre en 1 Clic">✍️ 1-Tıkla Ön Yazını Üret</strong>
-                        <span data-tr="Fransızca resmi başvuru mektubun anında hazır" data-fr="Votre lettre en français prête instantanément">Fransızca resmi başvuru mektubun anında hazır</span>
-                    </div>
-                </div>
-            </div>
+            <button type="button" class="ex-filter-btn" id="openFiltersBtn" aria-haspopup="dialog" aria-controls="filterSheet"
+                    title="Filtreler" data-tooltip-tr="Filtreler" data-tooltip-fr="Filtres">
+                <svg class="ic" aria-hidden="true"><use href="#i-sliders"/></svg>
+                <span class="sr-only" data-tr="Filtreler" data-fr="Filtres">Filtreler</span>
+                <span class="ex-filter-count" id="activeFilterCount" hidden>0</span>
+            </button>
         </div>
 
-        <div class="header">
-            <h1 id="i18n-title">Türkiye'den Fransa'ya Vize & Relokasyon Destekli İş Fırsatları</h1>
-            <p id="i18n-subtitle">Türkiye'de ikamet eden adayların başvurusuna açık, vize/relokasyon sağlayan veya uluslararası statü veren resmi kurumlar ve Türk şirketleri.</p>
+        <!-- Pastilles rapides -->
+        <div class="ex-chips" id="exChips" role="group" aria-label="Filtre">
+            <button type="button" class="chip" data-chip="all" aria-pressed="true"><span data-tr="Tümü" data-fr="Tout">Tümü</span><span class="chip-count" data-count="all">{total}</span></button>
+            <button type="button" class="chip" data-chip="voie_1" aria-pressed="false"><span class="chip-dot kapi-1" aria-hidden="true"></span><span data-tr="Kapı 1" data-fr="Voie 1">Kapı 1</span><span class="chip-count" data-count="voie_1"></span></button>
+            <button type="button" class="chip" data-chip="voie_2" aria-pressed="false"><span class="chip-dot kapi-2" aria-hidden="true"></span><span data-tr="Kapı 2" data-fr="Voie 2">Kapı 2</span><span class="chip-count" data-count="voie_2"></span></button>
+            <button type="button" class="chip" data-chip="voie_3" aria-pressed="false"><span class="chip-dot kapi-3" aria-hidden="true"></span><span data-tr="Kapı 3" data-fr="Voie 3">Kapı 3</span><span class="chip-count" data-count="voie_3"></span></button>
+            <button type="button" class="chip" data-chip="nofr" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-languages"/></svg><span data-tr="Fransızca gerekmez" data-fr="Sans français">Fransızca gerekmez</span><span class="chip-count" data-count="nofr"></span></button>
+            <button type="button" class="chip" data-chip="fav" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg><span data-tr="Kaydedilenler" data-fr="Favoris">Kaydedilenler</span><span class="chip-count" data-count="fav"></span></button>
         </div>
 
-        <!-- 3 PORTES D'ACCÈS PRIORITAIRES (VOIE 1 / VOIE 2 / VOIE 3) -->
-        <div class="priority-tracks-bar">
-            <div class="tracks-bar-title" id="i18n-tracks-title" data-tr="🚪 3 ÖNCELİKLİ YASAL İSTİHDAM KAPISI (VİZE / RELOKASYON) :" data-fr="🚪 LES 3 PORTES D'ACCÈS PRIORITAIRES (VISA / RELOCALISATION) :">{SVG_ICONS["filter"]} 3 ÖNCELİKLİ YASAL İSTİHDAM KAPISI (VİZE / RELOKASYON) :</div>
-            <div class="tracks-buttons-group">
-                <button class="track-btn active" data-track="all" onclick="window.TrackerEngine.Filter.setTrack('all', this)" id="btn-track-all">
-                    <div class="track-btn-left">
-                        <span class="track-icon">{SVG_ICONS["globe"]}</span>
-                        <span class="track-name" id="i18n-track-all" data-tr="Tüm Kapılar / Tümü" data-fr="Toutes les Voies / Tout">Tüm Kapılar / Tümü</span>
-                    </div>
-                    <span class="track-badge-count" id="count-track-all">{total}</span>
-                </button>
-                <button class="track-btn track-btn-1" data-track="voie_1" onclick="window.TrackerEngine.Filter.setTrack('voie_1', this)" id="btn-track-1">
-                    <div class="track-btn-left">
-                        <span class="track-icon">{SVG_ICONS["landmark"]}</span>
-                        <span class="track-name" id="i18n-track-1" data-tr="KAPI 1: Uluslararası Kurumlar" data-fr="VOIE 1 : Institutions Internationales">KAPI 1: Uluslararası Kurumlar</span>
-                    </div>
-                    <span class="track-badge-count" id="count-track-1">{track_counts['voie_1']}</span>
-                </button>
-                <button class="track-btn track-btn-2" data-track="voie_2" onclick="window.TrackerEngine.Filter.setTrack('voie_2', this)" id="btn-track-2">
-                    <div class="track-btn-left">
-                        <span class="track-icon">{SVG_ICONS["shield_check"]}</span>
-                        <span class="track-name" id="i18n-track-2" data-tr="KAPI 2: Türk Holdingleri (ICT)" data-fr="VOIE 2 : Multinationales Turques (ICT)">KAPI 2: Türk Holdingleri (ICT)</span>
-                    </div>
-                    <span class="track-badge-count" id="count-track-2">{track_counts['voie_2']}</span>
-                </button>
-                <button class="track-btn track-btn-3" data-track="voie_3" onclick="window.TrackerEngine.Filter.setTrack('voie_3', this)" id="btn-track-3">
-                    <div class="track-btn-left">
-                        <span class="track-icon">{SVG_ICONS["rocket"]}</span>
-                        <span class="track-name" id="i18n-track-3" data-tr="KAPI 3: Yetenek Pasaportu (Tech)" data-fr="VOIE 3 : Passeport Talent (Tech)">KAPI 3: Yetenek Pasaportu (Tech)</span>
-                    </div>
-                    <span class="track-badge-count" id="count-track-3">{track_counts['voie_3']}</span>
-                </button>
-            </div>
-        </div>
+        <!-- Liste des offres : rendue en JS depuis window.FransaData (lots de 20) -->
+        <div class="cards-grid" id="cardsGrid"></div>
+        <button type="button" class="ex-more" id="cardsSentinel" hidden><span data-tr="Daha fazla ilan" data-fr="Plus d'offres">Daha fazla ilan</span></button>
 
-        <!-- 4 COMPTEURS RÉACTIFS DU HAUT -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="num" id="stat-total">{total}</div>
-                <div class="label" id="i18n-stat-total">Toplam Fırsat</div>
-            </div>
-            <div class="stat-card">
-                <div class="num highlight-amber" id="stat-ccift">{ccift_count}</div>
-                <div class="label" id="i18n-stat-ccift">CCIFT & DEİK Akredite Üye</div>
-            </div>
-            <div class="stat-card">
-                <div class="num highlight-green" id="stat-no-french">{no_french_count}</div>
-                <div class="label" id="i18n-stat-no-french">Fransızca Şart Değil</div>
-            </div>
-            <div class="stat-card">
-                <div class="num" id="stat-reloc">{reloc_count}</div>
-                <div class="label" id="i18n-stat-reloc">Vize / Relokasyon Sağlanan</div>
-            </div>
-        </div>
-
-        <!-- ENCART CCIFT & DEIK AVEC GOLD SHIMMER -->
-        <!-- Repliable (<details>) : fermé par défaut sur mobile, ouvert sur desktop via le script de thème -->
-        <details class="ccift-highlight-box info-collapsible">
-            <summary class="info-summary">
-                <span class="ccift-badge-title" id="i18n-ccift-box-title">{SVG_ICONS["shield_check"]} CCIFT & DEİK RESMİ İKİLİ TİCARET ÜYELERİ (EN YÜKSEK VİZE ONAYI)</span>
-            </summary>
-            <div class="info-collapsible-body">
-                <p class="ccift-text" id="i18n-ccift-box-text">
-                    Aşağıda altın rozetle işaretlenen şirketler, <strong>Fransız-Türk Ticaret Odası (CCIFT)</strong> ve <strong>DEİK Türkiye-Fransa İş Konseyi</strong>'nin resmi üye holdingleridir (<em>Beko France, Turkish Airlines, Ekol, Barsan, Şişecam, Vestel, Sabancı, Eczacıbaşı vb.</em>). Bu kurumlar, Fransa ile resmi ikili protokol ve anlaşmalara sahip olup, Türkiye'den personel transferinde <strong>Şirket İçi Transfer (ICT)</strong> ve <strong>Yetenek Pasaportu (Passeport Talent)</strong> vizelerinde en yüksek onay oranına ve en hızlı prosedürlere sahiptir.
-                </p>
-                <button class="ccift-quick-btn" onclick="window.TrackerEngine.Filter.toggleCcift(); document.getElementById('filter-btn-ccift').classList.toggle('active');" id="i18n-ccift-quick-btn">
-                    {SVG_ICONS["shield_check"]} Bu Üyelerin İlanlarını Filtrele (1-Tık)
-                </button>
-            </div>
-        </details>
-
-        <!-- ENCART CONSEILS & LANGUES -->
-        <details class="bilateral-box info-collapsible">
-            <summary class="info-summary">
-                <h4 id="i18n-advice-title">{SVG_ICONS["check_circle"]} Türkiye'deki Adaylar İçin Vize ve Dil Rehberi:</h4>
-            </summary>
-            <div class="info-collapsible-body">
-                <p id="i18n-advice-text">
-                    <strong>Fransızca bilmiyorsanız endişelenmeyin :</strong> Yeşil etiketli ilanlarda çalışma dili <strong>İngilizce veya Türkçe</strong>dir (Fransızca şart değildir veya temel A1 yeterlidir). Türkiye'den vizesiz başvuru yaparken en güçlü kapılar : <strong>1)</strong> Yukarıdaki <strong>CCIFT & DEİK üyesi holdingler</strong> (Şirket İçi Transfer ICT vizesi). <strong>2)</strong> Türkiye'nin üyesi olduğu uluslararası kuruluşlar (<em>Avrupa Konseyi, OECD, UNESCO</em> - özel diplomatik/uluslararası memur statüsü verilir). <strong>3)</strong> Paris merkezli scale-up'lar (%100 İngilizce Tech kadroları).
-                </p>
-            </div>
-        </details>
-
-        <!-- BARRE DE RECHERCHE ET FILTRES MULTI-FACETTES -->
-        <div class="filter-panel">
-            <div class="search-bar-row">
-                <input type="text" id="searchInput" class="search-input" placeholder="Pozisyon, şehir (Paris, Lyon, Strazburg...), kurum (OECD, Beko, THY, Ekol...) ara..." data-placeholder-tr="🔍 Pozisyon, şehir (Paris, Lyon, Strazburg...), kurum (OECD, Beko, THY, Ekol...) ara..." data-placeholder-fr="🔍 Rechercher poste, ville (Paris, Lyon, Strasbourg...), institution (OCDE, Beko, THY...)...">
-            </div>
-            
-            <div class="filter-controls-row">
-                <div class="control-group">
-                    <label class="control-label" id="i18n-domain-label" for="domainSelect" data-tr="📂 Uzmanlık Alanı :" data-fr="📂 Domaine d'activité :">📂 Uzmanlık Alanı :</label>
-                    <select id="domainSelect" class="filter-select" onchange="window.TrackerEngine.Filter.setDomain(this.value)">
-                        <option value="all" id="opt-domain-all" data-tr="🌐 Tüm Alanlar" data-fr="🌐 Tous les domaines">🌐 Tüm Alanlar</option>
-                        <option value="it" id="opt-domain-it" data-tr="💻 IT, Yazılım &amp; AI" data-fr="💻 IT, Logiciel &amp; IA">💻 IT, Yazılım &amp; AI</option>
-                        <option value="logistics" id="opt-domain-logistics" data-tr="📦 Lojistik &amp; Taşımacılık" data-fr="📦 Logistique &amp; Transport">📦 Lojistik &amp; Taşımacılık</option>
-                        <option value="sales" id="opt-domain-sales" data-tr="💼 Satış &amp; İhracat" data-fr="💼 Vente, Export &amp; Marketing">💼 Satış &amp; İhracat</option>
-                        <option value="legal_policy" id="opt-domain-legal" data-tr="⚖️ Hukuk &amp; Uluslararası İlişkiler" data-fr="⚖️ Droit &amp; Relations Internationales">⚖️ Hukuk &amp; Uluslararası İlişkiler</option>
-                        <option value="media_trans" id="opt-domain-media" data-tr="🗣️ Çeviri &amp; Medya" data-fr="🗣️ Traduction &amp; Médias">🗣️ Çeviri &amp; Medya</option>
-                        <option value="hr_admin" id="opt-domain-hr" data-tr="👥 İK &amp; Yönetim" data-fr="👥 RH &amp; Administration">👥 İK &amp; Yönetim</option>
-                        <option value="craft_pme" id="opt-domain-craft" data-tr="🛠️ Zanaat &amp; Saha İşleri" data-fr="🛠️ Métiers de Terrain &amp; PME">🛠️ Zanaat &amp; Saha İşleri</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" id="i18n-sort-label" for="sortSelect" data-tr="🔄 Sıralama :" data-fr="🔄 Trier par :">🔄 Sıralama :</label>
-                    <select id="sortSelect" class="filter-select" onchange="window.TrackerEngine.Filter.setSort(this.value)">
-                        <option value="score_desc" id="opt-sort-score" data-tr="🎯 En Yüksek Uygunluk (Azalan)" data-fr="🎯 Score de Pertinence (Décroissant)">🎯 En Yüksek Uygunluk (Azalan)</option>
-                        <option value="date_desc" id="opt-sort-date" data-tr="📅 En Yeni İlanlar (Tarih)" data-fr="📅 Date de Publication (Plus Récent)">📅 En Yeni İlanlar (Tarih)</option>
-                        <option value="company_asc" id="opt-sort-company" data-tr="🏢 Şirket Adı (A-Z)" data-fr="🏢 Entreprise (A-Z)">🏢 Şirket Adı (A-Z)</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="filter-facets-row">
-                <button class="filter-pill-btn active" data-filter-val="all" data-tr="Tümü" data-fr="Toutes" onclick="window.TrackerEngine.Filter.setCategory('all'); document.querySelectorAll('.filter-pill-btn[data-filter-val]').forEach(b=>b.classList.remove('active')); this.classList.add('active');">Tümü</button>
-                <button class="filter-pill-btn pill-ccift" id="filter-btn-ccift" onclick="window.TrackerEngine.Filter.toggleCcift(); this.classList.toggle('active');">
-                    {SVG_ICONS["shield_check"]} <span data-tr="CCIFT &amp; DEİK Üyeleri" data-fr="Membres CCIFT &amp; DEİK">CCIFT &amp; DEİK Üyeleri</span>
-                </button>
-                <button class="filter-pill-btn pill-no-french" id="filter-btn-no-french" onclick="window.TrackerEngine.Filter.toggleNoFrench(); this.classList.toggle('active');">
-                    {SVG_ICONS["check_circle"]} <span data-tr="Fransızca Şart Değil" data-fr="Sans Français Obligatoire">Fransızca Şart Değil</span>
-                </button>
-                <button class="filter-pill-btn" data-filter-val="institutions" onclick="window.TrackerEngine.Filter.setCategory('institutions'); document.querySelectorAll('.filter-pill-btn[data-filter-val]').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    {SVG_ICONS["landmark"]} <span data-tr="Uluslararası Kurumlar" data-fr="Institutions Internationales">Uluslararası Kurumlar</span>
-                </button>
-                <button class="filter-pill-btn" data-filter-val="companies" onclick="window.TrackerEngine.Filter.setCategory('companies'); document.querySelectorAll('.filter-pill-btn[data-filter-val]').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    {SVG_ICONS["building"]} <span data-tr="Türk Holdingleri" data-fr="Multinationales Turques">Türk Holdingleri</span>
-                </button>
-                <button class="filter-pill-btn" data-filter-val="logistics" onclick="window.TrackerEngine.Filter.setCategory('logistics'); document.querySelectorAll('.filter-pill-btn[data-filter-val]').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    {SVG_ICONS["plane"]} <span data-tr="Lojistik &amp; Ticaret" data-fr="Logistique &amp; Commerce">Lojistik &amp; Ticaret</span>
-                </button>
-                <button class="filter-pill-btn" data-filter-val="tech" onclick="window.TrackerEngine.Filter.setCategory('tech'); document.querySelectorAll('.filter-pill-btn[data-filter-val]').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    {SVG_ICONS["rocket"]} <span data-tr="Tech &amp; Scale-ups" data-fr="Tech &amp; Scale-ups">Tech &amp; Scale-ups</span>
-                </button>
-                <button class="filter-pill-btn" data-filter-val="pme" onclick="window.TrackerEngine.Filter.setCategory('pme'); document.querySelectorAll('.filter-pill-btn[data-filter-val]').forEach(b=>b.classList.remove('active')); this.classList.add('active');">
-                    {SVG_ICONS["briefcase"]} <span data-tr="KOBİ &amp; Saha" data-fr="PME &amp; Terrain">KOBİ &amp; Saha</span>
-                </button>
-                
-                <span class="facet-separator" aria-hidden="true"></span>
-                
-                <button class="filter-pill-btn pill-fav" onclick="const isFav = this.classList.toggle('active'); window.TrackerEngine.Filter.setStatusFilter(isFav ? 'fav' : 'all');">
-                    {SVG_ICONS["bookmark"]} <span data-tr="Sadece Favoriler" data-fr="Favoris Uniquement">Sadece Favoriler</span>
-                </button>
-                <button class="filter-pill-btn pill-tracked" onclick="const isTracked = this.classList.toggle('active'); window.TrackerEngine.Filter.setStatusFilter(isTracked ? 'tracked' : 'all');">
-                    {SVG_ICONS["file_text"]} <span data-tr="Takip Edilenler" data-fr="Candidatures Suivies">Takip Edilenler</span>
-                </button>
-            </div>
-
-            <div class="filter-status-row">
-                <div class="results-summary" id="filter-results-summary">
-                    toplam <strong>{total}</strong> fırsattan <strong>{total}</strong> tanesi listeleniyor
-                </div>
-                <button class="reset-filter-btn" id="btn-reset-filters" onclick="window.TrackerEngine.Filter.resetAll()">Filtreleri Sıfırla 🔄</button>
-            </div>
-        </div>
-
-        <div id="no-results-box" style="display: none; text-align: center; padding: 40px; background: var(--surface-card); border-radius: 14px; border: 1px solid var(--border-default); max-width: 600px; margin: 30px auto;">
-            <p style="font-size: 1.1rem; color: var(--text-tertiary); margin-bottom: 14px;" data-tr="Aradığınız kriterlere uygun fırsat bulunamadı." data-fr="Aucune opportunité ne correspond à vos critères de recherche.">Aradığınız kriterlere uygun fırsat bulunamadı.</p>
-            <button class="apply-btn" style="max-width: 220px; margin: 0 auto;" onclick="window.TrackerEngine.Filter.resetAll()" data-tr="Filtreleri Temizle 🔄" data-fr="Effacer les Filtres 🔄">Filtreleri Temizle 🔄</button>
-        </div>
-
-        <!-- GRILLE COMPLÈTE DES CARTES -->
-        <div class="cards-grid" id="cardsGrid">
-            {cards_html}
+        <!-- État vide -->
+        <div class="ex-empty" id="no-results-box" hidden>
+            <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
+            <p class="ex-empty-title" data-tr="Sonuç bulunamadı" data-fr="Aucun résultat">Sonuç bulunamadı</p>
+            <p class="ex-empty-text" data-tr="Aramanı değiştir ya da filtreleri temizle." data-fr="Modifiez la recherche ou effacez les filtres.">Aramanı değiştir ya da filtreleri temizle.</p>
+            <button type="button" class="btn-filled" onclick="window.TrackerEngine.Filter.resetAll()"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg><span data-tr="Filtreleri temizle" data-fr="Effacer les filtres">Filtreleri temizle</span></button>
         </div>
 
     </main>
@@ -3530,7 +2978,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
 
         <div id="tracker-empty-notice" class="tracker-empty-board" style="display: none;">
             <h3 data-tr="Henüz takibe alınmış bir başvuru yok" data-fr="Aucune candidature enregistrée pour le moment">Henüz takibe alınmış bir başvuru yok</h3>
-            <p data-tr="İlanlar sekmesinde ilgilendiğiniz ilanların altındaki 'Takip Et' butonuna tıklayarak veya kartı favorilere ekleyerek takip sürecinizi başlatabilirsiniz." data-fr="Dans l'onglet Explorer, cliquez sur 'Suivre' pour ajouter une offre à votre tableau de bord.">İlanlar sekmesinde ilgilendiğiniz ilanların altındaki 'Takip Et' butonuna tıklayarak veya kartı favorilere ekleyerek takip sürecinizi başlatabilirsiniz.</p>
+            <p data-tr="Keşfet sekmesinde bir ilanı açıp takibe ekleyerek başlayabilirsin." data-fr="Dans Explorer, ouvrez une offre puis ajoutez-la au suivi pour commencer.">Keşfet sekmesinde bir ilanı açıp takibe ekleyerek başlayabilirsin.</p>
             <button class="apply-btn" style="max-width: 240px; margin: 0 auto;" onclick="window.TrackerEngine.switchTab('explore')" data-tr="İlanları Keşfetmeye Başla" data-fr="Commencer à Explorer les Offres">İlanları Keşfetmeye Başla</button>
         </div>
 
@@ -3601,6 +3049,124 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
                 <p data-tr="Türkiye'den Fransa'ya transfer süreçleri, vize prosedürleri ve hazır başvuru şablonları." data-fr="Procédures de transfert Turquie-France, démarches visas et modèles de candidature prêts à l'emploi.">Türkiye'den Fransa'ya transfer süreçleri, vize prosedürleri ve hazır başvuru şablonları.</p>
             </div>
 
+            <!-- Blocs d'introduction (déplacés depuis Keşfet) -->
+            <div class="guide-intro-blocks">
+        <!-- GUIDE DE DÉMARRAGE RAPIDE 3 ÉTAPES (MOBILE & DESKTOP) -->
+        <div class="quick-start-banner">
+            <div class="quick-start-header">
+                <span class="quick-start-badge" data-tr="🚀 HIZLI BAŞLANGIÇ" data-fr="🚀 DÉMARRAGE RAPIDE">🚀 HIZLI BAŞLANGIÇ</span>
+                <h3 id="i18n-qs-title" data-tr="Fransa'ya Başvuru İçin 3 Kolay Adım :" data-fr="3 étapes simples pour postuler en France :">Fransa'ya Başvuru İçin 3 Kolay Adım :</h3>
+            </div>
+            <div class="quick-start-steps">
+                <div class="quick-step" onclick="window.TrackerEngine.Filter.setNoFrench(true); window.TrackerEngine.switchTab('explore');" title="Sadece İngilizce veya Türkçe yeterli olan ilanlar" data-tooltip-tr="Sadece İngilizce veya Türkçe yeterli olan ilanlar" data-tooltip-fr="Offres où l'anglais ou le turc est suffisant">
+                    <div class="step-num">1</div>
+                    <div class="step-text">
+                        <strong data-tr="✅ Fransızca Şart Değil" data-fr="✅ Français Non Requis">✅ Fransızca Şart Değil</strong>
+                        <span data-tr="İngilizce veya Türkçe yeterli ilanları filtrele" data-fr="Filtrer les offres en anglais ou turc">İngilizce veya Türkçe yeterli ilanları filtrele</span>
+                    </div>
+                </div>
+                <div class="quick-step" onclick="window.TrackerEngine.Filter.setTrack('voie_2'); window.TrackerEngine.switchTab('explore');" title="Şirket içi transfer ile en hızlı vize" data-tooltip-tr="Şirket içi transfer ile en hızlı vize" data-tooltip-fr="Détachement intra-groupe ICT ultra-rapide">
+                    <div class="step-num">2</div>
+                    <div class="step-text">
+                        <strong data-tr="🏢 Türk Holdingi veya Kurum Seç" data-fr="🏢 Groupes Turcs ou Institutions">🏢 Türk Holdingi veya Kurum Seç</strong>
+                        <span data-tr="Beko, THY veya Uluslararası Kurumlar" data-fr="Beko, THY ou Organisations Internationales">Beko, THY veya Uluslararası Kurumlar</span>
+                    </div>
+                </div>
+                <div class="quick-step" onclick="var t = document.getElementById('guide-templates'); if (t) t.scrollIntoView();" title="Hazır Fransızca dilekçe ve vize rehberi" data-tooltip-tr="Hazır Fransızca dilekçe ve vize rehberi" data-tooltip-fr="Générateur de lettre et guide visa">
+                    <div class="step-num">3</div>
+                    <div class="step-text">
+                        <strong data-tr="✍️ 1-Tıkla Ön Yazını Üret" data-fr="✍️ Générer la Lettre en 1 Clic">✍️ 1-Tıkla Ön Yazını Üret</strong>
+                        <span data-tr="Fransızca resmi başvuru mektubun anında hazır" data-fr="Votre lettre en français prête instantanément">Fransızca resmi başvuru mektubun anında hazır</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 PORTES D'ACCÈS PRIORITAIRES (VOIE 1 / VOIE 2 / VOIE 3) -->
+        <div class="priority-tracks-bar">
+            <div class="tracks-bar-title" id="i18n-tracks-title" data-tr="🚪 3 ÖNCELİKLİ YASAL İSTİHDAM KAPISI (VİZE / RELOKASYON) :" data-fr="🚪 LES 3 PORTES D'ACCÈS PRIORITAIRES (VISA / RELOCALISATION) :">{SVG_ICONS["filter"]} 3 ÖNCELİKLİ YASAL İSTİHDAM KAPISI (VİZE / RELOKASYON) :</div>
+            <div class="tracks-buttons-group">
+                <button class="track-btn active" data-track="all" onclick="window.TrackerEngine.Filter.setTrack('all'); window.TrackerEngine.switchTab('explore');" id="btn-track-all">
+                    <div class="track-btn-left">
+                        <span class="track-icon">{SVG_ICONS["globe"]}</span>
+                        <span class="track-name" id="i18n-track-all" data-tr="Tüm Kapılar / Tümü" data-fr="Toutes les Voies / Tout">Tüm Kapılar / Tümü</span>
+                    </div>
+                    <span class="track-badge-count" id="count-track-all">{total}</span>
+                </button>
+                <button class="track-btn track-btn-1" data-track="voie_1" onclick="window.TrackerEngine.Filter.setTrack('voie_1'); window.TrackerEngine.switchTab('explore');" id="btn-track-1">
+                    <div class="track-btn-left">
+                        <span class="track-icon">{SVG_ICONS["landmark"]}</span>
+                        <span class="track-name" id="i18n-track-1" data-tr="KAPI 1: Uluslararası Kurumlar" data-fr="VOIE 1 : Institutions Internationales">KAPI 1: Uluslararası Kurumlar</span>
+                    </div>
+                    <span class="track-badge-count" id="count-track-1">{track_counts['voie_1']}</span>
+                </button>
+                <button class="track-btn track-btn-2" data-track="voie_2" onclick="window.TrackerEngine.Filter.setTrack('voie_2'); window.TrackerEngine.switchTab('explore');" id="btn-track-2">
+                    <div class="track-btn-left">
+                        <span class="track-icon">{SVG_ICONS["shield_check"]}</span>
+                        <span class="track-name" id="i18n-track-2" data-tr="KAPI 2: Türk Holdingleri (ICT)" data-fr="VOIE 2 : Multinationales Turques (ICT)">KAPI 2: Türk Holdingleri (ICT)</span>
+                    </div>
+                    <span class="track-badge-count" id="count-track-2">{track_counts['voie_2']}</span>
+                </button>
+                <button class="track-btn track-btn-3" data-track="voie_3" onclick="window.TrackerEngine.Filter.setTrack('voie_3'); window.TrackerEngine.switchTab('explore');" id="btn-track-3">
+                    <div class="track-btn-left">
+                        <span class="track-icon">{SVG_ICONS["rocket"]}</span>
+                        <span class="track-name" id="i18n-track-3" data-tr="KAPI 3: Yetenek Pasaportu (Tech)" data-fr="VOIE 3 : Passeport Talent (Tech)">KAPI 3: Yetenek Pasaportu (Tech)</span>
+                    </div>
+                    <span class="track-badge-count" id="count-track-3">{track_counts['voie_3']}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 4 COMPTEURS RÉACTIFS DU HAUT -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="num" id="stat-total">{total}</div>
+                <div class="label" id="i18n-stat-total">Toplam Fırsat</div>
+            </div>
+            <div class="stat-card">
+                <div class="num highlight-amber" id="stat-ccift">{ccift_count}</div>
+                <div class="label" id="i18n-stat-ccift">CCIFT & DEİK Akredite Üye</div>
+            </div>
+            <div class="stat-card">
+                <div class="num highlight-green" id="stat-no-french">{no_french_count}</div>
+                <div class="label" id="i18n-stat-no-french">Fransızca Şart Değil</div>
+            </div>
+            <div class="stat-card">
+                <div class="num" id="stat-reloc">{reloc_count}</div>
+                <div class="label" id="i18n-stat-reloc">Vize / Relokasyon Sağlanan</div>
+            </div>
+        </div>
+
+        <!-- ENCART CCIFT & DEIK AVEC GOLD SHIMMER -->
+        <!-- Repliable (<details>) : fermé par défaut sur mobile, ouvert sur desktop via le script de thème -->
+        <details class="ccift-highlight-box info-collapsible">
+            <summary class="info-summary">
+                <span class="ccift-badge-title" id="i18n-ccift-box-title">{SVG_ICONS["shield_check"]} CCIFT & DEİK RESMİ İKİLİ TİCARET ÜYELERİ (EN YÜKSEK VİZE ONAYI)</span>
+            </summary>
+            <div class="info-collapsible-body">
+                <p class="ccift-text" id="i18n-ccift-box-text">
+                    Aşağıda altın rozetle işaretlenen şirketler, <strong>Fransız-Türk Ticaret Odası (CCIFT)</strong> ve <strong>DEİK Türkiye-Fransa İş Konseyi</strong>'nin resmi üye holdingleridir (<em>Beko France, Turkish Airlines, Ekol, Barsan, Şişecam, Vestel, Sabancı, Eczacıbaşı vb.</em>). Bu kurumlar, Fransa ile resmi ikili protokol ve anlaşmalara sahip olup, Türkiye'den personel transferinde <strong>Şirket İçi Transfer (ICT)</strong> ve <strong>Yetenek Pasaportu (Passeport Talent)</strong> vizelerinde en yüksek onay oranına ve en hızlı prosedürlere sahiptir.
+                </p>
+                <button class="ccift-quick-btn" onclick="window.TrackerEngine.Filter.setCcift(true); window.TrackerEngine.switchTab('explore');" id="i18n-ccift-quick-btn">
+                    {SVG_ICONS["shield_check"]} Bu Üyelerin İlanlarını Filtrele (1-Tık)
+                </button>
+            </div>
+        </details>
+
+        <!-- ENCART CONSEILS & LANGUES -->
+        <details class="bilateral-box info-collapsible">
+            <summary class="info-summary">
+                <h4 id="i18n-advice-title">{SVG_ICONS["check_circle"]} Türkiye'deki Adaylar İçin Vize ve Dil Rehberi:</h4>
+            </summary>
+            <div class="info-collapsible-body">
+                <p id="i18n-advice-text">
+                    <strong>Fransızca bilmiyorsanız endişelenmeyin :</strong> Yeşil etiketli ilanlarda çalışma dili <strong>İngilizce veya Türkçe</strong>dir (Fransızca şart değildir veya temel A1 yeterlidir). Türkiye'den vizesiz başvuru yaparken en güçlü kapılar : <strong>1)</strong> Yukarıdaki <strong>CCIFT & DEİK üyesi holdingler</strong> (Şirket İçi Transfer ICT vizesi). <strong>2)</strong> Türkiye'nin üyesi olduğu uluslararası kuruluşlar (<em>Avrupa Konseyi, OECD, UNESCO</em> - özel diplomatik/uluslararası memur statüsü verilir). <strong>3)</strong> Paris merkezli scale-up'lar (%100 İngilizce Tech kadroları).
+                </p>
+            </div>
+        </details>
+
+            </div>
+
             <!-- SECTION A : LES 4 VOIES LÉGALES DE VISA -->
             <div class="guide-card-section">
                 <div class="guide-section-header">
@@ -3662,7 +3228,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             </div>
 
             <!-- SECTION C : TEMPLATES D'EMAIL BILINGUES -->
-            <div class="guide-card-section">
+            <div class="guide-card-section" id="guide-templates">
                 <div class="guide-section-header">
                     <h3 data-tr="3. Hazır E-posta &amp; Motivasyon Mektubu Şablonları (1-Tık Kopyala)" data-fr="3. Modèles d'Email &amp; Lettres de Motivation (Copie en 1-Clic)">{SVG_ICONS["file_text"]} 3. Hazır E-posta &amp; Motivasyon Mektubu Şablonları (1-Tık Kopyala)</h3>
                     <p data-tr="Fransa'daki Türk yöneticilere veya uluslararası İK temsilcilerine doğrudan gönderebileceğiniz taslaklar." data-fr="Modèles prêts à l'envoi pour contacter directement les dirigeants de groupes turcs ou les RH internationaux en France.">Fransa'daki Türk yöneticilere veya uluslararası İK temsilcilerine doğrudan gönderebileceğiniz taslaklar.</p>
@@ -3794,6 +3360,50 @@ Best regards,
                 </div>
             </form>
         </div>
+    </div>
+
+    <!-- BOTTOM SHEET FILTRES (contrat d'historique : fransaOverlay = 'filters') -->
+    <div class="sheet" id="filterSheet" hidden>
+        <div class="sheet-scrim" data-sheet-close></div>
+        <section class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="filterSheetTitle">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <header class="sheet-head">
+                <h2 class="sheet-title" id="filterSheetTitle" data-tr="Filtreler" data-fr="Filtres">Filtreler</h2>
+                <button type="button" class="icon-btn" data-sheet-close aria-label="Kapat" title="Kapat" data-tooltip-tr="Kapat" data-tooltip-fr="Fermer">
+                    <svg class="ic" aria-hidden="true"><use href="#i-x"/></svg>
+                </button>
+            </header>
+            <div class="sheet-body">
+                <h3 class="sheet-label" data-tr="Sıralama" data-fr="Trier par">Sıralama</h3>
+                <div class="chip-wrap" role="group">
+                    <button type="button" class="chip" data-sort="score_desc" aria-pressed="true"><span data-tr="Önerilen" data-fr="Recommandées">Önerilen</span></button>
+                    <button type="button" class="chip" data-sort="date_desc" aria-pressed="false"><span data-tr="En yeni" data-fr="Plus récentes">En yeni</span></button>
+                    <button type="button" class="chip" data-sort="company_asc" aria-pressed="false"><span data-tr="Şirket A-Z" data-fr="Entreprise A-Z">Şirket A-Z</span></button>
+                </div>
+                <h3 class="sheet-label" data-tr="Uzmanlık alanı" data-fr="Domaine">Uzmanlık alanı</h3>
+                <div class="chip-wrap" role="group">
+                    <button type="button" class="chip" data-domain="all" aria-pressed="true"><span data-tr="Tüm alanlar" data-fr="Tous">Tüm alanlar</span></button>
+                    <button type="button" class="chip" data-domain="it" aria-pressed="false"><span data-tr="IT &amp; Yazılım" data-fr="IT &amp; Logiciel">IT &amp; Yazılım</span></button>
+                    <button type="button" class="chip" data-domain="logistics" aria-pressed="false"><span data-tr="Lojistik" data-fr="Logistique">Lojistik</span></button>
+                    <button type="button" class="chip" data-domain="sales" aria-pressed="false"><span data-tr="Satış &amp; İhracat" data-fr="Vente &amp; Export">Satış &amp; İhracat</span></button>
+                    <button type="button" class="chip" data-domain="legal_policy" aria-pressed="false"><span data-tr="Hukuk &amp; Uluslararası" data-fr="Droit &amp; International">Hukuk &amp; Uluslararası</span></button>
+                    <button type="button" class="chip" data-domain="media_trans" aria-pressed="false"><span data-tr="Çeviri &amp; Medya" data-fr="Traduction &amp; Médias">Çeviri &amp; Medya</span></button>
+                    <button type="button" class="chip" data-domain="hr_admin" aria-pressed="false"><span data-tr="İK &amp; Yönetim" data-fr="RH &amp; Administration">İK &amp; Yönetim</span></button>
+                    <button type="button" class="chip" data-domain="craft_pme" aria-pressed="false"><span data-tr="Saha &amp; KOBİ" data-fr="Terrain &amp; PME">Saha &amp; KOBİ</span></button>
+                </div>
+                <label class="switch-row" for="cciftSwitch">
+                    <span class="switch-text">
+                        <strong data-tr="CCIFT &amp; DEİK üyeleri" data-fr="Membres CCIFT &amp; DEİK">CCIFT &amp; DEİK üyeleri</strong>
+                        <small data-tr="Fransız-Türk ticaret ağı şirketleri" data-fr="Entreprises du réseau franco-turc">Fransız-Türk ticaret ağı şirketleri</small>
+                    </span>
+                    <input type="checkbox" id="cciftSwitch" class="switch" role="switch">
+                </label>
+            </div>
+            <footer class="sheet-foot">
+                <button type="button" class="btn-text" id="sheetResetBtn" data-tr="Temizle" data-fr="Effacer">Temizle</button>
+                <button type="button" class="btn-filled" id="sheetApplyBtn">{total} ilanı göster</button>
+            </footer>
+        </section>
     </div>
 
     <!-- TOAST CONTAINER -->

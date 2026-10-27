@@ -5,10 +5,11 @@
  * Module Vanilla JS ES6+ autonome et prêt à être fusionné dans dashboard.html
  * 
  * Fonctionnalités clés :
- * 1. Panneau latéral coulissant ("Drawer Détail de l'Opportunité")
- *    - Écusson officiel de la voie (Voie 1 MAE, Voie 2 ICT, Voie 3 Passeport Talent)
- *    - Coordonnées RH complètes, bouton de copie d'email et lien direct ATS
- *    - Fiche visa personnalisée étape par étape (4 étapes Turquie -> France)
+ * 1. Écran Détail de l'offre (plein écran mobile, panneau latéral desktop)
+ *    - Données : window.FransaData.get(id) ; favoris / suivi via window.TrackerEngine
+ *    - App bar (retour, titre au scroll, menu Partager / Site officiel / Suivre)
+ *    - « Bu ilan bana uygun mu? », feuille de route visa en frise, description, contact RH
+ *    - Barre d'action fixe : favori + « Ön yazı hazırla »
  * 2. Générateur Intelligent de Pitch & Lettre de Motivation (TR ➔ FR)
  *    - Email court de premier contact (LinkedIn InMail / Email direct)
  *    - Lettre de motivation formelle en français soutenu
@@ -296,402 +297,591 @@
     }
 
     // --------------------------------------------------------------------------
-    // 4. PANNEAU LATÉRAL COULISSANT (DRAWER)
+    // 4. ÉCRAN DÉTAIL DE L'OFFRE
+    //    ≤768px : écran plein (app bar 56px, contenu, barre d'action fixe en bas)
+    //    >768px : panneau latéral droit
+    //    Données : window.FransaData.get(id) (plus aucune lecture de .job-card)
     // --------------------------------------------------------------------------
-    const BilateralDrawer = {
-        open(jobIdOrCard) {
-            if (jobIdOrCard !== undefined && jobIdOrCard !== null) {
-                if (typeof jobIdOrCard === 'object' && jobIdOrCard.nodeType) {
-                    this.openFromCard(jobIdOrCard);
-                    return;
-                }
-                if (typeof jobIdOrCard === 'number' || typeof jobIdOrCard === 'string') {
-                    const card = document.querySelector(`.job-card[data-id="${jobIdOrCard}"]`);
-                    if (card) {
-                        this.openFromCard(card);
-                        return;
-                    }
-                }
-            }
-            this.show();
-        },
 
-        openFromCard(cardElement) {
-            if (!cardElement) return;
-            this.loadFromCard(cardElement);
-            this.render();
-            this.show();
+    // Feuille de route visa Turquie -> France : 4 étapes [titre, description] par voie et par langue
+    const VISA_STEPS = {
+        voie_1: {
+            tr: [
+                ["Resmi Görevlendirme Mektubu (Nomination Officielle)", "Avrupa Konseyi, OECD, UNESCO veya INTERPOL Genel Sekreterliği'nden atama bildirimi iletilir. Türkiye'nin tam üyelik kotası devreye girer."],
+                ["Dışişleri Bakanlığı (MEAE) Protokol Talimatı", "Kurumun Ayrıcalıklar Dairesi Fransa Dışişleri Bakanlığı Protokol Şefliği'ne resmi bildirimde bulunarak Türkiye'deki Fransız Konsolosluğu'na talimat gönderir."],
+                ["Konsolosluktan Öncelikli Protokol Vizesi", "Ankara Büyükelçiliği veya İstanbul Başkonsolosluğu'ndan harçsız diplomatik/protokol vizesi düzenlenir. Klasik çalışma izni aranmaz."],
+                ["MEAE Özel Diplomatik Oturma Kartı (Titre Spécial)", "Fransa'ya varışta doğrudan Dışişleri Bakanlığı Protokol Şefliği'nden \"Titre de Séjour Spécial\" teslim alınır. Gelir vergisi muafiyeti ve taşınma paketi sağlanır."]
+            ],
+            fr: [
+                ["Nomination & Engagement Officiel", "Notification d'engagement délivrée par l'Organisation (Conseil de l'Europe, OCDE, UNESCO). Le quota de la Turquie (membre fondateur) s'applique."],
+                ["Note Verbale & Instruction MEAE", "Le département juridique notifie le Protocole du Ministère des Affaires Étrangères (MEAE) pour instruction prioritaire auprès des Consulats en Turquie."],
+                ["Visa Protocolaire Gratuit (72h - 5 jours)", "Le Consulat Général de France à Istanbul ou l'Ambassade à Ankara délivre le visa de courtoisie sans frais et sans démarche de droit commun."],
+                ["Titre Spécial MEAE & Installation", "Délivrance directe du Titre de Séjour Spécial à l'arrivée. Traitement net d'impôt, indemnités d'expatriation et déménagement pris en charge à 100%."]
+            ]
         },
+        voie_2: {
+            tr: [
+                ["Şirket İçi Görevlendirme Protokolü (Avenant ICT)", "Türkiye genel merkezi ile Fransa'daki tüzel kişilik arasında şirket içi transfer sözleşmesi düzenlenir. (Grup bünyesinde en az 3-6 aylık kıdem yeterlidir)."],
+                ["1972 İkili Anlaşması & ICT Cerfa Dosyası", "Fransa-Türkiye İkili Sosyal Güvenlik Anlaşması ve Cerfa formu hazırlanır. Yerel iş piyasası araştırması (opposabilité de l'emploi) kısıtlamasından muaftır."],
+                ["VFS Global Konsolosluk Randevusu (10-15 Gün)", "İstanbul (Harbiye/Altunizade), Ankara veya İzmir VFS Global merkezine başvuru teslim edilir. CCIFT/DEİK üyesi referansıyla 10-15 iş gününde vize sonuçlanır."],
+                ["Fransa'ya Varış & ANEF Kaydı", "Fransa'ya giriş sonrasında online ANEF portalından ICT oturum kartı doğrulanır. Aile bireyleri de refakatçi oturumuyla Fransa'ya yerleşir."]
+            ],
+            fr: [
+                ["Avenant de Mobilité Intra-Groupe (ICT)", "Convention de détachement établie entre le siège en Turquie et la filiale française (Beko, THY, Ekol, Barsan, Şişecam). Ancienneté minimale 3 à 6 mois."],
+                ["Convention Bilatérale 1972 & Dossier Cerfa", "Application de la convention bilatérale de sécurité sociale et formalités Cerfa. Exonération totale du test du marché du travail (opposabilité de l'emploi)."],
+                ["Dépôt Consulaire VFS Global (10 - 15 Jours)", "Dépôt du dossier au centre VFS (Istanbul, Ankara ou Izmir). Traitement accéléré grâce à l'agrément bilatéral CCIFT / DEİK."],
+                ["Arrivée en France & Validation ANEF", "Validation en ligne du visa de long séjour valant titre de séjour (VLS-TS ICT). Droit de travail direct pour le conjoint accompagnant."]
+            ]
+        },
+        voie_3: {
+            tr: [
+                ["İş Teklifi & Promesse d'Embauche (Maaş ≥ 2x SMIC)", "Paris scale-up girişimi tarafından yıllık brüt maaşı yasal eşiğin (en az 2x SMIC) üzerinde olan iş sözleşmesi imzalanır. Şirket içi çalışma dili %100 İngilizcedir."],
+                ["French Tech Akreditasyonu & ANEF Ön Dosyası", "Şirketin Jeune Entreprise Innovante (JEI) veya French Tech statüsüyle ANEF üzerinden ön onay dosyası oluşturulur. Fransızca şartı ve Pôle Emploi ilanı aranmaz."],
+                ["VFS Global \"Passeport Talent\" Başvurusu", "VLS-TS Passeport Talent (Entreprise Innovante) başvurusu Türkiye VFS merkezlerine teslim edilir. İşlem süresi ortalama 15-20 gündür."],
+                ["4 Yıllık Oturum & Eşe Tam Çalışma Hakkı", "Fransa'da doğrudan 4 yıllık yenilenebilir oturum kartı alınır. Eşiniz otomatik olarak tam çalışma iznine sahip olur."]
+            ],
+            fr: [
+                ["Contrat de Travail & Promesse d'Embauche", "Signature de l'offre auprès de la scale-up parisienne avec rémunération brute annuelle ≥ 2x SMIC légal. Équipe technique 100% anglophone."],
+                ["Statut Entreprise Innovante & Dossier ANEF", "Validation via le statut JEI / French Tech. Aucune obligation de français et dispense de publication Pôle Emploi."],
+                ["Dépôt Consulaire VFS \"Passeport Talent\"", "Dépôt du formulaire VLS-TS Passeport Talent dans les centres VFS en Turquie. Instruction rapide sous 15 jours ouvrés."],
+                ["Titre Pluriannuel 4 Ans & Travail Conjoint", "Octroi direct d'une carte de séjour pluriannuelle de 4 ans renouvelable. Plein droit d'exercice professionnel immédiat pour le conjoint."]
+            ]
+        },
+        autre: {
+            tr: [
+                ["İş Sözleşmesi (CDI / CDD)", "Fransız işveren ile çalışma şartları belirlenir ve iş sözleşmesi parafe edilir."],
+                ["Çalışma İzni Başvurusu (DREETS / ANEF)", "İşveren Fransa İçişleri Bakanlığı portalından yabancı çalışan için resmi çalışma izni onayını alır."],
+                ["VFS Global VLS-TS Başvurusu", "Onaylanan izin belgesiyle Türkiye'deki VFS Global merkezine uzun süreli çalışma vizesi başvurusu yapılır."],
+                ["OFII Doğrulaması & İkamet", "Fransa'ya giriş sonrası 3 ay içinde ANEF sistemi üzerinden vize doğrulanır."]
+            ],
+            fr: [
+                ["Contrat de Travail (CDI / CDD)", "Finalisation des conditions d'embauche avec l'entreprise établie en France."],
+                ["Autorisation de Travail ANEF (DREETS)", "L'employeur dépose la demande d'autorisation de travail pour salarié étranger sur le portail dématérialisé ANEF."],
+                ["Dépôt Visa VLS-TS au Centre VFS", "Dépôt consulaire auprès de VFS Global en Turquie avec l'attestation ministérielle d'autorisation de travail."],
+                ["Validation OFII & Installation", "Validation en ligne de la vignette OFII sur le site de l'ANEF dans les 3 mois suivant l'entrée en France."]
+            ]
+        }
+    };
+    const KAPI_BADGES = {
+        voie_1: { tr: "Kapı 1 · Uluslararası kurum", fr: "Voie 1 · Organisation internationale", icon: "landmark",
+                  visaTr: "Klasik çalışma izni gerekmez (MEAE statüsü)", visaFr: "Pas d'autorisation de travail classique (statut MEAE)" },
+        voie_2: { tr: "Kapı 2 · Şirket içi transfer (ICT)", fr: "Voie 2 · Mobilité intra-groupe (ICT)", icon: "transfer",
+                  visaTr: "ICT vizesi, işgücü testinden muaf", visaFr: "Visa ICT, sans opposabilité de l'emploi" },
+        voie_3: { tr: "Kapı 3 · Passeport Talent", fr: "Voie 3 · Passeport Talent", icon: "zap",
+                  visaTr: "4 yıllık Passeport Talent oturumu", visaFr: "Titre Passeport Talent de 4 ans" },
+        autre:  { tr: "Standart yol · Çalışma vizesi", fr: "Voie standard · Visa salarié", icon: "briefcase",
+                  visaTr: "İşveren ANEF üzerinden çalışma izni almalı", visaFr: "L'employeur demande l'autorisation de travail (ANEF)" }
+    };
+
+    const DETAIL_TEXT = {
+        tr: {
+            back: "Geri", more: "Diğer seçenekler", share: "Paylaş", openSite: "Resmi siteyi aç", track: "Takibe ekle",
+            fitTitle: "Bu ilan bana uygun mu?",
+            frenchLabel: "Fransızca", noFrench: "Fransızca gerekmez", frenchReq: "İleri Fransızca gerekli", workLang: "Çalışma dili: ",
+            visaLabel: "Vize", locationLabel: "Konum", locationDefault: "Fransa",
+            roadmapTitle: "Vize yol haritası", roadmapDesc: "Türkiye'den Fransa'ya 4 adım. Ayrıntı için adıma dokunun.",
+            descTitle: "İlan hakkında", noDesc: "Bu ilan için kısa açıklama yok. Ayrıntılar resmi sitede.",
+            contactTitle: "İK iletişim", hrEmail: "İK e-posta", portal: "Kariyer portalı", listing: "İlan sayfası", note: "Not",
+            copy: "Kopyala", copiedEmail: "✓ E-posta kopyalandı", copiedLink: "✓ Bağlantı kopyalandı", copied: "✓ Kopyalandı",
+            favAdd: "Favorilere ekle", favRemove: "Favorilerden çıkar",
+            letterCta: "Ön yazı hazırla",
+            shareFallback: "✓ Paylaşım desteklenmiyor, bağlantı kopyalandı",
+            tracked: "✓ Takip listesine eklendi", trackUnavailable: "Takip şu anda kullanılamıyor",
+            markApplied: "Başvurdum olarak işaretle?", yes: "Evet", dismiss: "Kapat",
+            markedApplied: "✓ Başvuruldu olarak işaretlendi",
+            notFound: "İlan bulunamadı"
+        },
+        fr: {
+            back: "Retour", more: "Plus d'options", share: "Partager", openSite: "Site officiel", track: "Suivre",
+            fitTitle: "Cette offre est-elle pour moi ?",
+            frenchLabel: "Français", noFrench: "Français non requis", frenchReq: "Français avancé requis", workLang: "Langue de travail : ",
+            visaLabel: "Visa", locationLabel: "Lieu", locationDefault: "France",
+            roadmapTitle: "Feuille de route visa", roadmapDesc: "4 étapes de la Turquie à la France. Touchez une étape pour le détail.",
+            descTitle: "À propos de l'offre", noDesc: "Pas de description courte pour cette offre. Détails sur le site officiel.",
+            contactTitle: "Contact RH", hrEmail: "Email RH", portal: "Portail carrières", listing: "Page de l'offre", note: "Note",
+            copy: "Copier", copiedEmail: "✓ Email copié", copiedLink: "✓ Lien copié", copied: "✓ Copié",
+            favAdd: "Ajouter aux favoris", favRemove: "Retirer des favoris",
+            letterCta: "Préparer ma lettre",
+            shareFallback: "✓ Partage indisponible, lien copié",
+            tracked: "✓ Ajoutée au suivi", trackUnavailable: "Suivi indisponible pour le moment",
+            markApplied: "Marquer comme candidature envoyée ?", yes: "Oui", dismiss: "Fermer",
+            markedApplied: "✓ Marquée comme candidature envoyée",
+            notFound: "Offre introuvable"
+        }
+    };
+
+    function dt(key) {
+        const dict = DETAIL_TEXT[State.lang] || DETAIL_TEXT.tr;
+        return dict[key] !== undefined ? dict[key] : (DETAIL_TEXT.tr[key] || key);
+    }
+
+    function esc(value) {
+        return String(value == null ? '' : value)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // Icônes inline style Lucide (stroke 2, currentColor)
+    const ICON_PATHS = {
+        check: '<path d="M20 6 9 17l-5-5"/>',
+        alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+        chevron: '<path d="m6 9 6 6 6-6"/>',
+        mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+        globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+        link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+        info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+        copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+        landmark: '<line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/>',
+        transfer: '<path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/>',
+        zap: '<path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/>',
+        briefcase: '<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>'
+    };
+
+    function icon(name, size) {
+        const s = size || 20;
+        return `<svg class="bld-ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICON_PATHS[name] || ''}</svg>`;
+    }
+
+    // Les tags des données commencent souvent par un emoji : on le retire (pas d'emoji dans le détail)
+    const EMOJI_RE = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu;
+    function stripEmoji(text) {
+        return String(text || '').replace(EMOJI_RE, '').replace(/\s{2,}/g, ' ').trim();
+    }
+
+    function getJobData(id) {
+        const store = window.FransaData;
+        if (!store || typeof store.get !== 'function' || id === undefined || id === null || id === '') return null;
+        let job = store.get(id);
+        if (!job && typeof id === 'string' && /^\d+$/.test(id)) job = store.get(Number(id));
+        if (!job && typeof id === 'number') job = store.get(String(id));
+        return job || null;
+    }
+
+    function trackerCall(method) {
+        const te = window.TrackerEngine;
+        if (!te || typeof te[method] !== 'function') return null;
+        const args = Array.prototype.slice.call(arguments, 1);
+        try {
+            return { value: te[method].apply(te, args) };
+        } catch (e) {
+            console.warn('[BilateralDrawer] TrackerEngine.' + method + ' a échoué', e);
+            return null;
+        }
+    }
+
+    const EMAIL_RE = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
+    const URL_RE = /https?:\/\/[^\s<>"']+/i;
+
+    /** Normalise un job FransaData dans l'état interne (format partagé avec le générateur). */
+    function normalizeJob(raw) {
+        const company = raw.company || '';
+        const titleTr = raw.title_tr || raw.title_fr || '';
+        const titleFr = raw.title_fr || titleTr;
+        const tagsTr = Array.isArray(raw.tags_tr) ? raw.tags_tr : [];
+        const tagsFr = Array.isArray(raw.tags_fr) && raw.tags_fr.length ? raw.tags_fr : tagsTr;
+        const validTracks = ['voie_1', 'voie_2', 'voie_3', 'autre'];
+        const track = validTracks.indexOf(raw.track) !== -1
+            ? raw.track
+            : detectTrackForJob(company, titleTr, tagsTr.join(' '), !!raw.ccift);
+        const regInfo = company ? getRegistryInfo(company) : null;
+
+        const contact = String(raw.contact_info || '').trim();
+        const contactEmail = (contact.match(EMAIL_RE) || [])[0] || '';
+        const contactUrl = (contact.match(URL_RE) || [])[0] || '';
+        const contactNote = (!contactEmail && !contactUrl) ? contact : '';
+
+        return {
+            id: raw.id,
+            titleTr,
+            titleFr,
+            company,
+            location: raw.location || '',
+            url: raw.url || regInfo?.ats || '',
+            careerPortal: contactUrl || regInfo?.portal || '',
+            hrEmail: contactEmail || regInfo?.hr_email || '',
+            contactNote,
+            snippetTr: raw.snippet_tr || raw.snippet_fr || '',
+            snippetFr: raw.snippet_fr || raw.snippet_tr || '',
+            tagsTr,
+            tagsFr,
+            visaTr: raw.visa_tr || '',
+            visaFr: raw.visa_fr || raw.visa_tr || '',
+            workingLang: raw.working_lang || '',
+            isCcift: !!raw.ccift,
+            isNoFrench: !!raw.no_french,
+            score: raw.score,
+            source: raw.source || '',
+            track
+        };
+    }
+
+    const BilateralDrawer = {
+        bound: false,
+        openSteps: [0],
 
         /**
-         * Charge les données d'une carte dans l'état local SANS ouvrir le drawer
-         * (utilisé aussi par le générateur ouvert directement depuis une carte).
+         * Ouvre l'écran détail d'une offre (id FransaData).
+         * Accepte encore un élément DOM portant data-id (compatibilité), mais lit toujours FransaData.
          */
-        loadFromCard(cardElement) {
-            if (!cardElement) return;
+        open(jobId) {
+            if (jobId !== undefined && jobId !== null) {
+                const id = (typeof jobId === 'object' && jobId.nodeType) ? jobId.getAttribute('data-id') : jobId;
+                if (!this.loadJob(id)) {
+                    Toast.show(dt('notFound'));
+                    return;
+                }
+                this.openSteps = [0];
+                this.render();
+            }
+            if (!State.currentJob) return;
+            this.show();
+        },
 
-            const id = cardElement.getAttribute('data-id') || '0';
-            const titleTr = cardElement.getAttribute('data-title-tr') || cardElement.querySelector('.job-title')?.textContent || '';
-            const titleFr = cardElement.getAttribute('data-title-fr') || titleTr;
-            const company = cardElement.getAttribute('data-company') || '';
-            const location = cardElement.getAttribute('data-location') || '';
-            const url = cardElement.getAttribute('data-url') || '';
-            const snippetTr = cardElement.getAttribute('data-snippet-tr') || cardElement.querySelector('.snippet')?.textContent || '';
-            const snippetFr = cardElement.getAttribute('data-snippet-fr') || snippetTr;
-            const isCcift = cardElement.getAttribute('data-ccift') === 'true';
-            const isNoFrench = cardElement.getAttribute('data-no-french') === 'true';
-            const score = cardElement.getAttribute('data-score') || '85';
-            const source = cardElement.getAttribute('data-source') || 'Bilateral Scanner';
-            const tagsTr = cardElement.getAttribute('data-tags-tr') || '';
-
-            const track = cardElement.getAttribute('data-track') || detectTrackForJob(company, titleTr, tagsTr, isCcift);
-            const regInfo = getRegistryInfo(company);
-
-            State.currentJob = {
-                id,
-                titleTr,
-                titleFr,
-                company,
-                location,
-                url: regInfo?.ats || url,
-                careerPortal: regInfo?.portal || url,
-                hrEmail: regInfo?.hr_email || '',
-                snippetTr,
-                snippetFr,
-                isCcift,
-                isNoFrench,
-                score,
-                source,
-                track: track === 'autre' ? (regInfo?.voie || 'autre') : track
-            };
+        /** Charge une offre dans l'état local SANS ouvrir l'écran (utilisé aussi par le générateur). */
+        loadJob(id) {
+            const raw = getJobData(id);
+            if (!raw) return false;
+            State.currentJob = normalizeJob(raw);
             State.currentTrack = State.currentJob.track;
+            return true;
+        },
+
+        bind() {
+            if (this.bound) return;
+            const drawer = document.getElementById('bld-drawer');
+            if (!drawer) return;
+            this.bound = true;
+
+            drawer.addEventListener('click', (e) => {
+                const el = e.target.closest('[data-bld-action]');
+                if (!el || !drawer.contains(el)) return;
+                const action = el.getAttribute('data-bld-action');
+                switch (action) {
+                    case 'back': this.close(); break;
+                    case 'menu': this.toggleMenu(); break;
+                    case 'share': this.closeMenu(); this.share(); break;
+                    case 'site': this.closeMenu(); break; // lien natif (target=_blank)
+                    case 'track': this.closeMenu(); this.addToTracker(); break;
+                    case 'fav': this.toggleFavorite(); break;
+                    case 'letter': this.openLetter(); break;
+                    case 'copy': this.copyValue(el.getAttribute('data-copy') || '', el.getAttribute('data-kind')); break;
+                    case 'step': this.toggleStep(el); break;
+                    default: break;
+                }
+            });
+
+            const menu = document.getElementById('bld-drawer-menu');
+            if (menu) {
+                menu.addEventListener('keydown', (e) => {
+                    const items = Array.prototype.slice.call(menu.querySelectorAll('[role="menuitem"]'));
+                    const idx = items.indexOf(document.activeElement);
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        const next = e.key === 'ArrowDown' ? (idx + 1) % items.length : (idx - 1 + items.length) % items.length;
+                        items[next].focus();
+                    } else if (e.key === 'Tab') {
+                        this.closeMenu();
+                    }
+                });
+            }
+
+            // Fermeture du menu au toucher en dehors
+            document.addEventListener('pointerdown', (e) => {
+                if (!this.isMenuOpen()) return;
+                const wrap = document.getElementById('bld-drawer-menu-wrap');
+                if (wrap && !wrap.contains(e.target)) this.closeMenu(false);
+            }, true);
+
+            // Titre court dans l'app bar une fois le titre principal sorti de l'écran
+            const body = document.getElementById('bld-drawer-body');
+            if (body) {
+                let ticking = false;
+                body.addEventListener('scroll', () => {
+                    if (ticking) return;
+                    ticking = true;
+                    requestAnimationFrame(() => {
+                        ticking = false;
+                        this.syncAppBar();
+                    });
+                }, { passive: true });
+            }
+        },
+
+        syncAppBar() {
+            const drawer = document.getElementById('bld-drawer');
+            const body = document.getElementById('bld-drawer-body');
+            if (!drawer || !body) return;
+            const heading = document.getElementById('bld-drawer-title');
+            const limit = heading ? heading.offsetTop + heading.offsetHeight : 80;
+            drawer.classList.toggle('bld-scrolled', body.scrollTop > 4);
+            drawer.classList.toggle('bld-title-hidden', body.scrollTop > limit - 8);
         },
 
         render() {
             const job = State.currentJob;
-            if (!job) return;
+            const drawer = document.getElementById('bld-drawer');
+            if (!job || !drawer) return;
+            this.bind();
 
-            const lang = State.lang;
-            const ecusson = VOIE_ECUSSONS[job.track] || VOIE_ECUSSONS["autre"];
+            const lang = State.lang === 'fr' ? 'fr' : 'tr';
+            const title = lang === 'fr' ? (job.titleFr || job.titleTr) : (job.titleTr || job.titleFr);
+            const kapi = KAPI_BADGES[job.track] || KAPI_BADGES.autre;
+            drawer.setAttribute('data-track', job.track);
 
-            // Écusson officiel
-            const ecussonEl = document.getElementById('bld-drawer-ecusson');
-            if (ecussonEl) {
-                ecussonEl.className = 'ecusson-card-header ' + ecusson.cssClass;
-                ecussonEl.innerHTML = `
-                    <div class="ecusson-header-title">${lang === 'tr' ? ecusson.title_tr : ecusson.title_fr}</div>
-                    <div class="ecusson-header-sub">${lang === 'tr' ? ecusson.sub_tr : ecusson.sub_fr}</div>
-                `;
+            // App bar & menu
+            const setText = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+            const setLabel = (id, txt) => { const el = document.getElementById(id); if (el) el.setAttribute('aria-label', txt); };
+            setText('bld-appbar-title', title);
+            setLabel('bld-drawer-back', dt('back'));
+            setLabel('bld-drawer-menu-btn', dt('more'));
+            setText('bld-menu-share-label', dt('share'));
+            setText('bld-menu-site-label', dt('openSite'));
+            setText('bld-menu-track-label', dt('track'));
+            const site = document.getElementById('bld-menu-site');
+            if (site) {
+                if (job.url) { site.href = job.url; site.hidden = false; } else { site.removeAttribute('href'); site.hidden = true; }
             }
+            const trackItem = document.getElementById('bld-menu-track');
+            if (trackItem) trackItem.hidden = !(window.TrackerEngine && (typeof window.TrackerEngine.addToTracker === 'function' || typeof window.TrackerEngine.openTrackerModal === 'function'));
+            setText('bld-drawer-cta-label', dt('letterCta'));
 
-            // Titre & Société
-            const titleEl = document.getElementById('bld-drawer-title');
-            if (titleEl) titleEl.textContent = lang === 'tr' ? job.titleTr : job.titleFr;
-
-            const compLocEl = document.getElementById('bld-drawer-company-loc');
-            if (compLocEl) compLocEl.textContent = `🏢 ${job.company}  |  📍 ${job.location}`;
-
-            // Badges
-            const scoreEl = document.getElementById('bld-drawer-score');
-            if (scoreEl) scoreEl.textContent = `${t('score')}${job.score}`;
-
-            // ✅ = « français non requis » (🇬🇧 réservé aux textes « anglais suffisant »)
-            const langBadgeEl = document.getElementById('bld-drawer-lang-badge');
-            if (langBadgeEl) {
-                if (job.isNoFrench) {
-                    langBadgeEl.className = 'val-val tag-no-french';
-                    langBadgeEl.textContent = t('noFrench');
-                } else {
-                    langBadgeEl.className = 'val-val tag-french-req';
-                    langBadgeEl.textContent = t('frenchReq');
-                }
+            const body = document.getElementById('bld-drawer-body');
+            if (body) {
+                body.innerHTML = this.renderHero(job, title, kapi, lang)
+                    + this.renderFit(job, kapi, lang)
+                    + this.renderRoadmap(job.track, lang)
+                    + this.renderDescription(job, lang)
+                    + this.renderContact(job);
             }
+            this.syncFavorite();
+            this.syncAppBar();
+        },
 
-            const sourceEl = document.getElementById('bld-drawer-source');
-            if (sourceEl) sourceEl.textContent = job.source;
+        renderHero(job, title, kapi, lang) {
+            const meta = [job.company, job.location].filter(Boolean).join(' · ');
+            return `
+                <header class="bld-hero">
+                    <span class="bld-kapi-badge">${icon(kapi.icon, 16)}<span>${esc(kapi[lang])}</span></span>
+                    <h2 id="bld-drawer-title" class="bld-hero-title">${esc(title)}</h2>
+                    ${meta ? `<p class="bld-hero-meta">${esc(meta)}</p>` : ''}
+                </header>`;
+        },
 
-            // Coordonnées RH
-            const hrBoxEl = document.getElementById('bld-drawer-hr-box');
-            const hrEmailLink = document.getElementById('bld-drawer-hr-email');
-            if (hrBoxEl && hrEmailLink) {
-                if (job.hrEmail) {
-                    hrBoxEl.style.display = 'block';
-                    hrEmailLink.textContent = job.hrEmail;
-                    hrEmailLink.href = 'mailto:' + job.hrEmail;
-                } else {
-                    hrBoxEl.style.display = 'none';
-                }
-            }
+        renderFit(job, kapi, lang) {
+            const row = (ok, label, value, sub) => `
+                <li class="bld-fit-row">
+                    <span class="bld-fit-icon ${ok ? 'is-ok' : 'is-warn'}">${icon(ok ? 'check' : 'alert', 18)}</span>
+                    <span class="bld-fit-text">
+                        <span class="bld-fit-label">${esc(label)}</span>
+                        <span class="bld-fit-value">${esc(value)}</span>
+                        ${sub ? `<span class="bld-fit-sub">${esc(sub)}</span>` : ''}
+                    </span>
+                </li>`;
+            // Résumé court de la voie en gras (lisible d'un coup d'œil), détail visa de l'offre en dessous
+            const visaText = lang === 'fr' ? kapi.visaFr : kapi.visaTr;
+            const visaSub = lang === 'fr' ? job.visaFr : job.visaTr;
+            const frenchSub = job.workingLang ? dt('workLang') + job.workingLang : '';
+            return `
+                <section class="bld-fit-card" aria-labelledby="bld-fit-title">
+                    <h3 id="bld-fit-title" class="bld-section-heading">${esc(dt('fitTitle'))}</h3>
+                    <ul class="bld-fit-list">
+                        ${row(job.isNoFrench, dt('frenchLabel'), job.isNoFrench ? dt('noFrench') : dt('frenchReq'), frenchSub)}
+                        ${row(job.track !== 'autre', dt('visaLabel'), visaText, visaSub)}
+                        ${row(true, dt('locationLabel'), job.location || dt('locationDefault'), '')}
+                    </ul>
+                </section>`;
+        },
 
-            const portalLink = document.getElementById('bld-drawer-portal-link');
-            if (portalLink) portalLink.href = job.careerPortal;
+        renderRoadmap(track, lang) {
+            const steps = (VISA_STEPS[track] || VISA_STEPS.autre)[lang] || [];
+            const items = steps.map(([title, desc], i) => {
+                const open = this.openSteps.indexOf(i) !== -1;
+                return `
+                    <li class="bld-rm-step${open ? ' is-open' : ''}${i === 0 ? ' is-current' : ''}">
+                        <span class="bld-rm-node" aria-hidden="true">${i + 1}</span>
+                        <div class="bld-rm-main">
+                            <button type="button" class="bld-rm-head" data-bld-action="step" data-step="${i}" aria-expanded="${open}" aria-controls="bld-rm-panel-${i}">
+                                <span class="bld-rm-title">${esc(title)}</span>
+                                ${icon('chevron', 20)}
+                            </button>
+                            <div class="bld-rm-panel" id="bld-rm-panel-${i}"${open ? '' : ' hidden'}>
+                                <p>${esc(desc)}</p>
+                            </div>
+                        </div>
+                    </li>`;
+            }).join('');
+            return `
+                <section aria-labelledby="bld-rm-heading">
+                    <h3 id="bld-rm-heading" class="bld-section-heading">${esc(dt('roadmapTitle'))}</h3>
+                    <p class="bld-section-hint">${esc(dt('roadmapDesc'))}</p>
+                    <ol class="bld-roadmap" id="bld-drawer-timeline">${items}</ol>
+                </section>`;
+        },
 
-            // Description
-            const snippetEl = document.getElementById('bld-drawer-snippet');
-            if (snippetEl) snippetEl.textContent = lang === 'tr' ? job.snippetTr : job.snippetFr;
+        renderDescription(job, lang) {
+            const snippet = lang === 'fr' ? job.snippetFr : job.snippetTr;
+            // Le lieu est déjà affiché (en-tête + « uygun mu? ») : on écarte les tags 📍
+            const tags = (lang === 'fr' ? job.tagsFr : job.tagsTr)
+                .filter(tag => String(tag).indexOf('\u{1F4CD}') !== 0)
+                .map(stripEmoji).filter(Boolean)
+                .filter((tag, i, arr) => arr.indexOf(tag) === i)
+                .slice(0, 6);
+            return `
+                <section aria-labelledby="bld-desc-heading">
+                    <h3 id="bld-desc-heading" class="bld-section-heading">${esc(dt('descTitle'))}</h3>
+                    <p id="bld-drawer-snippet" class="bld-desc-text">${esc(snippet || dt('noDesc'))}</p>
+                    ${tags.length ? `<ul class="bld-chips">${tags.map(tag => `<li class="bld-chip">${esc(tag)}</li>`).join('')}</ul>` : ''}
+                </section>`;
+        },
 
-            // Bouton ATS externe
-            const atsBtn = document.getElementById('bld-drawer-ats-btn');
-            if (atsBtn) atsBtn.href = job.url;
+        renderContact(job) {
+            const rows = [];
+            const row = (ic, label, value, href, kind, external) => `
+                <li class="bld-contact-row">
+                    <span class="bld-contact-icon">${icon(ic, 20)}</span>
+                    <span class="bld-contact-text">
+                        <span class="bld-contact-label">${esc(label)}</span>
+                        ${href
+                            ? `<a class="bld-contact-value" href="${esc(href)}"${external ? ' target="_blank" rel="noopener"' : ''}>${esc(value)}</a>`
+                            : `<span class="bld-contact-value">${esc(value)}</span>`}
+                    </span>
+                    <button type="button" class="bld-icon-btn bld-copy-btn" data-bld-action="copy" data-kind="${kind}" data-copy="${esc(value)}" aria-label="${esc(dt('copy') + ' : ' + label)}">${icon('copy', 20)}</button>
+                </li>`;
+            if (job.hrEmail) rows.push(row('mail', dt('hrEmail'), job.hrEmail, 'mailto:' + job.hrEmail, 'email', false));
+            if (job.careerPortal) rows.push(row('globe', dt('portal'), job.careerPortal, job.careerPortal, 'link', true));
+            if (job.contactNote) rows.push(row('info', dt('note'), job.contactNote, '', 'text', false));
+            if (!rows.length && job.url) rows.push(row('link', dt('listing'), job.url, job.url, 'link', true));
+            if (!rows.length) return '';
+            return `
+                <section aria-labelledby="bld-contact-heading">
+                    <h3 id="bld-contact-heading" class="bld-section-heading">${esc(dt('contactTitle'))}</h3>
+                    <ul class="bld-contact-list">${rows.join('')}</ul>
+                </section>`;
+        },
 
-            // Fiche Visa étape par étape
-            this.renderTimeline(job.track, lang);
+        toggleStep(btn) {
+            const i = Number(btn.getAttribute('data-step'));
+            const step = btn.closest('.bld-rm-step');
+            const panel = document.getElementById('bld-rm-panel-' + i);
+            const open = btn.getAttribute('aria-expanded') !== 'true';
+            btn.setAttribute('aria-expanded', String(open));
+            if (step) step.classList.toggle('is-open', open);
+            if (panel) panel.hidden = !open;
+            this.openSteps = this.openSteps.filter(n => n !== i);
+            if (open) this.openSteps.push(i);
         },
 
         setLanguage(lang) {
             State.lang = lang;
-            if (State.currentJob) {
-                this.render();
+            if (State.currentJob) this.render();
+        },
+
+        // --- Menu ⋮ -----------------------------------------------------------
+        isMenuOpen() {
+            const menu = document.getElementById('bld-drawer-menu');
+            return !!(menu && !menu.hidden);
+        },
+
+        toggleMenu() {
+            if (this.isMenuOpen()) this.closeMenu();
+            else this.openMenu();
+        },
+
+        openMenu() {
+            const menu = document.getElementById('bld-drawer-menu');
+            const btn = document.getElementById('bld-drawer-menu-btn');
+            if (!menu) return;
+            menu.hidden = false;
+            if (btn) btn.setAttribute('aria-expanded', 'true');
+            const first = menu.querySelector('[role="menuitem"]:not([hidden])');
+            if (first) first.focus({ preventScroll: true });
+        },
+
+        closeMenu(returnFocus = true) {
+            const menu = document.getElementById('bld-drawer-menu');
+            const btn = document.getElementById('bld-drawer-menu-btn');
+            if (!menu || menu.hidden) return;
+            menu.hidden = true;
+            if (btn) {
+                btn.setAttribute('aria-expanded', 'false');
+                if (returnFocus) { try { btn.focus({ preventScroll: true }); } catch (e) { /* noop */ } }
             }
         },
 
-        renderTimeline(track, lang = 'tr') {
-            const timelineEl = document.getElementById('bld-drawer-timeline');
-            if (!timelineEl) return;
+        // --- Actions ------------------------------------------------------------
+        async share() {
+            const job = State.currentJob;
+            if (!job) return;
+            const title = State.lang === 'fr' ? (job.titleFr || job.titleTr) : (job.titleTr || job.titleFr);
+            const text = [title, job.company].filter(Boolean).join(' – ');
+            const url = job.url || location.href;
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title, text, url });
+                    return;
+                } catch (err) {
+                    if (err && err.name === 'AbortError') return;
+                }
+            }
+            const ok = await copyText(`${text}\n${url}`);
+            Toast.show(ok ? dt('shareFallback') : t('toastCopyFail'));
+        },
 
-            if (track === 'voie_1') {
-                timelineEl.innerHTML = (lang === 'fr') ? `
-                    <div class="timeline-step">
-                        <div class="timeline-num">1</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Nomination & Engagement Officiel</div>
-                            <div class="timeline-desc">Notification d'engagement délivrée par l'Organisation (Conseil de l'Europe, OCDE, UNESCO). Le quota de la Turquie (membre fondateur) s'applique.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">2</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Note Verbale & Instruction MEAE</div>
-                            <div class="timeline-desc">Le département juridique notifie le Protocole du Ministère des Affaires Étrangères (MEAE) pour instruction prioritaire auprès des Consulats en Turquie.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">3</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Visa Protocolaire Gratuit (72h - 5 jours)</div>
-                            <div class="timeline-desc">Le Consulat Général de France à Istanbul ou l'Ambassade à Ankara délivre le visa de courtoisie sans frais et sans démarche de droit commun.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">4</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Titre Spécial MEAE & Installation</div>
-                            <div class="timeline-desc">Délivrance directe du Titre de Séjour Spécial à l'arrivée. Traitement net d'impôt, indemnités d'expatriation et déménagement pris en charge à 100%.</div>
-                        </div>
-                    </div>
-                ` : `
-                    <div class="timeline-step">
-                        <div class="timeline-num">1</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Resmi Görevlendirme Mektubu (Nomination Officielle)</div>
-                            <div class="timeline-desc">Avrupa Konseyi, OECD, UNESCO veya INTERPOL Genel Sekreterliği'nden atama bildirimi iletilir. Türkiye'nin tam üyelik kotası devreye girer.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">2</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Dışişleri Bakanlığı (MEAE) Protokol Talimatı</div>
-                            <div class="timeline-desc">Kurumun Ayrıcalıklar Dairesi Fransa Dışişleri Bakanlığı Protokol Şefliği'ne resmi bildirimde bulunarak Türkiye'deki Fransız Konsolosluğu'na talimat gönderir.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">3</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Konsolosluktan Öncelikli Protokol Vizesi</div>
-                            <div class="timeline-desc">Ankara Büyükelçiliği veya İstanbul Başkonsolosluğu'ndan harçsız diplomatik/protokol vizesi düzenlenir. Klasik çalışma izni aranmaz.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">4</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">MEAE Özel Diplomatik Oturma Kartı (Titre Spécial)</div>
-                            <div class="timeline-desc">Fransa'ya varışta doğrudan Dışişleri Bakanlığı Protokol Şefliği'nden "Titre de Séjour Spécial" teslim alınır. Gelir vergisi muafiyeti ve taşınma paketi sağlanır.</div>
-                        </div>
-                    </div>
-                `;
-            } else if (track === 'voie_2') {
-                timelineEl.innerHTML = (lang === 'fr') ? `
-                    <div class="timeline-step">
-                        <div class="timeline-num">1</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Avenant de Mobilité Intra-Groupe (ICT)</div>
-                            <div class="timeline-desc">Convention de détachement établie entre le siège en Turquie et la filiale française (Beko, THY, Ekol, Barsan, Şişecam). Ancienneté minimale 3 à 6 mois.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">2</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Convention Bilatérale 1972 & Dossier Cerfa</div>
-                            <div class="timeline-desc">Application de la convention bilatérale de sécurité sociale et formalités Cerfa. Exonération totale du test du marché du travail (opposabilité de l'emploi).</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">3</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Dépôt Consulaire VFS Global (10 - 15 Jours)</div>
-                            <div class="timeline-desc">Dépôt du dossier au centre VFS (Istanbul, Ankara ou Izmir). Traitement accéléré grâce à l'agrément bilatéral CCIFT / DEİK.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">4</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Arrivée en France & Validation ANEF</div>
-                            <div class="timeline-desc">Validation en ligne du visa de long séjour valant titre de séjour (VLS-TS ICT). Droit de travail direct pour le conjoint accompagnant.</div>
-                        </div>
-                    </div>
-                ` : `
-                    <div class="timeline-step">
-                        <div class="timeline-num">1</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Şirket İçi Görevlendirme Protokolü (Avenant ICT)</div>
-                            <div class="timeline-desc">Türkiye genel merkezi ile Fransa'daki tüzel kişilik arasında şirket içi transfer sözleşmesi düzenlenir. (Grup bünyesinde en az 3-6 aylık kıdem yeterlidir).</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">2</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">1972 İkili Anlaşması & ICT Cerfa Dosyası</div>
-                            <div class="timeline-desc">Fransa-Türkiye İkili Sosyal Güvenlik Anlaşması ve Cerfa formu hazırlanır. Yerel iş piyasası araştırması (opposabilité de l'emploi) kısıtlamasından muaftır.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">3</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">VFS Global Konsolosluk Randevusu (10-15 Gün)</div>
-                            <div class="timeline-desc">İstanbul (Harbiye/Altunizade), Ankara veya İzmir VFS Global merkezine başvuru teslim edilir. CCIFT/DEİK üyesi referansıyla 10-15 iş gününde vize sonuçlanır.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">4</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Fransa'ya Varış & ANEF Kaydı</div>
-                            <div class="timeline-desc">Fransa'ya giriş sonrasında online ANEF portalından ICT oturum kartı doğrulanır. Aile bireyleri de refakatçi oturumuyla Fransa'ya yerleşir.</div>
-                        </div>
-                    </div>
-                `;
-            } else if (track === 'voie_3') {
-                timelineEl.innerHTML = (lang === 'fr') ? `
-                    <div class="timeline-step">
-                        <div class="timeline-num">1</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Contrat de Travail & Promesse d'Embauche</div>
-                            <div class="timeline-desc">Signature de l'offre auprès de la scale-up parisienne avec rémunération brute annuelle ≥ 2x SMIC légal. Équipe technique 100% anglophone.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">2</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Statut Entreprise Innovante & Dossier ANEF</div>
-                            <div class="timeline-desc">Validation via le statut JEI / French Tech. Aucune obligation de français et dispense de publication Pôle Emploi.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">3</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Dépôt Consulaire VFS "Passeport Talent"</div>
-                            <div class="timeline-desc">Dépôt du formulaire VLS-TS Passeport Talent dans les centres VFS en Turquie. Instruction rapide sous 15 jours ouvrés.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">4</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Titre Pluriannuel 4 Ans & Travail Conjoint</div>
-                            <div class="timeline-desc">Octroi direct d'une carte de séjour pluriannuelle de 4 ans renouvelable. Plein droit d'exercice professionnel immédiat pour le conjoint.</div>
-                        </div>
-                    </div>
-                ` : `
-                    <div class="timeline-step">
-                        <div class="timeline-num">1</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">İş Teklifi & Promesse d'Embauche (Maaş ≥ 2x SMIC)</div>
-                            <div class="timeline-desc">Paris scale-up girişimi tarafından yıllık brüt maaşı yasal eşiğin (en az 2x SMIC) üzerinde olan iş sözleşmesi imzalanır. Şirket içi çalışma dili %100 İngilizcedir.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">2</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">French Tech Akreditasyonu & ANEF Ön Dosyası</div>
-                            <div class="timeline-desc">Şirketin Jeune Entreprise Innovante (JEI) veya French Tech statüsüyle ANEF üzerinden ön onay dosyası oluşturulur. Fransızca şartı ve Pôle Emploi ilanı aranmaz.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">3</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">VFS Global "Passeport Talent" Başvurusu</div>
-                            <div class="timeline-desc">VLS-TS Passeport Talent (Entreprise Innovante) başvurusu Türkiye VFS merkezlerine teslim edilir. İşlem süresi ortalama 15-20 gündür.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">4</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">4 Yıllık Oturum & Eşe Tam Çalışma Hakkı</div>
-                            <div class="timeline-desc">Fransa'da doğrudan 4 yıllık yenilenebilir oturum kartı alınır. Eşiniz otomatik olarak tam çalışma iznine sahip olur.</div>
-                        </div>
-                    </div>
-                `;
+        addToTracker() {
+            const job = State.currentJob;
+            if (!job) return;
+            // « Suivre » : ajout dans la colonne « Kaydedildi / Enregistré » du suivi
+            const te = window.TrackerEngine;
+            if (te && typeof te.addToTracker === 'function') {
+                if (trackerCall('addToTracker', job.id, 'saved')) Toast.show(dt('tracked'));
+            } else if (te && typeof te.openTrackerModal === 'function') {
+                trackerCall('openTrackerModal', job.id);
             } else {
-                timelineEl.innerHTML = (lang === 'fr') ? `
-                    <div class="timeline-step">
-                        <div class="timeline-num">1</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Contrat de Travail (CDI / CDD)</div>
-                            <div class="timeline-desc">Finalisation des conditions d'embauche avec l'entreprise établie en France.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">2</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Autorisation de Travail ANEF (DREETS)</div>
-                            <div class="timeline-desc">L'employeur dépose la demande d'autorisation de travail pour salarié étranger sur le portail dématérialisé ANEF.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">3</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Dépôt Visa VLS-TS au Centre VFS</div>
-                            <div class="timeline-desc">Dépôt consulaire auprès de VFS Global en Turquie avec l'attestation ministérielle d'autorisation de travail.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">4</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Validation OFII & Installation</div>
-                            <div class="timeline-desc">Validation en ligne de la vignette OFII sur le site de l'ANEF dans les 3 mois suivant l'entrée en France.</div>
-                        </div>
-                    </div>
-                ` : `
-                    <div class="timeline-step">
-                        <div class="timeline-num">1</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">İş Sözleşmesi (CDI / CDD)</div>
-                            <div class="timeline-desc">Fransız işveren ile çalışma şartları belirlenir ve iş sözleşmesi parafe edilir.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">2</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">Çalışma İzni Başvurusu (DREETS / ANEF)</div>
-                            <div class="timeline-desc">İşveren Fransa İçişleri Bakanlığı portalından yabancı çalışan için resmi çalışma izni onayını alır.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">3</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">VFS Global VLS-TS Başvurusu</div>
-                            <div class="timeline-desc">Onaylanan izin belgesiyle Türkiye'deki VFS Global merkezine uzun süreli çalışma vizesi başvurusu yapılır.</div>
-                        </div>
-                    </div>
-                    <div class="timeline-step">
-                        <div class="timeline-num">4</div>
-                        <div class="timeline-content">
-                            <div class="timeline-title">OFII Doğrulaması & İkamet</div>
-                            <div class="timeline-desc">Fransa'ya giriş sonrası 3 ay içinde ANEF sistemi üzerinden vize doğrulanır.</div>
-                        </div>
-                    </div>
-                `;
+                Toast.show(dt('trackUnavailable'));
             }
         },
 
+        syncFavorite() {
+            const btn = document.getElementById('bld-drawer-fav');
+            const job = State.currentJob;
+            if (!btn || !job) return;
+            const res = trackerCall('isFavorite', job.id);
+            const fav = !!(res && res.value);
+            btn.hidden = !(window.TrackerEngine && typeof window.TrackerEngine.toggleBookmark === 'function');
+            btn.setAttribute('aria-pressed', String(fav));
+            btn.setAttribute('aria-label', fav ? dt('favRemove') : dt('favAdd'));
+            btn.title = fav ? dt('favRemove') : dt('favAdd');
+        },
+
+        toggleFavorite() {
+            const job = State.currentJob;
+            if (!job) return;
+            // TrackerEngine.toggleBookmark affiche lui-même son toast
+            trackerCall('toggleBookmark', job.id);
+            this.syncFavorite();
+        },
+
+        openLetter() {
+            const job = State.currentJob;
+            if (!job) return;
+            CoverLetterGenerator.open(job.id);
+        },
+
+        copyValue(value, kind) {
+            if (!value) return;
+            copyText(value).then((ok) => {
+                if (!ok) { Toast.show(t('toastCopyFail')); return; }
+                Toast.show(kind === 'email' ? dt('copiedEmail') : kind === 'link' ? dt('copiedLink') : dt('copied'));
+            });
+        },
+
+        /** Compatibilité : copie de l'email RH de l'offre courante. */
+        copyEmail() {
+            const email = State.currentJob?.hrEmail;
+            if (email) this.copyValue(email, 'email');
+        },
+
+        // --- Ouverture / fermeture (contrat d'historique 'drawer') ---------------
         isOpen() {
             return isOverlayOpen('bld-drawer');
         },
@@ -700,19 +890,23 @@
             const overlay = document.getElementById('bld-drawer-overlay');
             const drawer = document.getElementById('bld-drawer');
             if (!drawer) return;
+            this.bind();
             const wasOpen = this.isOpen();
             if (overlay) overlay.classList.add('open');
             drawer.classList.add('open');
-            const body = drawer.querySelector('.bld-drawer-body');
+            drawer.setAttribute('aria-hidden', 'false');
+            document.documentElement.classList.add('bld-detail-open');
+            const body = document.getElementById('bld-drawer-body');
             if (body && !wasOpen) body.scrollTop = 0;
+            this.syncAppBar();
             syncScrollLock();
             if (!wasOpen) {
                 OverlayHistory.push('drawer');
-                rememberFocus('drawer', drawer.querySelector('.bld-close-btn'));
+                rememberFocus('drawer', document.getElementById('bld-drawer-back'));
             }
         },
 
-        /** Fermeture demandée par l'UI (X, fond, Échap) : passe par l'historique si besoin. */
+        /** Fermeture demandée par l'UI (retour, fond, Échap) : passe par l'historique si besoin. */
         close() {
             if (!this.isOpen()) return;
             OverlayHistory.requestClose('drawer', () => this.hide());
@@ -722,18 +916,15 @@
         hide() {
             const overlay = document.getElementById('bld-drawer-overlay');
             const drawer = document.getElementById('bld-drawer');
+            this.closeMenu(false);
             if (overlay) overlay.classList.remove('open');
-            if (drawer) drawer.classList.remove('open');
+            if (drawer) {
+                drawer.classList.remove('open');
+                drawer.setAttribute('aria-hidden', 'true');
+            }
+            document.documentElement.classList.remove('bld-detail-open');
             syncScrollLock();
             restoreFocus('drawer');
-        },
-
-        copyEmail() {
-            const email = State.currentJob?.hrEmail;
-            if (!email) return;
-            copyText(email).then((ok) => {
-                Toast.show(ok ? `${t('toastEmailCopied')}${email}` : t('toastCopyFail'));
-            });
         }
     };
 
@@ -741,16 +932,13 @@
     // 5. GÉNÉRATEUR INTELLIGENT DE LETTRE & PITCH (TR ➔ FR)
     // --------------------------------------------------------------------------
     const CoverLetterGenerator = {
-        open(jobIdOrCard) {
-            if (jobIdOrCard !== undefined && jobIdOrCard !== null) {
-                // Ouverture directe depuis une carte : on charge l'offre sans ouvrir le drawer
-                if (typeof jobIdOrCard === 'object' && jobIdOrCard.nodeType) {
-                    BilateralDrawer.loadFromCard(jobIdOrCard);
-                } else if (typeof jobIdOrCard === 'number' || typeof jobIdOrCard === 'string') {
-                    const card = document.querySelector(`.job-card[data-id="${jobIdOrCard}"]`);
-                    if (card) BilateralDrawer.loadFromCard(card);
-                }
+        open(jobId) {
+            if (jobId !== undefined && jobId !== null) {
+                // Ouverture directe (depuis une carte ou le détail) : on charge l'offre sans ouvrir le détail
+                const id = (typeof jobId === 'object' && jobId.nodeType) ? jobId.getAttribute('data-id') : jobId;
+                if (!BilateralDrawer.loadJob(id)) State.currentJob = null;
             }
+            this.hideApplyPrompt();
 
             // Si aucun job n'est encore chargé, on initialise avec des valeurs par défaut
             if (!State.currentJob) {
@@ -799,6 +987,7 @@
         hide() {
             const overlay = document.getElementById('bld-gen-modal-overlay');
             if (overlay) overlay.classList.remove('open');
+            this.hideApplyPrompt();
             syncScrollLock();
             restoreFocus('letter');
         },
@@ -1016,6 +1205,7 @@ ${candTitle}`;
                         label.textContent = t('copyLabel');
                     }, 2000);
                 }
+                if (ok) this.showApplyPrompt();
                 return ok;
             });
         },
@@ -1032,6 +1222,7 @@ ${candTitle}`;
             if (navigator.share) {
                 try {
                     await navigator.share({ title, text });
+                    this.showApplyPrompt();
                     return;
                 } catch (err) {
                     if (err && err.name === 'AbortError') return;
@@ -1041,6 +1232,40 @@ ${candTitle}`;
 
             const ok = await copyText(text);
             Toast.show(ok ? t('toastShareFallback') : t('toastCopyFail'));
+            if (ok) this.showApplyPrompt();
+        },
+
+        /**
+         * Après un « Paylaş » / « Kopyala » réussi : carte « Başvurdum olarak işaretle? »
+         * [Evet] -> TrackerEngine.addToTracker(id, 'applied'). Uniquement pour une offre réelle.
+         */
+        showApplyPrompt() {
+            const job = State.currentJob;
+            const box = document.getElementById('bld-apply-prompt');
+            if (!box || !job || job.id === undefined || job.id === null) return;
+            if (!(window.TrackerEngine && typeof window.TrackerEngine.addToTracker === 'function')) return;
+            const q = document.getElementById('bld-apply-prompt-text');
+            const yes = document.getElementById('bld-apply-prompt-yes');
+            const no = document.getElementById('bld-apply-prompt-dismiss');
+            if (q) q.textContent = dt('markApplied');
+            if (yes) yes.textContent = dt('yes');
+            if (no) no.setAttribute('aria-label', dt('dismiss'));
+            box.dataset.jobId = String(job.id);
+            box.hidden = false;
+        },
+
+        hideApplyPrompt() {
+            const box = document.getElementById('bld-apply-prompt');
+            if (box) box.hidden = true;
+        },
+
+        markApplied() {
+            const box = document.getElementById('bld-apply-prompt');
+            const raw = box && box.dataset.jobId;
+            this.hideApplyPrompt();
+            if (raw === undefined || raw === '') return;
+            const id = /^\d+$/.test(raw) ? Number(raw) : raw;
+            if (trackerCall('addToTracker', id, 'applied')) Toast.show(dt('markedApplied'));
         },
 
         download() {
@@ -1159,12 +1384,16 @@ ${candTitle}`;
         }
         // Libellés du générateur (la lettre elle-même reste en français)
         CoverLetterGenerator.renderLabels();
+        const prompt = document.getElementById('bld-apply-prompt');
+        if (prompt && !prompt.hidden) CoverLetterGenerator.showApplyPrompt();
     });
 
     // Fermeture par touche ESC : uniquement l'overlay du dessus
     document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
-        if (CoverLetterGenerator.isOpen()) {
+        if (BilateralDrawer.isMenuOpen()) {
+            BilateralDrawer.closeMenu();
+        } else if (CoverLetterGenerator.isOpen()) {
             CoverLetterGenerator.close();
         } else if (MobilityGuide.isOpen()) {
             MobilityGuide.close();

@@ -67,7 +67,7 @@ class BilateralJobScanner:
 
                     jobs.append(JobOpportunity(
                         title=title,
-                        title_fr=f"Poste en France : {title}",
+                        title_fr=title,
                         company=company if company != "Kurum / Şirket" else "Fransa'daki Türk İşletmesi",
                         location=location,
                         url=link,
@@ -140,7 +140,7 @@ class BilateralJobScanner:
 
                     jobs.append(JobOpportunity(
                         title=title,
-                        title_fr=f"Offre Web : {title}",
+                        title_fr=title,
                         company=company,
                         location=location,
                         url=url,

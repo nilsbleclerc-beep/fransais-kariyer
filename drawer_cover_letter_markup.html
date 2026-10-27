@@ -3,64 +3,49 @@
 <!-- Prêt à être inséré juste avant la balise fermante </body> dans dashboard.html  -->
 <!-- ============================================================================== -->
 
-<!-- 1. PANNEAU LATÉRAL COULISSANT (DRAWER OPPORTUNITÉ) -->
+<!-- 1. ÉCRAN DÉTAIL DE L'OFFRE (plein écran ≤768px, panneau latéral desktop) -->
+<!--    Contenu rendu en JS depuis window.FransaData.get(id) : voir BilateralDrawer.render() -->
 <div class="bld-drawer-overlay" id="bld-drawer-overlay" onclick="window.BilateralDrawer.close()"></div>
-<div class="bld-drawer" id="bld-drawer" role="dialog" aria-modal="true" aria-labelledby="bld-drawer-title">
-    <div class="bld-drawer-header">
-        <div class="bld-header-text">
-            <h2 id="bld-drawer-title">Titre de l'Offre</h2>
-            <div id="bld-drawer-company-loc" class="bld-drawer-header-subtitle">🏢 Entreprise | 📍 Ville</div>
-        </div>
-        <button type="button" class="bld-close-btn" onclick="window.BilateralDrawer.close()" title="Kapat" aria-label="Kapat / Fermer" data-tooltip-tr="Kapat" data-tooltip-fr="Fermer">✕</button>
-    </div>
-
-    <div class="bld-drawer-body">
-        <!-- Écusson officiel de la Voie -->
-        <div id="bld-drawer-ecusson" class="ecusson-card-header ecusson-voie-2">
-            <div class="ecusson-header-title">🤝 KAPI 2 ÖNCELİKLİ : ŞİRKET İÇİ TRANSFER ICT (CCIFT &amp; DEİK)</div>
-            <div class="ecusson-header-sub">Şirket İçi Transfer (ICT) • 1972 İkili Sosyal Güvenlik Anlaşması • İşgücü Testinden Muaf</div>
-        </div>
-
-        <!-- Badges d'adéquation rapide (textes gérés en JS selon la langue et l'offre) -->
-        <div class="bld-badges-row">
-            <span id="bld-drawer-score" class="score-badge bld-score-badge">Uygunluk: %95</span>
-            <span id="bld-drawer-lang-badge" class="val-val tag-no-french">✅ Fransızca Şart Değil</span>
-            <span id="bld-drawer-source" class="source-badge">Kariyer.net</span>
-        </div>
-
-        <!-- Coordonnées RH directes & Liens ATS -->
-        <div class="bld-hr-ats-box">
-            <h4 data-tr="📫 İK İletişim &amp; Doğrudan Başvuru Kanalları" data-fr="📫 Contacts RH &amp; Canaux de Candidature Directs">📫 İK İletişim &amp; Doğrudan Başvuru Kanalları</h4>
-            <div id="bld-drawer-hr-box" class="bld-hr-item" style="display: none;">
-                <strong data-tr="📧 İK E-posta :" data-fr="📧 Email RH :">📧 İK E-posta :</strong>
-                <a id="bld-drawer-hr-email" href="#" class="bld-hr-email-link">recrutement@beko.fr</a>
-                <button type="button" class="bld-btn-copy-small" onclick="window.BilateralDrawer.copyEmail()" data-tr="Kopyala" data-fr="Copier">Kopyala</button>
-            </div>
-            <div class="bld-hr-item">
-                <strong data-tr="🌐 Resmi Kariyer Portalı / ATS :" data-fr="🌐 Portail Recrutement Officiel / ATS :">🌐 Resmi Kariyer Portalı / ATS :</strong>
-                <a id="bld-drawer-portal-link" href="#" target="_blank" rel="noopener" class="bld-link" data-tr="Aday Portalına Git ↗" data-fr="Accéder au Portail Candidat ↗">Aday Portalına Git ↗</a>
-            </div>
-        </div>
-
-        <!-- Description Complète de l'Opportunité -->
-        <div>
-            <h4 class="bld-section-title" data-tr="📝 Pozisyon &amp; Görev Tanımı" data-fr="📝 Description du Poste &amp; Missions">📝 Pozisyon &amp; Görev Tanımı</h4>
-            <p id="bld-drawer-snippet" class="bld-section-text"></p>
-        </div>
-
-        <!-- Fiche Visa Étape par Étape (Turquie ➔ France) -->
-        <div>
-            <h4 class="bld-section-title" data-tr="🛂 Türkiye'den Fransa'ya Vize ve İşe Başlama Aşamaları" data-fr="🛂 Procédure Visa &amp; Installation Turquie ➔ France">🛂 Türkiye'den Fransa'ya Vize ve İşe Başlama Aşamaları</h4>
-            <p class="bld-section-desc" data-tr="Bu ilana Türkiye'den başvuracak adaylar için resmi konsolosluk ve intibak yol haritası." data-fr="Feuille de route consulaire et administrative pour les candidats postulant depuis la Turquie.">Bu ilana Türkiye'den başvuracak adaylar için resmi konsolosluk ve intibak yol haritası.</p>
-            <div class="visa-timeline" id="bld-drawer-timeline">
-                <!-- Généré dynamiquement en JS selon la voie de l'offre et la langue -->
+<div class="bld-drawer" id="bld-drawer" role="dialog" aria-modal="true" aria-labelledby="bld-drawer-title" aria-hidden="true">
+    <div class="bld-appbar">
+        <button type="button" class="bld-icon-btn" id="bld-drawer-back" data-bld-action="back" aria-label="Geri">
+            <svg class="bld-ic bld-ic-back" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+            <svg class="bld-ic bld-ic-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+        <div class="bld-appbar-title" id="bld-appbar-title" aria-hidden="true"></div>
+        <div class="bld-menu-wrap" id="bld-drawer-menu-wrap">
+            <button type="button" class="bld-icon-btn" id="bld-drawer-menu-btn" data-bld-action="menu" aria-label="Diğer seçenekler" aria-haspopup="menu" aria-expanded="false" aria-controls="bld-drawer-menu">
+                <svg class="bld-ic" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            </button>
+            <div class="bld-menu" id="bld-drawer-menu" role="menu" aria-labelledby="bld-drawer-menu-btn" hidden>
+                <button type="button" class="bld-menu-item" role="menuitem" data-bld-action="share">
+                    <svg class="bld-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg>
+                    <span id="bld-menu-share-label">Paylaş</span>
+                </button>
+                <a class="bld-menu-item" role="menuitem" id="bld-menu-site" data-bld-action="site" href="#" target="_blank" rel="noopener">
+                    <svg class="bld-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                    <span id="bld-menu-site-label">Resmi siteyi aç</span>
+                </a>
+                <button type="button" class="bld-menu-item" role="menuitem" id="bld-menu-track" data-bld-action="track">
+                    <svg class="bld-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 12H3"/><path d="M16 6H3"/><path d="M16 18H3"/><path d="M18 9v6"/><path d="M21 12h-6"/></svg>
+                    <span id="bld-menu-track-label">Takibe ekle</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="bld-drawer-footer">
-        <button type="button" class="bld-btn-primary bld-drawer-cta" onclick="window.CoverLetterGenerator.open();" data-tr="✍️ Bu İlan İçin Fransızca Ön Yazı &amp; Pitch Üret" data-fr="✍️ Générer la Lettre &amp; Pitch en Français">✍️ Bu İlan İçin Fransızca Ön Yazı &amp; Pitch Üret</button>
-        <a id="bld-drawer-ats-btn" href="#" target="_blank" rel="noopener" class="bld-btn-secondary bld-drawer-ats" data-tr="Resmi ATS'de Aç ↗" data-fr="Ouvrir l'ATS Officiel ↗">Resmi ATS'de Aç ↗</a>
+    <div class="bld-drawer-body" id="bld-drawer-body">
+        <!-- En-tête, « Bu ilan bana uygun mu? », feuille de route visa, description, contact RH -->
+    </div>
+
+    <div class="bld-actionbar">
+        <button type="button" class="bld-icon-btn bld-fav-btn" id="bld-drawer-fav" data-bld-action="fav" aria-pressed="false" aria-label="Favorilere ekle">
+            <svg class="bld-ic" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </button>
+        <button type="button" class="bld-btn-primary bld-detail-cta" id="bld-drawer-cta" data-bld-action="letter">
+            <svg class="bld-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
+            <span id="bld-drawer-cta-label">Ön yazı hazırla</span>
+        </button>
     </div>
 </div>
 
@@ -143,6 +128,15 @@
                 </div>
                 <div class="bld-letter-preview-box" id="bld-gen-preview" lang="fr"></div>
             </div>
+        </div>
+
+        <!-- Carte « Başvurdum olarak işaretle? » affichée après Paylaş / Kopyala réussi -->
+        <div class="bld-apply-prompt" id="bld-apply-prompt" role="status" aria-live="polite" hidden>
+            <span class="bld-apply-prompt-text" id="bld-apply-prompt-text">Başvurdum olarak işaretle?</span>
+            <button type="button" class="bld-apply-prompt-yes" id="bld-apply-prompt-yes" onclick="window.CoverLetterGenerator.markApplied()">Evet</button>
+            <button type="button" class="bld-icon-btn bld-apply-prompt-dismiss" id="bld-apply-prompt-dismiss" onclick="window.CoverLetterGenerator.hideApplyPrompt()" aria-label="Kapat">
+                <svg class="bld-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
         </div>
 
         <div class="bld-modal-footer bld-gen-actions">

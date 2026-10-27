@@ -70,7 +70,7 @@
             adviceText: `<strong>Fransızca bilmiyorsanız endişelenmeyin :</strong> Yeşil etiketli ilanlarda çalışma dili <strong>İngilizce veya Türkçe</strong>dir (Fransızca şart değildir veya temel A1 yeterlidir). Türkiye'den vizesiz başvuru yaparken en güçlü kapılar : <strong>1)</strong> Yukarıdaki <strong>CCIFT & DEİK üyesi holdingler</strong> (Şirket İçi Transfer ICT vizesi). <strong>2)</strong> Türkiye'nin üyesi olduğu uluslararası kuruluşlar (<em>Avrupa Konseyi, OECD, UNESCO</em> - özel diplomatik/uluslararası memur statüsü verilir). <strong>3)</strong> Paris merkezli scale-up'lar (%100 İngilizce Tech kadroları).`,
             
             // Search & Filters
-            searchPlaceholder: "🔍 Pozisyon, şehir (Paris, Lyon, Strazburg...), kurum (OECD, Beko, THY, Ekol...) ara...",
+            searchPlaceholder: "Pozisyon, şirket veya şehir ara",
             filterCatAll: "Tüm Kategoriler",
             filterCatCcift: "🤝 CCIFT & DEİK Üyeleri",
             filterCatNoFrench: "✅ Fransızca Şart Değil",
@@ -144,6 +144,23 @@
             toastExportJson: "📥 JSON dosyası indirildi (journal_candidatures_france.json)",
             toastCopied: "📋 Metin panoya kopyalandı!",
             
+            // Keşfet v4 (cartes compactes, pastilles, bottom sheet)
+            helloNewCount: "<strong>{n} yeni ilan</strong>",
+            helloTotalCount: "{n} ilan",
+            newBadge: "Yeni",
+            kapiShort: "Kapı {n}",
+            kapiDesc1: "Uluslararası kurum",
+            kapiDesc2: "Türk holdingi · ICT",
+            kapiDesc3: "Passeport Talent",
+            kapiOther: "Diğer yollar",
+            pillNoFrench: "Fransızca gerekmez",
+            visaIct: "ICT transferi",
+            visaTalent: "Passeport Talent",
+            visaMeae: "MEAE statüsü",
+            visaGeneric: "Vize desteği",
+            showResults: "{n} ilanı göster",
+            showResultsZero: "Sonuç yok",
+
             // Guide & Tools
             guideTitle: "📘 Fransa İstihdam, Vize & Başvuru Rehberi",
             guideSubtitle: "Türkiye'den Fransa'ya transfer süreçleri, vize prosedürleri ve hazır başvuru şablonları.",
@@ -205,7 +222,7 @@
             adviceText: `<strong>Si vous ne parlez pas français :</strong> les postes avec badge vert ont pour langue de travail l'<strong>Anglais ou le Turc</strong> (français non requis ou niveau A1 toléré). Les portes d'entrée prioritaires sans visa français préalable sont : <strong>1)</strong> Les <strong>groupes membres CCIFT & DEİK</strong> (visa ICT de salarié détaché). <strong>2)</strong> Les organisations internationales dont la Turquie est membre (<em>Conseil de l'Europe, OCDE, UNESCO</em> - titre de séjour spécial MAE délivré). <strong>3)</strong> Les scale-ups tech parisiennes (100% anglais / Passeport Talent).`,
             
             // Search & Filters
-            searchPlaceholder: "🔍 Rechercher poste, ville (Paris, Lyon, Strasbourg...), institution (OCDE, Beko, THY...)...",
+            searchPlaceholder: "Poste, entreprise ou ville",
             filterCatAll: "Toutes Catégories",
             filterCatCcift: "🤝 Membres CCIFT & DEİK",
             filterCatNoFrench: "✅ Français Non Requis",
@@ -279,6 +296,26 @@
             toastExportJson: "📥 Export JSON téléchargé (journal_candidatures_france.json)",
             toastCopied: "📋 Copié dans le presse-papier !",
             
+            // Keşfet v4 (cartes compactes, pastilles, bottom sheet)
+            helloNewCount: "<strong>{n} nouvelles offres</strong>",
+            helloNewCountOne: "<strong>1 nouvelle offre</strong>",
+            helloTotalCount: "{n} offres",
+            helloTotalCountOne: "1 offre",
+            newBadge: "Nouveau",
+            kapiShort: "Voie {n}",
+            kapiDesc1: "Institution internationale",
+            kapiDesc2: "Groupe turc · ICT",
+            kapiDesc3: "Passeport Talent",
+            kapiOther: "Autres voies",
+            pillNoFrench: "Français non requis",
+            visaIct: "Détachement ICT",
+            visaTalent: "Passeport Talent",
+            visaMeae: "Statut MEAE",
+            visaGeneric: "Visa sponsorisé",
+            showResults: "Voir {n} offres",
+            showResultsOne: "Voir 1 offre",
+            showResultsZero: "Aucune offre",
+
             // Guide & Tools
             guideTitle: "📘 Guide des Démarches, Visas & Outils France",
             guideSubtitle: "Mobilité Turquie-France, accords bilatéraux et modèles prêts à l'emploi.",
@@ -487,8 +524,105 @@
     };
 
     // --------------------------------------------------------------------------
-    // 4. MOTEUR DE RECHERCHE, DE FILTRAGE MULTI-FACETTES & DE TRI
+    // 3bis. ACCÈS AUX DONNÉES (window.FransaData) & UTILITAIRES
     // --------------------------------------------------------------------------
+    // Contrat : window.FransaData = { jobs: [...], get(id) } défini par le bootstrap
+    // inline (exporter.py) avant tous les scripts. id = index dans la liste triée.
+    const getJobs = () => (window.FransaData && Array.isArray(window.FransaData.jobs)) ? window.FransaData.jobs : [];
+    const getJob = (id) => (window.FransaData && typeof window.FransaData.get === 'function') ? window.FransaData.get(id) : null;
+    const getDict = () => I18N_DICTIONARY[StorageService.getLang()] || I18N_DICTIONARY.tr;
+
+    const escapeHtml = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, (c) => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+
+    // Recherche insensible à la casse et aux diacritiques TR/FR : İ/ı/ş/ğ/ç/ö/ü/é... → ASCII
+    const normalizeText = (value) => String(value || '')
+        .replace(/[İI]/g, 'i')
+        .toLowerCase()
+        .replace(/ı/g, 'i')
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .replace(/œ/g, 'oe')
+        .replace(/æ/g, 'ae');
+
+    // 'dd/mm/YYYY HH:MM' → timestamp (0 si illisible)
+    const parseDiscovered = (value) => {
+        const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/.exec(String(value || '').trim());
+        if (!m) return 0;
+        return new Date(+m[3], +m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0)).getTime();
+    };
+
+    // Format attendu par StorageService.saveApplication à partir d'un job FransaData
+    const jobToAppData = (job) => job ? {
+        title: job.title_tr,
+        title_fr: job.title_fr,
+        company: job.company,
+        location: job.location,
+        url: job.url,
+        source: job.source,
+        relevance_score: job.score,
+        category: job.category_tr,
+        working_language: job.working_lang,
+        visa_sponsorship: job.visa_tr,
+        is_ccift_deik: job.ccift,
+        french_required: !job.no_french,
+        track: job.track,
+        domain: job.domain
+    } : {};
+
+    const plural = (dict, key, n) => ((n === 1 && dict[key + 'One']) ? dict[key + 'One'] : dict[key]).replace('{n}', n);
+
+    // Libellé de visa court pour la carte (null si non significatif)
+    const visaShortLabel = (job, dict) => {
+        const v = String(job.visa_tr || '');
+        if (/ICT|Transfer/i.test(v)) return dict.visaIct;
+        if (/Passeport Talent|Talent/i.test(v)) return dict.visaTalent;
+        if (/MEAE|Memur|Diplomatik/i.test(v)) return dict.visaMeae;
+        if (/Vize|Relokasyon|Visa/i.test(v)) return dict.visaGeneric;
+        return null;
+    };
+
+    // --------------------------------------------------------------------------
+    // 3ter. NOUVEAUTÉS DEPUIS LA DERNIÈRE VISITE (localStorage fransa_last_visit)
+    // --------------------------------------------------------------------------
+    const LAST_VISIT_KEY = 'fransa_last_visit';
+    const VisitTracker = {
+        previous: null, // timestamp de la visite précédente, figé pour toute la session
+        init() {
+            try {
+                const v = parseInt(localStorage.getItem(LAST_VISIT_KEY) || '', 10);
+                this.previous = Number.isFinite(v) ? v : null;
+            } catch (e) {
+                this.previous = null;
+            }
+            const save = () => {
+                try { localStorage.setItem(LAST_VISIT_KEY, String(Date.now())); } catch (e) {}
+            };
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') save();
+            });
+            window.addEventListener('pagehide', save);
+        },
+        isNew(job) {
+            return this.previous !== null && FilterEngine.metaFor(job).ts > this.previous;
+        },
+        countNew() {
+            return getJobs().filter(j => this.isNew(j)).length;
+        }
+    };
+
+    // --------------------------------------------------------------------------
+    // 4. MOTEUR DE RECHERCHE, DE FILTRAGE & DE TRI (sur window.FransaData.jobs)
+    // --------------------------------------------------------------------------
+    const DOMAIN_KEYS = ['all', 'it', 'logistics', 'sales', 'legal_policy', 'media_trans', 'hr_admin', 'craft_pme'];
+    const SORT_KEYS = ['score_desc', 'date_desc', 'company_asc'];
+    const TRACK_SEARCH_WORDS = {
+        voie_1: 'kapi 1 voie 1 uluslararasi kurum institution internationale',
+        voie_2: 'kapi 2 voie 2 holding ict',
+        voie_3: 'kapi 3 voie 3 passeport talent tech'
+    };
+
     const FilterEngine = {
         state: {
             query: '',
@@ -500,7 +634,32 @@
             cciftOnly: false,
             sortBy: 'score_desc' // 'score_desc', 'date_desc', 'company_asc'
         },
+        results: [],
+        counts: { all: 0, voie_1: 0, voie_2: 0, voie_3: 0, nofr: 0, fav: 0 },
         debounceTimer: null,
+        meta: new Map(),
+        _favs: new Set(),
+        _apps: {},
+        _words: [],
+
+        // Index de recherche normalisé + timestamp, calculés une fois par offre
+        metaFor(job) {
+            let m = this.meta.get(job.id);
+            if (!m) {
+                m = {
+                    hay: normalizeText([
+                        job.title_tr, job.title_fr, job.company, job.location,
+                        job.snippet_tr, job.snippet_fr, job.category_tr, job.category_fr,
+                        (job.tags_tr || []).join(' '), (job.tags_fr || []).join(' '),
+                        job.working_lang, job.source, job.ccift ? 'ccift deik' : '',
+                        TRACK_SEARCH_WORDS[job.track] || ''
+                    ].join(' ')),
+                    ts: parseDiscovered(job.discovered_at)
+                };
+                this.meta.set(job.id, m);
+            }
+            return m;
+        },
 
         init() {
             const searchInput = document.getElementById('searchInput');
@@ -510,276 +669,454 @@
                     this.debounceTimer = setTimeout(() => {
                         this.state.query = (e.target.value || '').trim();
                         this.apply();
-                    }, 220);
+                    }, 180);
+                });
+                // Entrée : ferme le clavier Android
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') searchInput.blur();
                 });
             }
+            const chips = document.getElementById('exChips');
+            if (chips) {
+                chips.addEventListener('click', (e) => {
+                    const btn = e.target.closest('[data-chip]');
+                    if (btn) this.onChip(btn.getAttribute('data-chip'));
+                });
+            }
+            CardRenderer.init();
+            FilterSheet.init();
         },
 
-        setTrack(trackKey, btn) {
-            this.state.track = trackKey;
-            document.querySelectorAll('.track-btn').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
+        onChip(key) {
+            const s = this.state;
+            if (key === 'all') {
+                s.track = 'all';
+                s.noFrenchOnly = false;
+                s.status = 'all';
+            } else if (key === 'nofr') {
+                s.noFrenchOnly = !s.noFrenchOnly;
+            } else if (key === 'fav') {
+                s.status = s.status === 'fav' ? 'all' : 'fav';
+            } else if (TRACK_SEARCH_WORDS[key]) {
+                s.track = s.track === key ? 'all' : key;
+            }
+            haptic(5);
             this.apply();
         },
 
+        setTrack(trackKey) {
+            this.state.track = TRACK_SEARCH_WORDS[trackKey] ? trackKey : 'all';
+            this.apply();
+        },
         setDomain(domainKey) {
-            this.state.domain = domainKey;
+            this.state.domain = DOMAIN_KEYS.includes(domainKey) ? domainKey : 'all';
             this.apply();
         },
-
         setSort(sortKey) {
-            this.state.sortBy = sortKey;
-            this.sortGridCards(sortKey);
+            this.state.sortBy = SORT_KEYS.includes(sortKey) ? sortKey : 'score_desc';
             this.apply();
         },
-
-        sortGridCards(sortBy) {
-            const grid = document.getElementById('cardsGrid');
-            if (!grid) return;
-            const cards = Array.from(grid.querySelectorAll('.job-card'));
-
-            cards.sort((a, b) => {
-                if (sortBy === 'score_desc') {
-                    const scoreA = parseInt(a.getAttribute('data-score') || '0', 10);
-                    const scoreB = parseInt(b.getAttribute('data-score') || '0', 10);
-                    return scoreB - scoreA;
-                }
-                if (sortBy === 'date_desc') {
-                    const timeA = parseInt(a.getAttribute('data-timestamp') || '0', 10);
-                    const timeB = parseInt(b.getAttribute('data-timestamp') || '0', 10);
-                    return timeB - timeA;
-                }
-                if (sortBy === 'company_asc') {
-                    const compA = (a.getAttribute('data-company') || '').toLowerCase();
-                    const compB = (b.getAttribute('data-company') || '').toLowerCase();
-                    return compA.localeCompare(compB);
-                }
-                return 0;
-            });
-
-            // Réinsertion ordonnée dans le DOM
-            cards.forEach(card => grid.appendChild(card));
-        },
-
         setCategory(cat) {
-            this.state.category = cat;
+            this.state.category = cat || 'all';
             this.apply();
         },
-
         toggleNoFrench() {
-            this.state.noFrenchOnly = !this.state.noFrenchOnly;
+            this.setNoFrench(!this.state.noFrenchOnly);
+        },
+        setNoFrench(on) {
+            this.state.noFrenchOnly = Boolean(on);
             this.apply();
         },
-
         toggleCcift() {
-            this.state.cciftOnly = !this.state.cciftOnly;
+            this.setCcift(!this.state.cciftOnly);
+        },
+        setCcift(on) {
+            this.state.cciftOnly = Boolean(on);
             this.apply();
         },
-
         setStatusFilter(status) {
-            this.state.status = status;
+            this.state.status = ['fav', 'tracked'].includes(status) ? status : 'all';
             this.apply();
         },
 
         resetAll() {
-            this.state.query = '';
-            this.state.track = 'all';
-            this.state.domain = 'all';
-            this.state.category = 'all';
-            this.state.status = 'all';
-            this.state.noFrenchOnly = false;
-            this.state.cciftOnly = false;
-            this.state.sortBy = 'score_desc';
-
+            Object.assign(this.state, {
+                query: '', track: 'all', domain: 'all', category: 'all', status: 'all',
+                noFrenchOnly: false, cciftOnly: false, sortBy: 'score_desc'
+            });
             const searchInput = document.getElementById('searchInput');
             if (searchInput) searchInput.value = '';
-
-            const domainSelect = document.getElementById('domainSelect');
-            if (domainSelect) domainSelect.value = 'all';
-
-            const sortSelect = document.getElementById('sortSelect');
-            if (sortSelect) sortSelect.value = 'score_desc';
-
-            // Reset UI buttons
-            document.querySelectorAll('.track-btn').forEach(b => {
-                b.classList.remove('active');
-                if (b.dataset.track === 'all') b.classList.add('active');
-            });
-
-            document.querySelectorAll('.filter-pill-btn').forEach(b => {
-                b.classList.remove('active');
-                if (b.dataset.filterVal === 'all') b.classList.add('active');
-            });
-            const noFrenchBtn = document.getElementById('filter-btn-no-french');
-            if (noFrenchBtn) noFrenchBtn.classList.remove('active');
-            const cciftBtn = document.getElementById('filter-btn-ccift');
-            if (cciftBtn) cciftBtn.classList.remove('active');
-
-            this.sortGridCards('score_desc');
             this.apply();
         },
 
-        apply() {
-            const cards = document.querySelectorAll('#cardsGrid .job-card');
-            const favorites = StorageService.getFavorites();
-            const applications = StorageService.getApplications();
-            const queryWords = this.state.query.toLowerCase().split(/\s+/).filter(w => w.length > 0);
-
-            let visibleCount = 0;
-            let countCcift = 0;
-            let countNoFrench = 0;
-            let countReloc = 0;
-
-            // Compteurs par Voie Prioritaire
-            let trackCounts = { all: 0, voie_1: 0, voie_2: 0, voie_3: 0 };
-
-            cards.forEach(card => {
-                const id = card.getAttribute('data-id');
-                const catTr = (card.getAttribute('data-category-tr') || '').toLowerCase();
-                const catFr = (card.getAttribute('data-category-fr') || '').toLowerCase();
-                const searchData = (card.getAttribute('data-search') || '').toLowerCase();
-                const isCcift = card.getAttribute('data-ccift') === 'true';
-                const isNoFrench = card.getAttribute('data-no-french') === 'true';
-                const track = card.getAttribute('data-track') || 'autre';
-                const domain = card.getAttribute('data-domain') || 'craft_pme';
-                const visaText = (card.getAttribute('data-visa') || '').toLowerCase();
-                const hasReloc = visaText.includes('vize') || visaText.includes('visa') || visaText.includes('relokasyon') || visaText.includes('relocalisation') || visaText.includes('diplomatique');
-
-                // 1. Filtrage Voie Prioritaire (KAPI 1 / 2 / 3)
-                let matchTrack = (this.state.track === 'all' || track === this.state.track);
-
-                // 2. Filtrage Domaine d'activité
-                let matchDomain = (this.state.domain === 'all' || domain === this.state.domain);
-
-                // 3. Catégorie principale
-                let matchCat = true;
-                if (this.state.category === 'institutions') {
-                    matchCat = catTr.includes('kurum') || catFr.includes('institution') || catTr.includes('hukuk') || track === 'voie_1';
-                } else if (this.state.category === 'companies') {
-                    matchCat = catTr.includes('holding') || catFr.includes('multinationale') || catTr.includes('büyük türk') || track === 'voie_2';
-                } else if (this.state.category === 'logistics') {
-                    matchCat = catTr.includes('lojistik') || catFr.includes('logistique') || catTr.includes('büro') || catTr.includes('tertiaire') || domain === 'logistics';
-                } else if (this.state.category === 'tech') {
-                    matchCat = catTr.includes('zeka') || catTr.includes('teknoloji') || catFr.includes('intelligence') || catFr.includes('tech') || catTr.includes('yazılım') || catFr.includes('cloud') || track === 'voie_3' || domain === 'it';
-                } else if (this.state.category === 'pme') {
-                    matchCat = catTr.includes('kobi') || catFr.includes('pme') || catTr.includes('saha') || catTr.includes('kariyer') || domain === 'craft_pme';
-                }
-
-                // 4. Filtres booléens
-                let matchNoFrench = !this.state.noFrenchOnly || isNoFrench;
-                let matchCcift = !this.state.cciftOnly || isCcift;
-
-                // 5. Statut (Favoris / Takip)
-                let matchStatus = true;
-                if (this.state.status === 'fav') {
-                    matchStatus = favorites.has(String(id));
-                } else if (this.state.status === 'tracked') {
-                    matchStatus = Boolean(applications[String(id)]);
-                }
-
-                // 6. Recherche texte plein champ (tous les mots doivent correspondre)
-                let matchQuery = true;
-                if (queryWords.length > 0) {
-                    matchQuery = queryWords.every(word => searchData.includes(word));
-                }
-
-                // Test d'éligibilité globale
-                const isVisible = matchTrack && matchDomain && matchCat && matchNoFrench && matchCcift && matchStatus && matchQuery;
-
-                if (isVisible) {
-                    card.style.display = 'flex';
-                    visibleCount++;
-                    if (isCcift) countCcift++;
-                    if (isNoFrench) countNoFrench++;
-                    if (hasReloc) countReloc++;
-
-                    // Surbrillance des termes
-                    this.highlightTerms(card, queryWords);
-                } else {
-                    card.style.display = 'none';
-                }
-
-                // Comptage par voie pour les offres qui passent les autres critères
-                if (matchDomain && matchCat && matchNoFrench && matchCcift && matchStatus && matchQuery) {
-                    trackCounts.all++;
-                    if (track === 'voie_1') trackCounts.voie_1++;
-                    if (track === 'voie_2') trackCounts.voie_2++;
-                    if (track === 'voie_3') trackCounts.voie_3++;
-                }
-            });
-
-            // Mise à jour réactive des 4 compteurs statistiques du header
-            this.updateStatsCounters(visibleCount, countCcift, countNoFrench, countReloc);
-
-            // Mise à jour des compteurs sur les boutons de voies
-            this.updateTrackBadges(trackCounts);
-
-            // Mise à jour du résumé textuel des filtres
-            this.updateResultsSummary(visibleCount, cards.length);
+        // Nombre de filtres actifs dans la bottom sheet (le tri n'est pas un filtre)
+        activeSheetFilterCount() {
+            return (this.state.domain !== 'all' ? 1 : 0) + (this.state.cciftOnly ? 1 : 0) + (this.state.category !== 'all' ? 1 : 0);
         },
 
-        highlightTerms(card, words) {
-            const titleEl = card.querySelector('.job-title');
-            const snippetEl = card.querySelector('.snippet');
-            const companyEl = card.querySelector('.company-name-text');
+        // Catégories historiques (API conservée : setCategory)
+        matchCategory(job, cat) {
+            const catTr = normalizeText(job.category_tr);
+            const catFr = normalizeText(job.category_fr);
+            switch (cat) {
+                case 'institutions': return catTr.includes('kurum') || catFr.includes('institution') || catTr.includes('hukuk') || job.track === 'voie_1';
+                case 'companies': return catTr.includes('holding') || catFr.includes('multinationale') || catTr.includes('buyuk turk') || job.track === 'voie_2';
+                case 'logistics': return catTr.includes('lojistik') || catFr.includes('logistique') || job.domain === 'logistics';
+                case 'tech': return catTr.includes('teknoloji') || catTr.includes('yazilim') || catFr.includes('tech') || catFr.includes('cloud') || job.track === 'voie_3' || job.domain === 'it';
+                case 'pme': return catTr.includes('kobi') || catFr.includes('pme') || catTr.includes('saha') || job.domain === 'craft_pme';
+                default: return true;
+            }
+        },
 
-            [titleEl, snippetEl, companyEl].forEach(el => {
-                if (!el) return;
-                const originalText = el.getAttribute('data-original-text') || el.textContent;
-                if (!el.hasAttribute('data-original-text')) {
-                    el.setAttribute('data-original-text', originalText);
-                }
+        // skip : critères ignorés (pour calculer les compteurs des pastilles)
+        matches(job, skip = {}) {
+            const s = this.state;
+            const strId = String(job.id);
+            if (!skip.track && s.track !== 'all' && job.track !== s.track) return false;
+            if (s.domain !== 'all' && job.domain !== s.domain) return false;
+            if (s.category !== 'all' && !this.matchCategory(job, s.category)) return false;
+            if (!skip.nofr && s.noFrenchOnly && !job.no_french) return false;
+            if (s.cciftOnly && !job.ccift) return false;
+            if (!skip.status && s.status === 'fav' && !this._favs.has(strId)) return false;
+            if (!skip.status && s.status === 'tracked' && !this._apps[strId]) return false;
+            if (this._words.length) {
+                const hay = this.metaFor(job).hay;
+                if (!this._words.every(w => hay.includes(w))) return false;
+            }
+            return true;
+        },
 
-                if (words.length === 0) {
-                    el.textContent = originalText;
-                    return;
-                }
+        sortJobs(list) {
+            const arr = list.slice();
+            if (this.state.sortBy === 'date_desc') {
+                arr.sort((a, b) => (this.metaFor(b).ts - this.metaFor(a).ts) || (b.score - a.score) || (a.id - b.id));
+            } else if (this.state.sortBy === 'company_asc') {
+                arr.sort((a, b) => String(a.company || '').localeCompare(String(b.company || ''), 'tr', { sensitivity: 'base' }) || (a.id - b.id));
+            } else {
+                arr.sort((a, b) => (b.score - a.score) || (a.id - b.id));
+            }
+            return arr;
+        },
 
-                const escapedWords = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-                const regex = new RegExp(`(${escapedWords.join('|')})`, 'gi');
-                const safeHtml = originalText.replace(regex, '<mark class="search-highlight">$1</mark>');
-                el.innerHTML = safeHtml;
+        /**
+         * Recalcule résultats + compteurs et met l'UI à jour.
+         * opts.preserve : re-rend autant de cartes qu'avant (favori, langue) au lieu de revenir au 1er lot.
+         * opts.render === false : compteurs seulement, la grille n'est pas touchée.
+         */
+        apply(opts = {}) {
+            const jobs = getJobs();
+            this._favs = StorageService.getFavorites();
+            this._apps = StorageService.getApplications();
+            this._words = normalizeText(this.state.query).split(/\s+/).filter(Boolean);
+
+            const filtered = jobs.filter(j => this.matches(j));
+            this.results = this.sortJobs(filtered);
+
+            const counts = { all: 0, voie_1: 0, voie_2: 0, voie_3: 0, nofr: 0, fav: 0 };
+            jobs.forEach(j => {
+                if (this.matches(j, { track: true, nofr: true, status: true })) counts.all++;
+                if (counts[j.track] !== undefined && this.matches(j, { track: true })) counts[j.track]++;
+                if (j.no_french && this.matches(j, { nofr: true })) counts.nofr++;
+                if (this._favs.has(String(j.id)) && this.matches(j, { status: true })) counts.fav++;
+            });
+            this.counts = counts;
+
+            let countCcift = 0, countNoFrench = 0, countReloc = 0;
+            filtered.forEach(j => {
+                if (j.ccift) countCcift++;
+                if (j.no_french) countNoFrench++;
+                if (/vize|visa|relokasyon|relocalisation|diplomatique/.test(normalizeText(j.visa_tr))) countReloc++;
+            });
+
+            this.updateStatsCounters(filtered.length, countCcift, countNoFrench, countReloc);
+            this.updateTrackBadges(counts);
+            this.updateChips(counts);
+            this.updateFilterButton();
+            this.updateHeader();
+            FilterSheet.sync();
+
+            const emptyEl = document.getElementById('no-results-box');
+            if (emptyEl) emptyEl.hidden = this.results.length > 0;
+
+            if (opts.render !== false) {
+                CardRenderer.reset(this.results, opts.preserve ? CardRenderer.rendered : 0);
+            }
+        },
+
+        updateChips(counts) {
+            const s = this.state;
+            document.querySelectorAll('#exChips [data-chip]').forEach(btn => {
+                const key = btn.getAttribute('data-chip');
+                let pressed = false;
+                if (key === 'all') pressed = s.track === 'all' && !s.noFrenchOnly && s.status !== 'fav';
+                else if (key === 'nofr') pressed = s.noFrenchOnly;
+                else if (key === 'fav') pressed = s.status === 'fav';
+                else pressed = s.track === key;
+                btn.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+            });
+            document.querySelectorAll('#exChips [data-count]').forEach(el => {
+                const v = counts[el.getAttribute('data-count')];
+                el.textContent = v === undefined ? '' : String(v);
             });
         },
 
+        updateFilterButton() {
+            const n = this.activeSheetFilterCount();
+            const badge = document.getElementById('activeFilterCount');
+            if (badge) {
+                badge.textContent = String(n);
+                badge.hidden = n === 0;
+            }
+            const btn = document.getElementById('openFiltersBtn');
+            if (btn) btn.classList.toggle('has-filters', n > 0);
+        },
+
+        updateHeader() {
+            const el = document.getElementById('ex-new-line');
+            if (!el) return;
+            const dict = getDict();
+            const nNew = VisitTracker.countNew();
+            el.innerHTML = nNew > 0 ? plural(dict, 'helloNewCount', nNew) : plural(dict, 'helloTotalCount', getJobs().length);
+        },
+
+        // Compteurs de l'onglet Rehber (blocs d'introduction)
         updateStatsCounters(visible, ccift, noFrench, reloc) {
-            const elTotal = document.getElementById('stat-total');
-            const elCcift = document.getElementById('stat-ccift');
-            const elNoFrench = document.getElementById('stat-no-french');
-            const elReloc = document.getElementById('stat-reloc');
-
-            if (elTotal) elTotal.textContent = visible;
-            if (elCcift) elCcift.textContent = ccift;
-            if (elNoFrench) elNoFrench.textContent = noFrench;
-            if (elReloc) elReloc.textContent = reloc;
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+            set('stat-total', visible);
+            set('stat-ccift', ccift);
+            set('stat-no-french', noFrench);
+            set('stat-reloc', reloc);
         },
 
         updateTrackBadges(counts) {
-            const bAll = document.getElementById('count-track-all');
-            const b1 = document.getElementById('count-track-1');
-            const b2 = document.getElementById('count-track-2');
-            const b3 = document.getElementById('count-track-3');
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+            set('count-track-all', counts.all);
+            set('count-track-1', counts.voie_1);
+            set('count-track-2', counts.voie_2);
+            set('count-track-3', counts.voie_3);
+            document.querySelectorAll('.track-btn[data-track]').forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-track') === this.state.track);
+            });
+        }
+    };
 
-            if (bAll) bAll.textContent = counts.all;
-            if (b1) b1.textContent = counts.voie_1;
-            if (b2) b2.textContent = counts.voie_2;
-            if (b3) b3.textContent = counts.voie_3;
+    // --------------------------------------------------------------------------
+    // 4bis. RENDU DES CARTES KEŞFET (lots de 20, IntersectionObserver)
+    // --------------------------------------------------------------------------
+    const CARD_BATCH = 20;
+    const CardRenderer = {
+        grid: null,
+        sentinel: null,
+        observer: null,
+        list: [],
+        rendered: 0,
+
+        init() {
+            this.grid = document.getElementById('cardsGrid');
+            this.sentinel = document.getElementById('cardsSentinel');
+            if (!this.grid) return;
+
+            // Délégation : étoile favori / ouverture du détail (toute la carte)
+            this.grid.addEventListener('click', (e) => {
+                const star = e.target.closest('.jc-star');
+                if (star) {
+                    window.TrackerEngine.toggleBookmark(star.getAttribute('data-id'), e);
+                    return;
+                }
+                const hit = e.target.closest('.jc-hit');
+                if (hit) this.openDetail(hit.getAttribute('data-id'));
+            });
+
+            if (this.sentinel) {
+                this.sentinel.addEventListener('click', () => this.renderMore());
+                if ('IntersectionObserver' in window) {
+                    this.observer = new IntersectionObserver((entries) => {
+                        if (entries.some(en => en.isIntersecting)) this.renderMore();
+                    }, { rootMargin: '0px 0px 800px 0px' });
+                    this.observer.observe(this.sentinel);
+                }
+            }
         },
 
-        updateResultsSummary(visibleCount, totalCount) {
-            const summaryEl = document.getElementById('filter-results-summary');
-            const noResultsEl = document.getElementById('no-results-box');
-            const lang = StorageService.getLang();
-            const dict = I18N_DICTIONARY[lang] || I18N_DICTIONARY.tr;
+        openDetail(id) {
+            haptic(5);
+            if (window.BilateralDrawer && typeof window.BilateralDrawer.open === 'function') {
+                window.BilateralDrawer.open(Number(id));
+            }
+        },
 
-            if (summaryEl) {
-                summaryEl.innerHTML = dict.resultsCount
-                    .replace('{visible}', visibleCount)
-                    .replace('{total}', totalCount);
+        // keepCount : nombre de cartes à re-rendre immédiatement (0 → premier lot)
+        reset(list, keepCount = 0) {
+            this.list = list || [];
+            this.rendered = 0;
+            if (!this.grid) return;
+            this.grid.innerHTML = '';
+            this.renderUpTo(Math.max(CARD_BATCH, keepCount));
+        },
+
+        renderMore() {
+            if (this.rendered < this.list.length) this.renderUpTo(this.rendered + CARD_BATCH);
+        },
+
+        renderUpTo(n) {
+            if (!this.grid) return;
+            const end = Math.min(n, this.list.length);
+            if (end > this.rendered) {
+                const lang = StorageService.getLang();
+                const dict = I18N_DICTIONARY[lang] || I18N_DICTIONARY.tr;
+                const favs = StorageService.getFavorites();
+                const html = this.list.slice(this.rendered, end).map(j => this.cardHtml(j, lang, dict, favs)).join('');
+                this.grid.insertAdjacentHTML('beforeend', html);
+                this.rendered = end;
+            }
+            const hasMore = this.rendered < this.list.length;
+            if (this.sentinel) {
+                this.sentinel.hidden = !hasMore;
+                // Ré-observation : déclenche un nouveau contrôle si la sentinelle est encore visible
+                if (this.observer && hasMore) {
+                    this.observer.unobserve(this.sentinel);
+                    this.observer.observe(this.sentinel);
+                }
+            }
+        },
+
+        cardHtml(job, lang, dict, favs) {
+            const fr = lang === 'fr';
+            const id = Number(job.id);
+            const title = escapeHtml(fr ? (job.title_fr || job.title_tr) : job.title_tr);
+            const meta = [job.company, job.location].filter(Boolean).map(escapeHtml).join(' · ');
+            const isFav = favs.has(String(id));
+            const favLabel = escapeHtml(isFav ? dict.favRemoveLabel : dict.favAddLabel);
+
+            const trackNum = { voie_1: 1, voie_2: 2, voie_3: 3 }[job.track];
+            const kapiText = trackNum
+                ? `${dict.kapiShort.replace('{n}', trackNum)} · ${dict['kapiDesc' + trackNum]}`
+                : dict.kapiOther;
+            const newBadge = VisitTracker.isNew(job) ? `<span class="jc-new">${escapeHtml(dict.newBadge)}</span>` : '';
+
+            const pills = [];
+            if (job.no_french) {
+                pills.push(`<span class="pill pill-ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="pill-txt">${escapeHtml(dict.pillNoFrench)}</span></span>`);
+            }
+            const visa = visaShortLabel(job, dict);
+            if (visa) {
+                pills.push(`<span class="pill"><svg class="ic" aria-hidden="true"><use href="#i-plane"/></svg><span class="pill-txt">${escapeHtml(visa)}</span></span>`);
+            }
+            if (pills.length < 2 && job.ccift) {
+                pills.push(`<span class="pill pill-gold"><svg class="ic" aria-hidden="true"><use href="#i-building"/></svg><span class="pill-txt">CCIFT · DEİK</span></span>`);
             }
 
-            if (noResultsEl) {
-                noResultsEl.style.display = visibleCount === 0 ? 'block' : 'none';
+            return `<article class="jc" data-id="${id}" data-track="${escapeHtml(job.track)}">` +
+                `<div class="jc-top"><span class="jc-kapi kapi-${trackNum || 0}">${escapeHtml(kapiText)}</span>${newBadge}</div>` +
+                `<h3 class="jc-title" id="jc-t-${id}">${title}</h3>` +
+                `<p class="jc-meta">${meta}</p>` +
+                (pills.length ? `<div class="jc-pills">${pills.slice(0, 2).join('')}</div>` : '') +
+                `<button type="button" class="jc-hit" data-id="${id}" aria-labelledby="jc-t-${id}"></button>` +
+                `<button type="button" class="jc-star" data-id="${id}" aria-pressed="${isFav}" aria-label="${favLabel}" title="${favLabel}"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></button>` +
+                `</article>`;
+        },
+
+        // Mise à jour en place des étoiles (sans re-rendu, préserve le scroll et le focus)
+        syncStars(favs, dict) {
+            if (!this.grid) return;
+            this.grid.querySelectorAll('.jc-star').forEach(btn => {
+                const isFav = favs.has(String(btn.getAttribute('data-id')));
+                const label = isFav ? dict.favRemoveLabel : dict.favAddLabel;
+                btn.setAttribute('aria-pressed', isFav ? 'true' : 'false');
+                btn.setAttribute('aria-label', label);
+                btn.title = label;
+            });
+        }
+    };
+
+    // --------------------------------------------------------------------------
+    // 4ter. BOTTOM SHEET « FILTRELER / FILTRES » (contrat d'historique 'filters')
+    // --------------------------------------------------------------------------
+    const FILTER_SHEET_ID = 'filters';
+    const FilterSheet = {
+        el: null,
+        lastFocus: null,
+        closeTimer: null,
+
+        init() {
+            this.el = document.getElementById('filterSheet');
+            const openBtn = document.getElementById('openFiltersBtn');
+            if (openBtn) openBtn.addEventListener('click', () => this.open());
+            if (!this.el) return;
+
+            this.el.addEventListener('click', (e) => {
+                if (e.target.closest('[data-sheet-close]')) { this.requestClose(); return; }
+                const d = e.target.closest('[data-domain]');
+                if (d) { FilterEngine.setDomain(d.getAttribute('data-domain')); return; }
+                const s = e.target.closest('[data-sort]');
+                if (s) { FilterEngine.setSort(s.getAttribute('data-sort')); return; }
+                if (e.target.closest('#sheetResetBtn')) {
+                    Object.assign(FilterEngine.state, { domain: 'all', category: 'all', cciftOnly: false, sortBy: 'score_desc' });
+                    FilterEngine.apply();
+                    return;
+                }
+                if (e.target.closest('#sheetApplyBtn')) this.requestClose();
+            });
+
+            const sw = document.getElementById('cciftSwitch');
+            if (sw) sw.addEventListener('change', () => FilterEngine.setCcift(sw.checked));
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.isOpen()) this.requestClose();
+            });
+            // Retour Android : fermeture sans toucher à l'historique
+            window.addEventListener('popstate', (event) => {
+                if (this.isOpen() && (event.state || {}).fransaOverlay !== FILTER_SHEET_ID) this.close();
+            });
+        },
+
+        isOpen() {
+            return Boolean(this.el && this.el.classList.contains('is-open'));
+        },
+
+        open() {
+            if (!this.el || this.isOpen()) return;
+            clearTimeout(this.closeTimer);
+            this.lastFocus = document.activeElement;
+            this.sync();
+            this.el.hidden = false;
+            document.body.classList.add('sheet-locked');
+            // reflow puis animation d'entrée
+            void this.el.offsetHeight;
+            this.el.classList.add('is-open');
+            HistoryRouter.pushOverlay(FILTER_SHEET_ID);
+            haptic(8);
+            const closeBtn = this.el.querySelector('.sheet-head [data-sheet-close]');
+            if (closeBtn) setTimeout(() => closeBtn.focus({ preventScroll: true }), 50);
+        },
+
+        requestClose() {
+            HistoryRouter.closeOverlay(FILTER_SHEET_ID, () => this.close());
+        },
+
+        close() {
+            if (!this.el || !this.isOpen()) return;
+            this.el.classList.remove('is-open');
+            document.body.classList.remove('sheet-locked');
+            this.closeTimer = setTimeout(() => { if (!this.isOpen()) this.el.hidden = true; }, 260);
+            if (this.lastFocus && typeof this.lastFocus.focus === 'function') {
+                try { this.lastFocus.focus({ preventScroll: true }); } catch (e) {}
+            }
+        },
+
+        // Reflète l'état du moteur dans la sheet (pastilles, interrupteur, bouton CTA)
+        sync() {
+            if (!this.el) return;
+            const s = FilterEngine.state;
+            this.el.querySelectorAll('[data-domain]').forEach(b => b.setAttribute('aria-pressed', b.getAttribute('data-domain') === s.domain ? 'true' : 'false'));
+            this.el.querySelectorAll('[data-sort]').forEach(b => b.setAttribute('aria-pressed', b.getAttribute('data-sort') === s.sortBy ? 'true' : 'false'));
+            const sw = document.getElementById('cciftSwitch');
+            if (sw) sw.checked = s.cciftOnly;
+            const cta = document.getElementById('sheetApplyBtn');
+            if (cta) {
+                const dict = getDict();
+                const n = FilterEngine.results.length;
+                cta.textContent = n === 0 ? dict.showResultsZero : plural(dict, 'showResults', n);
             }
         }
     };
@@ -946,7 +1283,13 @@
                 card.classList.remove('kanban-card-dragging');
             });
 
-            const displayTitle = lang === 'fr' ? (app.title_fr || app.title) : app.title;
+            // Titre / entreprise / lieu lus dans FransaData (repli : enregistrement local)
+            const job = getJob(app.id);
+            const displayTitle = escapeHtml(job
+                ? (lang === 'fr' ? (job.title_fr || job.title_tr) : job.title_tr)
+                : (lang === 'fr' ? (app.title_fr || app.title) : app.title));
+            const displayCompany = escapeHtml(job ? job.company : app.company);
+            const displayLocation = escapeHtml(job ? job.location : app.location);
             const cciftBadge = app.is_ccift_deik ? '<span class="kanban-badge-ccift">🤝 CCIFT/DEİK</span>' : '';
             const noFrenchBadge = !app.french_required ? `<span class="kanban-badge-nofrench">${dict.kanbanBadgeNoFrench}</span>` : '';
 
@@ -993,8 +1336,8 @@
             card.innerHTML = `
                 <div class="kanban-card-header">
                     <div class="kanban-company-box">
-                        <strong class="kanban-company">${app.company}</strong>
-                        <span class="kanban-location">📍 ${app.location}</span>
+                        <strong class="kanban-company">${displayCompany}</strong>
+                        <span class="kanban-location">📍 ${displayLocation}</span>
                     </div>
                     <button class="kanban-fav-btn ${isFavorite ? 'active' : ''}" onclick="window.TrackerEngine.toggleBookmark(${app.id}, event)" title="${lblFav}" aria-label="${lblFav}" aria-pressed="${isFavorite ? 'true' : 'false'}">
                         ${isFavorite ? '★' : '☆'}
@@ -1167,24 +1510,21 @@
         scrollPositions: {},
 
         init() {
-            // Initialisation de la langue mémorisée
-            // (silencieux : pas de toast de changement de langue au lancement)
-            const savedLang = StorageService.getLang();
-            this.applyLanguage(savedLang, { silent: true });
+            // Nouveautés depuis la dernière visite (avant le premier rendu des cartes)
+            VisitTracker.init();
 
-            // Initialisation des favoris et états sur les cartes d'exploration
-            this.syncExplorerCards();
+            // Liaisons de la recherche, des pastilles, de la grille et de la bottom sheet
+            FilterEngine.init();
 
             // Initialisation de la checklist du guide
             this.initChecklist();
 
-            // Rendu initial du Kanban
+            // Kanban
             KanbanTracker.init();
-            KanbanTracker.render();
 
-            // Initialisation du filtre
-            FilterEngine.init();
-            FilterEngine.apply();
+            // Langue mémorisée (silencieux) : traduit l'UI, rend le Kanban et les cartes Keşfet
+            const savedLang = StorageService.getLang();
+            this.applyLanguage(savedLang, { silent: true });
 
             // Modal events
             this.setupModalEvents();
@@ -1353,7 +1693,10 @@
             if (elAdviceText) elAdviceText.innerHTML = dict.adviceText;
 
             const searchInput = document.getElementById('searchInput');
-            if (searchInput) searchInput.placeholder = dict.searchPlaceholder;
+            if (searchInput) {
+                searchInput.placeholder = dict.searchPlaceholder;
+                searchInput.setAttribute('aria-label', dict.searchPlaceholder);
+            }
 
             // Filtres
             const btnReset = document.getElementById('btn-reset-filters');
@@ -1383,90 +1726,13 @@
             const colOfferTitle = document.getElementById('i18n-col-offer-title');
             if (colOfferTitle) colOfferTitle.textContent = dict.colOfferTitle;
 
-            // Traduction des cartes d'offres de l'onglet Explorer
-            const cards = document.querySelectorAll('#cardsGrid .job-card');
-            cards.forEach(card => {
-                const title = lang === 'fr' ? (card.getAttribute('data-title-fr') || card.getAttribute('data-title-tr')) : card.getAttribute('data-title-tr');
-                const titleEl = card.querySelector('.job-title');
-                if (titleEl) {
-                    titleEl.textContent = title;
-                    titleEl.setAttribute('data-original-text', title);
-                }
-
-                const snippet = lang === 'fr' ? (card.getAttribute('data-snippet-fr') || card.getAttribute('data-snippet-tr')) : card.getAttribute('data-snippet-tr');
-                const snippetEl = card.querySelector('.snippet');
-                if (snippetEl) {
-                    snippetEl.textContent = snippet;
-                    snippetEl.setAttribute('data-original-text', snippet);
-                }
-
-                const cat = lang === 'fr' ? (card.getAttribute('data-category-fr') || card.getAttribute('data-category-tr')) : card.getAttribute('data-category-tr');
-                const catBadge = card.querySelector('.card-cat-badge');
-                if (catBadge) catBadge.textContent = cat;
-
-                const scorePrefix = card.querySelector('.score-prefix');
-                if (scorePrefix) scorePrefix.textContent = dict.scorePrefix;
-
-                const applyBtn = card.querySelector('.apply-btn');
-                if (applyBtn) applyBtn.textContent = dict.applyBtn;
-                const secBtn = card.querySelector('.secondary-btn');
-                if (secBtn) secBtn.textContent = dict.hrBtn;
-
-                const langBadge = card.querySelector('[data-lang-badge="true"]');
-                if (langBadge) {
-                    langBadge.textContent = lang === 'tr' ? langBadge.getAttribute('data-tr') : langBadge.getAttribute('data-fr');
-                }
-
-                // Traduction du Visa
-                const visaEl = card.querySelector('.val-visa');
-                if (visaEl) {
-                    const visaVal = (lang === 'fr')
-                        ? (card.getAttribute('data-visa-fr') || card.getAttribute('data-visa-tr') || card.getAttribute('data-visa'))
-                        : (card.getAttribute('data-visa-tr') || card.getAttribute('data-visa'));
-                    if (visaVal) visaEl.textContent = visaVal;
-                }
-
-                // Boutons d'actions de la carte
-                const btnDrawerSpan = card.querySelector('.action-btn-primary span');
-                if (btnDrawerSpan) btnDrawerSpan.textContent = lang === 'fr' ? '👁️ Offre & Visa' : '👁️ İlan & Vize';
-                const btnPitchSpan = card.querySelector('.action-btn-pitch span');
-                if (btnPitchSpan) btnPitchSpan.textContent = lang === 'fr' ? '✍️ Lettre & Pitch' : '✍️ Ön Yazı';
-                const btnWaSpan = card.querySelector('.action-btn-wa span');
-                if (btnWaSpan) btnWaSpan.textContent = lang === 'fr' ? '💬 Partager' : '💬 Paylaş';
-                const btnLinkSpan = card.querySelector('.secondary-btn span');
-                if (btnLinkSpan) btnLinkSpan.textContent = lang === 'fr' ? 'Lien' : 'Link';
-
-                // Ruban Voie Prioritaire
-                const track = card.getAttribute('data-track');
-                const trackRibbon = card.querySelector('.track-ribbon-text');
-                if (trackRibbon) {
-                    if (track === 'voie_1') trackRibbon.textContent = dict.badgeTrack1;
-                    if (track === 'voie_2') trackRibbon.textContent = dict.badgeTrack2;
-                    if (track === 'voie_3') trackRibbon.textContent = dict.badgeTrack3;
-                }
-
-                // Tags multilingues
-                const tagsStr = lang === 'tr' ? card.getAttribute('data-tags-tr') : card.getAttribute('data-tags-fr');
-                const tagsContainer = card.querySelector('.card-tags');
-                if (tagsContainer && tagsStr) {
-                    tagsContainer.innerHTML = '';
-                    const tagsList = tagsStr.split('|').filter(x => x.trim().length > 0);
-                    tagsList.forEach(tag => {
-                        const span = document.createElement('span');
-                        span.className = 'tag ' + this.getTagClass(tag);
-                        span.textContent = tag;
-                        tagsContainer.appendChild(span);
-                    });
-                }
-            });
-
             // Bouton de suivi & favoris des cartes (libellés + title/aria-label dans la langue courante)
             this.syncExplorerCards();
 
             // Rafraîchissement des cartes du Kanban
             KanbanTracker.render();
-            // Réapplication du filtre
-            FilterEngine.apply();
+            // Re-rendu des cartes Keşfet dans la nouvelle langue (même nombre de cartes)
+            FilterEngine.apply({ preserve: true });
 
             // Notification aux autres composants
             window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }));
@@ -1485,62 +1751,12 @@
             return 'tag-default';
         },
 
+        // Synchronise les étoiles des cartes rendues + badge de l'onglet Başvurularım
         syncExplorerCards() {
             const favorites = StorageService.getFavorites();
             const applications = StorageService.getApplications();
-            const lang = StorageService.getLang();
-            const dict = I18N_DICTIONARY[lang] || I18N_DICTIONARY.tr;
+            CardRenderer.syncStars(favorites, getDict());
 
-            const cards = document.querySelectorAll('#cardsGrid .job-card');
-            cards.forEach(card => {
-                const id = card.getAttribute('data-id');
-                const strId = String(id);
-
-                // Bouton favori ⭐
-                const isFav = favorites.has(strId);
-                const favBtn = card.querySelector('.bookmark-btn');
-                if (favBtn) {
-                    favBtn.classList.toggle('active', isFav);
-                    const starIcon = favBtn.querySelector('.star-icon');
-                    if (starIcon) starIcon.textContent = isFav ? '★' : '☆';
-                    const favLabel = isFav ? dict.favRemoveLabel : dict.favAddLabel;
-                    favBtn.title = favLabel;
-                    favBtn.setAttribute('aria-label', favLabel);
-                    favBtn.setAttribute('aria-pressed', isFav ? 'true' : 'false');
-                }
-
-                // Bouton de suivi dans le footer
-                const app = applications[strId];
-                const trackBtn = card.querySelector('.tracker-action-btn');
-                const statusBadge = card.querySelector('.card-tracker-status');
-
-                if (trackBtn) {
-                    if (app) {
-                        trackBtn.classList.add('in-pipeline');
-                        trackBtn.innerHTML = `<span>✓</span> <span>${dict.trackedBtn}</span>`;
-                    } else {
-                        trackBtn.classList.remove('in-pipeline');
-                        trackBtn.innerHTML = `<span>📋</span> <span>${dict.trackAddBtn}</span>`;
-                    }
-                }
-
-                if (statusBadge) {
-                    if (app) {
-                        statusBadge.style.display = 'inline-block';
-                        let label = app.status;
-                        if (app.status === 'saved') label = '📌 ' + dict.colSavedTitle;
-                        if (app.status === 'applied') label = '📤 ' + dict.colAppliedTitle;
-                        if (app.status === 'interview') label = '🎙️ ' + dict.colInterviewTitle;
-                        if (app.status === 'offer') label = '🎉 ' + dict.colOfferTitle;
-                        statusBadge.textContent = label;
-                        statusBadge.className = `card-tracker-status status-badge-${app.status}`;
-                    } else {
-                        statusBadge.style.display = 'none';
-                    }
-                }
-            });
-
-            // Badge total dans l'onglet
             const badgeTracker = document.getElementById('badge-tracker-count');
             if (badgeTracker) badgeTracker.textContent = Object.keys(applications).length;
         },
@@ -1579,7 +1795,7 @@
                         this.requestCloseModal();
                         KanbanTracker.render();
                         this.syncExplorerCards();
-                        FilterEngine.apply();
+                        FilterEngine.apply({ preserve: true });
                     }
                 };
             }
@@ -1603,7 +1819,7 @@
             const modal = document.getElementById('tracker-modal');
             if (!modal) return;
 
-            const card = document.querySelector(`#cardsGrid .job-card[data-id="${jobId}"]`);
+            const job = getJob(jobId);
             let existingApp = StorageService.getApplication(jobId);
             const lang = StorageService.getLang();
             const dict = I18N_DICTIONARY[lang] || I18N_DICTIONARY.tr;
@@ -1614,9 +1830,9 @@
             if (existingApp) {
                 title = lang === 'fr' ? (existingApp.title_fr || existingApp.title) : existingApp.title;
                 company = existingApp.company;
-            } else if (card) {
-                title = lang === 'fr' ? card.getAttribute('data-title-fr') : card.getAttribute('data-title-tr');
-                company = card.getAttribute('data-company');
+            } else if (job) {
+                title = lang === 'fr' ? (job.title_fr || job.title_tr) : job.title_tr;
+                company = job.company;
             }
 
             document.getElementById('modal-job-id').value = jobId;
@@ -1658,25 +1874,7 @@
             const interviewDate = document.getElementById('modal-interview-date').value;
             const notes = document.getElementById('modal-notes').value;
 
-            const card = document.querySelector(`#cardsGrid .job-card[data-id="${jobId}"]`);
-            const jobData = {};
-
-            if (card) {
-                jobData.title = card.getAttribute('data-title-tr');
-                jobData.title_fr = card.getAttribute('data-title-fr');
-                jobData.company = card.getAttribute('data-company');
-                jobData.location = card.getAttribute('data-location');
-                jobData.url = card.getAttribute('data-url');
-                jobData.source = card.getAttribute('data-source');
-                jobData.relevance_score = parseInt(card.getAttribute('data-score') || '50', 10);
-                jobData.category = card.getAttribute('data-category-tr');
-                jobData.working_language = card.getAttribute('data-working-lang');
-                jobData.visa_sponsorship = card.getAttribute('data-visa');
-                jobData.is_ccift_deik = card.getAttribute('data-ccift') === 'true';
-                jobData.french_required = card.getAttribute('data-no-french') !== 'true';
-                jobData.track = card.getAttribute('data-track') || 'autre';
-                jobData.domain = card.getAttribute('data-domain') || 'craft_pme';
-            }
+            const jobData = jobToAppData(getJob(jobId));
 
             StorageService.saveApplication(jobId, jobData, status, appliedDate, interviewDate, notes);
 
@@ -1688,7 +1886,7 @@
             this.requestCloseModal();
             KanbanTracker.render();
             this.syncExplorerCards();
-            FilterEngine.apply();
+            FilterEngine.apply({ preserve: true });
         },
 
         // Fermeture demandée par l'UI (X, fond, Échap, Enregistrer, Supprimer)
@@ -1853,18 +2051,50 @@
         UI: UIController,
         Toast: ToastService,
 
-        // Actions 1-clic depuis les cartes HTML
+        // Actions 1-clic (cartes Keşfet, Kanban, écran Détail)
         toggleBookmark(jobId, event) {
-            if (event) event.stopPropagation();
+            if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
             const isFav = StorageService.toggleFavorite(jobId);
             UIController.syncExplorerCards();
             KanbanTracker.render();
-            FilterEngine.apply();
+            // Filtre « Kaydedilenler » actif : la liste change ; sinon compteurs seulement (scroll préservé)
+            FilterEngine.apply(FilterEngine.state.status === 'fav' ? { preserve: true } : { render: false });
 
-            const lang = StorageService.getLang();
-            const dict = I18N_DICTIONARY[lang] || I18N_DICTIONARY.tr;
+            const dict = getDict();
             ToastService.show(isFav ? dict.toastFavAdded : dict.toastFavRemoved, isFav ? 'star' : 'info');
             if (isFav) haptic();
+            window.dispatchEvent(new CustomEvent('fransa:favorite', { detail: { id: Number(jobId), isFavorite: isFav } }));
+            return isFav;
+        },
+
+        isFavorite(jobId) {
+            return StorageService.getFavorites().has(String(jobId));
+        },
+
+        // Crée ou met à jour la candidature dans le Kanban (statut par défaut : 'applied')
+        addToTracker(jobId, status = 'applied') {
+            const job = getJob(jobId);
+            const existing = StorageService.getApplication(jobId);
+            if (!job && !existing) return null;
+            const newStatus = KanbanTracker.columns.includes(status) ? status : 'applied';
+            const today = new Date().toISOString().split('T')[0];
+            const appliedDate = (existing && existing.applied_date) || (newStatus !== 'saved' ? today : '');
+            const app = StorageService.saveApplication(
+                jobId,
+                jobToAppData(job),
+                newStatus,
+                appliedDate,
+                existing ? (existing.interview_date || '') : '',
+                existing ? (existing.notes || '') : ''
+            );
+
+            // Pas de toast ici : l'appelant (écran Détail) affiche son propre message
+            haptic(15);
+            KanbanTracker.render();
+            UIController.syncExplorerCards();
+            FilterEngine.apply(FilterEngine.state.status === 'tracked' ? { preserve: true } : { render: false });
+            window.dispatchEvent(new CustomEvent('fransa:tracker', { detail: { id: Number(jobId), status: newStatus } }));
+            return app;
         },
 
         openTrackerModal(jobId) {
@@ -1890,7 +2120,7 @@
                 StorageService.clearAllApplications();
                 KanbanTracker.render();
                 UIController.syncExplorerCards();
-                FilterEngine.apply();
+                FilterEngine.apply({ preserve: true });
                 ToastService.show(dict.toastTrackerCleared, 'warning');
             }
         },
@@ -1908,10 +2138,10 @@
         },
 
         shareWhatsApp(jobId) {
-            const card = document.querySelector(`.job-card[data-id="${jobId}"]`);
-            const title = card ? card.getAttribute('data-title-tr') || card.querySelector('.job-title')?.textContent.trim() : 'Fransa İş Fırsatı';
-            const company = card ? card.getAttribute('data-company') : '';
-            const url = (card && card.getAttribute('data-url')) || window.location.href;
+            const job = getJob(jobId);
+            const title = job ? job.title_tr : 'Fransa İş Fırsatı';
+            const company = job ? job.company : '';
+            const url = (job && job.url) || window.location.href;
             const baseText =
                 `Aşkım / Merhaba, Fransa için şu ilanı buldum, sence başvurayım mı?\n\n` +
                 `💼 Pozisyon: ${title}\n` +
