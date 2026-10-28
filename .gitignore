@@ -3,3 +3,8 @@ __pycache__/
 *.pyo
 .DS_Store
 Thumbs.db
+
+# Clés et secrets locaux : ne jamais commiter (dépôt public)
+*.env
+conf_FT*
+.env*
