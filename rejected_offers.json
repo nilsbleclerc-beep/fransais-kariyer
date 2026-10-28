@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-28T23:00:34+00:00",
+  "generated_at": "2026-10-28T23:03:58+00:00",
   "profile": {
     "residence_country": "TR",
     "target_country": "FR",
@@ -31,12 +31,13 @@
     "adzuna": {
       "status": "ok",
       "collected": 99,
-      "kept": 25,
+      "kept": 16,
       "error": "",
       "rejected": {
-        "no_language_fit": 70,
+        "no_language_fit": 75,
         "english_level": 3,
-        "in_turkey": 1
+        "in_turkey": 1,
+        "not_in_france": 4
       }
     },
     "jooble": {
@@ -76,9 +77,10 @@
     }
   },
   "counts": {
-    "no_language_fit": 77,
+    "no_language_fit": 82,
     "english_level": 6,
     "in_turkey": 1,
+    "not_in_france": 4,
     "french_level": 3,
     "event_passed": 2
   },
@@ -469,6 +471,17 @@
       "module": "adzuna"
     },
     {
+      "url": "https://www.adzuna.fr/details/5931254097?utm_medium=api&utm_source=25ece07d",
+      "title": "Chef d'équipe nettoyage industriel Week end CDI",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "BIMBO QSR",
+      "location": "Aix en Provence Sud-Ouest, Aix-en-Provence",
+      "posted_at": "2026-10-17",
+      "module": "adzuna"
+    },
+    {
       "url": "https://www.adzuna.fr/details/5930890296?utm_medium=api&utm_source=25ece07d",
       "title": "Affreteur.Se National.E International.E - H/F",
       "source": "Adzuna",
@@ -487,6 +500,28 @@
       "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
       "company": "Dimotrans",
       "location": "Lormont, Bordeaux",
+      "posted_at": "2026-10-16",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5930202293?utm_medium=api&utm_source=25ece07d",
+      "title": "PORTUGAL IS YOUR NEXT DESTINATION!",
+      "source": "Adzuna",
+      "reason": "not_in_france",
+      "detail": "Pays étranger dans le titre : « portugal »",
+      "company": "CB Talents",
+      "location": "Paris, Ile-de-France",
+      "posted_at": "2026-10-16",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5930202292?utm_medium=api&utm_source=25ece07d",
+      "title": "PORTUGAL IS YOUR NEXT DESTINATION!",
+      "source": "Adzuna",
+      "reason": "not_in_france",
+      "detail": "Pays étranger dans le titre : « portugal »",
+      "company": "CB Talents",
+      "location": "Lyon, Rhône",
       "posted_at": "2026-10-16",
       "module": "adzuna"
     },
@@ -521,6 +556,17 @@
       "company": "Sqills",
       "location": "Paris, Ile-de-France",
       "posted_at": "2026-10-16",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5926917409?utm_medium=api&utm_source=25ece07d",
+      "title": "Vendeur boucherie à Feurs (H/F)",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Manpower",
+      "location": "Boën, Montbrison",
+      "posted_at": "2026-10-14",
       "module": "adzuna"
     },
     {
@@ -604,8 +650,8 @@
       "url": "https://www.adzuna.fr/details/5922366779?utm_medium=api&utm_source=25ece07d",
       "title": "Agent D'Exploitation Service Italie - H/F",
       "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "reason": "not_in_france",
+      "detail": "Pays étranger dans le titre : « italie »",
       "company": "Dimotrans Group",
       "location": "France",
       "posted_at": "2026-10-10",
@@ -626,8 +672,8 @@
       "url": "https://www.adzuna.fr/details/5922055962?utm_medium=api&utm_source=25ece07d",
       "title": "AGENT D'EXPLOITATION SERVICE ITALIE - F/H",
       "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "reason": "not_in_france",
+      "detail": "Pays étranger dans le titre : « italie »",
       "company": "Dimotrans",
       "location": "France",
       "posted_at": "2026-10-10",
@@ -667,6 +713,17 @@
       "module": "adzuna"
     },
     {
+      "url": "https://www.adzuna.fr/details/5917386226?utm_medium=api&utm_source=25ece07d",
+      "title": "Agent De Quai - H/F",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Dimotrans Group",
+      "location": "Portes-lès-Valence, Valence",
+      "posted_at": "2026-10-07",
+      "module": "adzuna"
+    },
+    {
       "url": "https://www.adzuna.fr/details/5917364541?utm_medium=api&utm_source=25ece07d",
       "title": "CAIOM - Directeur(trice) de la citoyenneté et de la légalité",
       "source": "Adzuna",
@@ -697,6 +754,17 @@
       "company": "Dimotrans",
       "location": "Martigues, Istres",
       "posted_at": "2026-10-07",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5912100405?utm_medium=api&utm_source=25ece07d",
+      "title": "MAGASINIER",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Saica Pack",
+      "location": "Mayenne, Pays de la Loire",
+      "posted_at": "2026-10-05",
       "module": "adzuna"
     },
     {
@@ -810,6 +878,17 @@
       "module": "adzuna"
     },
     {
+      "url": "https://www.adzuna.fr/details/5912094691?utm_medium=api&utm_source=25ece07d",
+      "title": "CARISTE EXPEDITIONS",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Saica Pack",
+      "location": "Mayenne, Pays de la Loire",
+      "posted_at": "2026-10-05",
+      "module": "adzuna"
+    },
+    {
       "url": "https://www.adzuna.fr/details/5912094692?utm_medium=api&utm_source=25ece07d",
       "title": "CONCEPTEUR BUREAU D'ETUDES",
       "source": "Adzuna",
@@ -887,6 +966,17 @@
       "module": "adzuna"
     },
     {
+      "url": "https://www.adzuna.fr/details/5906685077?utm_medium=api&utm_source=25ece07d",
+      "title": "Conseillers(ères) de Vente saisonniers – Val d'Isère H/F",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Moncler",
+      "location": "Val-d'Isère, Albertville",
+      "posted_at": "2026-10-02",
+      "module": "adzuna"
+    },
+    {
       "url": "https://www.adzuna.fr/details/5904063626?utm_medium=api&utm_source=25ece07d",
       "title": "Médecin du Travail - Beauvais",
       "source": "Adzuna",
@@ -895,6 +985,17 @@
       "company": "SPEEDRH 2026 8137",
       "location": "Hauts-De-France, France",
       "posted_at": "2026-09-30",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5900723886?utm_medium=api&utm_source=25ece07d",
+      "title": "Préparateur de commandes - H/F",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Dimotrans Group",
+      "location": "France",
+      "posted_at": "2026-09-27",
       "module": "adzuna"
     },
     {
