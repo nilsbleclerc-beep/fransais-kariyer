@@ -16,6 +16,9 @@ from .common import clean_text, http_post, now_str, to_iso_date
 
 SOURCE = "Jooble"
 API_URL = "https://jooble.org/api/{key}"
+# Une clé Jooble est rattachée à l'index d'un pays : si l'index par défaut ne renvoie rien pour la France,
+# on essaie l'index français
+API_URL_CANDIDATES = [API_URL, "https://fr.jooble.org/api/{key}"]
 KEYWORDS = ["turc", "turcophone"]
 PER_PAGE = 50
 MAX_PAGES = 3
@@ -60,6 +63,23 @@ def map_job(j: Dict) -> Optional[JobOpportunity]:
     )
 
 
+def _pick_endpoint(key: str) -> str:
+    """Premier index qui renvoie des résultats pour une recherche simple en France."""
+    for url in API_URL_CANDIDATES:
+        resp = http_post(url.format(key=key), json={"keywords": "turc", "location": "France"},
+                         headers={"Content-Type": "application/json"})
+        total = 0
+        if resp is not None and resp.status_code == 200:
+            try:
+                total = int((resp.json() or {}).get("totalCount") or 0)
+            except (ValueError, TypeError):
+                total = 0
+        print(f"[i] Jooble {url.split('/api/')[0]} : HTTP {getattr(resp, 'status_code', 'réseau')} totalCount={total}")
+        if total:
+            return url
+    return API_URL
+
+
 def fetch(profile: dict = None) -> List[JobOpportunity]:
     key = os.environ.get("JOOBLE_KEY", "").strip()
     if not key:
@@ -68,12 +88,13 @@ def fetch(profile: dict = None) -> List[JobOpportunity]:
     out: List[JobOpportunity] = []
     seen = set()
     since = (datetime.date.today() - datetime.timedelta(days=MAX_AGE_DAYS)).isoformat()
+    api_url = _pick_endpoint(key)
     try:
         for kw in KEYWORDS:
             for page in range(1, MAX_PAGES + 1):
                 body = {"keywords": kw, "location": "France", "page": str(page),
                         "ResultOnPage": str(PER_PAGE), "datecreatedfrom": since}
-                resp = http_post(API_URL.format(key=key), json=body, headers={"Content-Type": "application/json"})
+                resp = http_post(api_url.format(key=key), json=body, headers={"Content-Type": "application/json"})
                 if resp is None or resp.status_code != 200:
                     print(f"[-] Jooble « {kw} » p{page} : HTTP {getattr(resp, 'status_code', 'réseau')} "
                           f"{(getattr(resp, 'text', '') or '')[:150]}")
@@ -83,7 +104,7 @@ def fetch(profile: dict = None) -> List[JobOpportunity]:
                 # (la fraîcheur reste contrôlée par quality.py)
                 if page == 1 and not data.get("jobs"):
                     body.pop("datecreatedfrom")
-                    retry = http_post(API_URL.format(key=key), json=body, headers={"Content-Type": "application/json"})
+                    retry = http_post(api_url.format(key=key), json=body, headers={"Content-Type": "application/json"})
                     if retry is not None and retry.status_code == 200:
                         data = retry.json() or {}
                 print(f"[i] Jooble « {kw} » p{page} : totalCount={data.get('totalCount')} "
