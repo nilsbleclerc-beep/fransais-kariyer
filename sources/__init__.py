@@ -13,7 +13,8 @@ SOURCE_MODULES = [
     "france_travail",
     "eures",
     "adzuna",
-    "jooble",
+    # "jooble",  # désactivé le 29/10/2026 : la recherche Jooble ignore les mots-clés (12 247 résultats quelle que
+    #            # soit la requête), 0 offre liée au turc sur 345 testées ; code conservé
     "gurbetilan",
     "kariyer_net",
     "company_ats",

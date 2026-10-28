@@ -50,7 +50,7 @@ Le desktop doit rester utilisable, sans être optimisé.
 | ATS groupes turcs : Trendyol (Lever), DFDS ex-Ekol (Teamtailor), Pladis/Godiva (Workday) | ATS | ✅ en ligne | non |
 | France Travail – API Offres v2 (« turc », « turcophone »…) | officielle | ❌ **indisponible** : vérifié le 29/10/2026 dans le catalogue francetravail.io (46 API, compte connecté), l'API « Offres d'emploi » n'y figure plus (seule reste la version alternance). Les clés créées n'ont aucune API autorisée (`invalid_client`). Le code reste en place au cas où elle reviendrait. Une partie des offres France Travail arrive déjà via Adzuna. | `FT_CLIENT_ID` / `FT_CLIENT_SECRET` |
 | Adzuna | agrégateur | ✅ clés ajoutées le 28/10, mais **payant** (8 £/mois). Le compte gratuit « Pending Activation » ne donne que 25 appels de test (4 max par scan) : la source s'arrêtera ensuite d'elle-même. Premier scan : 99 offres collectées, 26 gardées. | `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` |
-| Jooble | agrégateur | ⚠ clé reçue le 28/10, mais rattachée à l'index international : 0 offre en France, et l'index français (`fr.jooble.org`) renvoie 403. Il faut une clé demandée sur https://fr.jooble.org/api/about. | `JOOBLE_KEY` |
+| Jooble | agrégateur | ⏸ **désactivé** (29/10) : la clé française fonctionne, mais la recherche ignore les mots-clés (12 247 résultats pour « turc », « bilingue turc » ou « turkish speaking ») et 0 offre liée au turc sur 345 testées. Le code est conservé (`sources/jooble.py`) : décommenter dans `sources/__init__.py` pour le réactiver. | `JOOBLE_KEY` |
 | EURES | portail européen | ❌ pas d'API publique (ses offres françaises passent par France Travail) | — |
 
 Supprimés : les recherches DuckDuckGo (résultats périmés, postes « Fransızca bilen » situés à Istanbul).
