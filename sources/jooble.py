@@ -19,9 +19,10 @@ API_URL = "https://jooble.org/api/{key}"
 # Une clé Jooble est rattachée à l'index d'un pays : si l'index par défaut ne renvoie rien pour la France,
 # on essaie l'index français
 API_URL_CANDIDATES = [API_URL, "https://fr.jooble.org/api/{key}"]
-KEYWORDS = ["turc", "turcophone"]
+# Expressions précises d'abord : la recherche de Jooble est floue (« turc » seul ramène surtout du bruit)
+KEYWORDS = ["langue turque", "parlant turc", "bilingue turc", "turcophone", "turkish speaking", "turc"]
 PER_PAGE = 50
-MAX_PAGES = 3
+MAX_PAGES = 2
 MAX_AGE_DAYS = 31
 
 
