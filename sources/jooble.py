@@ -71,14 +71,24 @@ def fetch(profile: dict = None) -> List[JobOpportunity]:
     try:
         for kw in KEYWORDS:
             for page in range(1, MAX_PAGES + 1):
-                resp = http_post(API_URL.format(key=key),
-                                 json={"keywords": kw, "location": "France", "page": str(page),
-                                       "ResultOnPage": str(PER_PAGE), "datecreatedfrom": since},
-                                 headers={"Content-Type": "application/json"})
+                body = {"keywords": kw, "location": "France", "page": str(page),
+                        "ResultOnPage": str(PER_PAGE), "datecreatedfrom": since}
+                resp = http_post(API_URL.format(key=key), json=body, headers={"Content-Type": "application/json"})
                 if resp is None or resp.status_code != 200:
-                    print(f"[-] Jooble « {kw} » p{page} : HTTP {getattr(resp, 'status_code', 'réseau')}")
+                    print(f"[-] Jooble « {kw} » p{page} : HTTP {getattr(resp, 'status_code', 'réseau')} "
+                          f"{(getattr(resp, 'text', '') or '')[:150]}")
                     break
-                jobs = (resp.json() or {}).get("jobs") or []
+                data = resp.json() or {}
+                # « datecreatedfrom » n'est pas garanti par la doc publique : sans résultat, on réessaie sans
+                # (la fraîcheur reste contrôlée par quality.py)
+                if page == 1 and not data.get("jobs"):
+                    body.pop("datecreatedfrom")
+                    retry = http_post(API_URL.format(key=key), json=body, headers={"Content-Type": "application/json"})
+                    if retry is not None and retry.status_code == 200:
+                        data = retry.json() or {}
+                print(f"[i] Jooble « {kw} » p{page} : totalCount={data.get('totalCount')} "
+                      f"jobs={len(data.get('jobs') or [])}")
+                jobs = data.get("jobs") or []
                 for j in jobs:
                     k = j.get("id") or j.get("link")
                     if k in seen:

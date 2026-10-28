@@ -53,7 +53,14 @@ def get_token(client_id: str, client_secret: str) -> Optional[str]:
         delay=0,
     )
     if resp is None or resp.status_code != 200:
-        print(f"[-] France Travail : échec token ({getattr(resp, 'status_code', 'réseau')})")
+        detail = ""
+        if resp is not None:
+            try:
+                err = resp.json()
+                detail = f" {err.get('error', '')} : {err.get('error_description', '')}"
+            except ValueError:
+                detail = f" {resp.text[:200]}"
+        print(f"[-] France Travail : échec token ({getattr(resp, 'status_code', 'réseau')}){detail}")
         return None
     try:
         return resp.json().get("access_token")

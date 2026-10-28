@@ -178,10 +178,14 @@ def test_expired_page_rejected():
 def test_generic_french_offer_rejected_field_job_kept():
     install_http({})
     generic = job(title="Comptable H/F", description="Cabinet à Lyon recherche un comptable.")
-    field = job(title="Manutentionnaire H/F", description="Entrepôt à Lyon.", url="https://ex.fr/o/7")
-    kept, rej = run([generic, field])
-    assert [k.title for k in kept] == ["Manutentionnaire H/F"]
-    assert rej[0]["reason"] == "no_language_fit"
+    # Métier de terrain : accepté sans mention du turc seulement s'il vient de la communauté turque
+    field = job(title="Manutentionnaire H/F", description="Entrepôt à Lyon.", url="https://ex.fr/o/7",
+                source_type="community")
+    # … mais pas depuis un agrégateur : c'est alors une offre française classique (français implicite)
+    field_board = job(title="Cariste H/F", description="Entrepôt à Lyon.", url="https://ex.fr/o/8")
+    kept, rej = run([generic, field, field_board])
+    assert [k.title for k in kept] == ["Manutentionnaire H/F"], [k.title for k in kept]
+    assert [r["reason"] for r in rej] == ["no_language_fit", "no_language_fit"], rej
 
 
 def test_visa_only_if_explicit():

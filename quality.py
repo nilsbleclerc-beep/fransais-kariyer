@@ -366,6 +366,22 @@ def event_already_over(job, today: datetime.date) -> str:
     return ""
 
 
+_FOREIGN_DEST_RE = re.compile(
+    r"\b(?:portugal|lisbo[an]n?e?|porto|espagne|spain|espana|madrid|barcelon[ae]|allemagne|germany|almanya|berlin|"
+    r"belgique|belgium|belcika|bruxelles|brussels|bruksel|suisse|switzerland|isvicre|geneve|zurich|luxembourg|"
+    r"united kingdom|ingiltere|london|londres|pays[- ]bas|netherlands|hollanda|amsterdam|dubai|qatar|katar|"
+    r"canada|kanada|malte|malta|chypre|cyprus|kibris|italie|italy|italya|irlande|ireland)\b")
+
+
+def foreign_destination(job) -> str:
+    """Pays étranger cité dans le TITRE alors qu'aucune ville française n'y figure : poste hors de France."""
+    title = fold(job.title)
+    m = _FOREIGN_DEST_RE.search(title)
+    if not m or is_idf(job) and IDF_RE.search(title):
+        return ""
+    return m.group(0)
+
+
 def is_idf(job) -> bool:
     return bool(IDF_RE.search(fold(f"{job.city} {job.location} {job.title}")))
 
@@ -502,6 +518,11 @@ def filter_offers(jobs: List, profile: Dict, *, verify_urls: bool = True,
             kept.append(job)
             continue
 
+        foreign = foreign_destination(job)
+        if foreign:
+            rejected.append(_reject(job, "not_in_france", f"Pays étranger dans le titre : « {foreign} »"))
+            continue
+
         loc = check_location(job)
         if loc:
             rejected.append(_reject(job, *loc))
@@ -528,7 +549,8 @@ def filter_offers(jobs: List, profile: Dict, *, verify_urls: bool = True,
             rejected.append(_reject(job, "english_level", f"Anglais avancé exigé : « {en_q} »"))
             continue
         community = (job.source_type == "community") or lang["turkish_text"]
-        field_job = bool(_FIELD_JOB_RE.search(fold(job.title)))
+        # Sur un agrégateur ou une API, un métier de terrain sans trace du turc est une offre française classique
+        field_job = bool(_FIELD_JOB_RE.search(fold(job.title))) and job.source_type not in ("board", "official_api")
         if not (lang["tr_strong"] or lang["tr_weak"] or lang["no_french"] or community or field_job):
             rejected.append(_reject(job, "no_language_fit",
                                     "Ni turc, ni « français non requis », ni métier de terrain : français implicite"))

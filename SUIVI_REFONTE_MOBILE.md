@@ -49,7 +49,7 @@ Le desktop doit rester utilisable, sans être optimisé.
 | Kariyer.net (rubrique « yurtdışı → Fransa » uniquement) | job board turc | ✅ en ligne (0 offre en France le 28/10) | non |
 | ATS groupes turcs : Trendyol (Lever), DFDS ex-Ekol (Teamtailor), Pladis/Godiva (Workday) | ATS | ✅ en ligne | non |
 | France Travail – API Offres v2 (« turc », « turcophone »…) | officielle | ⏳ codé, **en attente des clés** | `FT_CLIENT_ID` / `FT_CLIENT_SECRET` |
-| Adzuna | agrégateur | ⏳ codé, **en attente de la clé** | `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` |
+| Adzuna | agrégateur | ✅ clés ajoutées le 28/10, mais **payant** (8 £/mois). Le compte gratuit « Pending Activation » ne donne que 25 appels de test (4 max par scan) : la source s'arrêtera ensuite d'elle-même. Premier scan : 99 offres collectées, 26 gardées. | `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` |
 | Jooble | agrégateur | ⏳ codé, **en attente de la clé** | `JOOBLE_KEY` |
 | EURES | portail européen | ❌ pas d'API publique (ses offres françaises passent par France Travail) | — |
 
@@ -85,6 +85,8 @@ Une fois inscrit sur chaque service, ajouter les clés dans GitHub : *Settings �
 1. **France Travail** (la source la plus utile : offres officielles avec l'exigence de langue « Turc ») : créer une application sur https://francetravail.io, souscrire à l'API **Offres d'emploi v2**, puis ajouter `FT_CLIENT_ID` et `FT_CLIENT_SECRET`.
 2. **Adzuna** : s'inscrire sur https://developer.adzuna.com/signup, puis ajouter `ADZUNA_APP_ID` et `ADZUNA_APP_KEY`.
 3. **Jooble** : remplir le formulaire sur https://jooble.org/api/about, puis ajouter `JOOBLE_KEY`.
+
+*29/10 : les 5 secrets sont enregistrés. Pour Adzuna, ne pas ajouter de carte : France Travail couvre l'essentiel.*
 
 Au premier scan avec clés, relire `rejected_offers.json`. Points à vérifier :
 
