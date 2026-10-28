@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-28T17:59:40+00:00",
+  "generated_at": "2026-10-28T18:10:11+00:00",
   "profile": {
     "residence_country": "TR",
     "target_country": "FR",
@@ -9,6 +9,7 @@
       "fr": "A1"
     },
     "domains": "any",
+    "home_region": "IDF",
     "max_age_days": 45,
     "max_pages": 4
   },
@@ -44,11 +45,11 @@
     "gurbetilan": {
       "status": "ok",
       "collected": 13,
-      "kept": 8,
+      "kept": 10,
       "error": "",
       "rejected": {
         "french_level": 1,
-        "requires_local_status": 4
+        "event_passed": 2
       }
     },
     "kariyer_net": {
@@ -64,19 +65,17 @@
       "kept": 0,
       "error": "",
       "rejected": {
-        "english_level": 1,
-        "too_old": 7,
-        "no_language_fit": 2,
+        "english_level": 3,
+        "no_language_fit": 7,
         "french_level": 2
       }
     }
   },
   "counts": {
     "french_level": 3,
-    "requires_local_status": 4,
-    "english_level": 1,
-    "too_old": 7,
-    "no_language_fit": 2
+    "event_passed": 2,
+    "english_level": 3,
+    "no_language_fit": 7
   },
   "rejected": [
     {
@@ -94,8 +93,8 @@
       "url": "https://www.gurbetilan.com/ads/paris-fuar-organizasyonu-icin-turkce-konusan-servis-hostesi-araniyor/",
       "title": "Paris – Fuar Organizasyonu İçin Türkçe Konuşan Servis Hostesi Aranıyor",
       "source": "GurbetIlan France",
-      "reason": "requires_local_status",
-      "detail": "Réservé aux personnes déjà en France / avec droit au travail : « rganizasyonumuz icin paris ve cevresinde yasayan, misafirlerimizi guler yuzle »",
+      "reason": "event_passed",
+      "detail": "Événement déjà terminé : « 17-21 ekim »",
       "company": "Annonceur GurbetIlan (non nommé)",
       "location": "Paris, France",
       "posted_at": "2026-10-20",
@@ -105,33 +104,11 @@
       "url": "https://www.gurbetilan.com/ads/paris-fuar-organizasyonu-icin-servis-ve-karsilama-personeli-ariyoruz/",
       "title": "Paris – Fuar Organizasyonu İçin Servis ve Karşılama Personeli Arıyoruz",
       "source": "GurbetIlan France",
-      "reason": "requires_local_status",
-      "detail": "Réservé aux personnes déjà en France / avec droit au travail : « rkadaslari ariyoruz. paris ve cevresinde ikamet eden, organizasyonel sureclerde go »",
+      "reason": "event_passed",
+      "detail": "Événement déjà terminé : « 17-21 ekim »",
       "company": "Annonceur GurbetIlan (non nommé)",
       "location": "Paris, France",
       "posted_at": "2026-10-15",
-      "module": "gurbetilan"
-    },
-    {
-      "url": "https://www.gurbetilan.com/ads/paris-ve-cevresi-mantolama-ite-ustasi-aranmaktadir/",
-      "title": "Paris ve Çevresi – Mantolama (ITE) Ustası Aranmaktadır",
-      "source": "GurbetIlan France",
-      "reason": "requires_local_status",
-      "detail": "Réservé aux personnes déjà en France / avec droit au travail : « sureli calismayi hedefleyen, calisma izni bulunan. calisma sartlari & saglanan »",
-      "company": "Annonceur GurbetIlan (non nommé)",
-      "location": "Paris ve Çevresi, France",
-      "posted_at": "2026-10-10",
-      "module": "gurbetilan"
-    },
-    {
-      "url": "https://www.gurbetilan.com/ads/levallois-perret-restaurant-personeli-aranmaktadir/",
-      "title": "Levallois-Perret – Restaurant Personeli Aranmaktadır",
-      "source": "GurbetIlan France",
-      "reason": "requires_local_status",
-      "detail": "Réservé aux personnes déjà en France / avec droit au travail : « ecrube sahibi olmak fransa'da yasal calisma ve oturum iznine sahip olmak (oturum izni olmayan ad »",
-      "company": "Annonceur GurbetIlan (non nommé)",
-      "location": "Levallois-Perret, France",
-      "posted_at": "2026-10-10",
       "module": "gurbetilan"
     },
     {
@@ -149,8 +126,8 @@
       "url": "https://jobs.dfds.com/jobs/7990324-officier-polyvalent-lieutenant-officier-mecanicien",
       "title": "Officier Polyvalent / Lieutenant / Officier Mécanicien",
       "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
-      "reason": "too_old",
-      "detail": "Publiée il y a 120 jours (> 45)",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
       "company": "DFDS France (ex-Ekol Lojistik)",
       "location": "Dieppe / Calais, France",
       "posted_at": "2026-06-30",
@@ -160,8 +137,8 @@
       "url": "https://jobs.dfds.com/jobs/7053461-officier-mecanicien-h-f",
       "title": "Officier Mécanicien (H/F)",
       "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
-      "reason": "too_old",
-      "detail": "Publiée il y a 287 jours (> 45)",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
       "company": "DFDS France (ex-Ekol Lojistik)",
       "location": "Calais / Dieppe, France",
       "posted_at": "2026-01-14",
@@ -171,8 +148,8 @@
       "url": "https://jobs.dfds.com/jobs/3529112-eleve-officier-polyvalent-pont-machine",
       "title": "Elève Officier Polyvalent/Pont/Machine",
       "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
-      "reason": "too_old",
-      "detail": "Publiée il y a 1015 jours (> 45)",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
       "company": "DFDS France (ex-Ekol Lojistik)",
       "location": "Calais / Dieppe, France",
       "posted_at": "2024-01-17",
@@ -226,8 +203,8 @@
       "url": "https://jobs.dfds.com/jobs/8351835-aide-de-cuisine-h-f",
       "title": "Aide de cuisine (H/F)",
       "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
-      "reason": "too_old",
-      "detail": "Publiée il y a 49 jours (> 45)",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
       "company": "DFDS France (ex-Ekol Lojistik)",
       "location": "Calais / Dieppe, France",
       "posted_at": "2026-09-09",
@@ -237,8 +214,8 @@
       "url": "https://jobs.dfds.com/jobs/8351120-steward-polyvalent",
       "title": "Steward polyvalent",
       "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
-      "reason": "too_old",
-      "detail": "Publiée il y a 49 jours (> 45)",
+      "reason": "english_level",
+      "detail": "Anglais avancé exigé : « en:5 »",
       "company": "DFDS France (ex-Ekol Lojistik)",
       "location": "Calais / Dieppe, France",
       "posted_at": "2026-09-09",
@@ -248,8 +225,8 @@
       "url": "https://jobs.dfds.com/jobs/8010410-stagiaire-pont-machine-h-f-2026",
       "title": "Stagiaire Pont/Machine (H/F) 2026",
       "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
-      "reason": "too_old",
-      "detail": "Publiée il y a 118 jours (> 45)",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
       "company": "DFDS France (ex-Ekol Lojistik)",
       "location": "Calais, France",
       "posted_at": "2026-07-02",
@@ -259,8 +236,8 @@
       "url": "https://jobs.dfds.com/jobs/6282176-join-the-tarifa-jet-crew-in-saint-malo",
       "title": "Join the Tarifa Jet Crew in Saint-Malo !",
       "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
-      "reason": "too_old",
-      "detail": "Publiée il y a 447 jours (> 45)",
+      "reason": "english_level",
+      "detail": "Anglais avancé exigé : « Fluent in English »",
       "company": "DFDS France (ex-Ekol Lojistik)",
       "location": "Saint-Malo, France",
       "posted_at": "2025-08-07",

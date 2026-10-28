@@ -1559,3 +1559,7 @@ html.bld-detail-open {
     color: var(--text-primary, #0f172a);
 }
 .bld-lead-lang { margin-top: 8px; color: var(--text-secondary, #334155); }
+
+/* Points d'attention honnêtes (permis déjà exigé, résidence demandée…) */
+.bld-warn .bld-why-list li .bld-ic { color: var(--status-amber-text, #92400e); }
+.bld-warn { border-left: 3px solid var(--status-amber-text, #92400e); padding-left: 12px; }

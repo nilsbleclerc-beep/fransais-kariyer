@@ -76,20 +76,50 @@ def test_fluent_english_rejected():
     assert not kept and rej[0]["reason"] == "english_level", rej
 
 
-def test_requires_local_status_rejected():
+def test_permit_or_residence_kept_with_warning():
+    """Elle s'installe en IDF : on garde, mais on avertit honnêtement (pas de rejet trop sévère)."""
     install_http({})
-    cases = [
+    permit_cases = [
         "Paris – Mantolama ustası. Aranan nitelikler: Çalışma izni bulunan.",
         "Fransa’da yasal çalışma ve oturum iznine sahip olmak (Oturum izni olmayan adayların başvurmaması rica olunur).",
-        "Aranan Nitelikler: Paris veya yakın çevresinde ikamet eden Türkçe konuşabilen.",
         "Vendeur turcophone à Lyon. Titre de séjour valide obligatoire.",
     ]
-    for i, desc in enumerate(cases):
-        kept, rej = run([job(title="Personel", description=desc, url=f"https://ex.fr/o/local{i}")])
-        assert not kept and rej[0]["reason"] == "requires_local_status", (desc, rej)
-    # « çalışma izni sağlanır » = l'employeur fournit le permis : ne doit PAS être rejeté
+    for i, desc in enumerate(permit_cases):
+        kept, rej = run([job(title="Personel", description=desc, source_type="community", url=f"https://ex.fr/o/permit{i}")])
+        assert len(kept) == 1, (desc, rej)
+        assert kept[0].warnings_tr and "izni" in kept[0].warnings_tr[0], kept[0].warnings_tr
+        assert kept[0].visa_evidence == "", kept[0].visa_evidence
+    # Résidence à Paris demandée : simple info, elle habitera en Île-de-France
+    kept, rej = run([job(title="Paris – Hostes", city="Paris",
+                         description="Aranan Nitelikler: Paris veya yakın çevresinde ikamet eden Türkçe konuşabilen.",
+                         url="https://ex.fr/o/resid")])
+    assert len(kept) == 1, rej
+    assert "Paris'e yerleşince" in kept[0].warnings_tr[0], kept[0].warnings_tr
+    assert any("Île-de-France" in r for r in kept[0].match_reasons_tr), kept[0].match_reasons_tr
+    # « çalışma izni sağlanır » = l'employeur fournit le permis : aucun avertissement
     kept, rej = run([job(title="Usta", description="Lyon'da şantiye. Türkçe yeterli. Çalışma izni sağlanır.",
                          url="https://ex.fr/o/permit-given")])
+    assert len(kept) == 1 and not kept[0].warnings_tr, (rej, kept and kept[0].warnings_tr)
+
+
+def test_past_event_rejected():
+    install_http({})
+    j = job(title="Paris – Fuar Organizasyonu İçin Hostes", city="Paris", posted_at="2026-10-15",
+            description="Paris'te düzenlenecek fuar organizasyonumuzda 17-21 Ekim tarihleri arasında görev alacak personel.",
+            url="https://ex.fr/o/fuar", source_type="community")
+    kept, rej = quality.filter_offers([j], PROFILE, today=datetime.date(2026, 10, 28))
+    assert not kept and rej[0]["reason"] == "event_passed", rej
+    kept, rej = quality.filter_offers([j], PROFILE, today=datetime.date(2026, 10, 16))
+    assert len(kept) == 1, rej
+
+
+def test_old_ats_posting_kept():
+    """Un ATS ne liste que des postes ouverts : une annonce permanente ancienne n'est pas périmée."""
+    install_http({})
+    j = job(title="Chauffeur turcophone", description="Turc exigé. Poste à Calais.", posted_at="2025-01-10",
+            url="https://ex.fr/o/ats-old")
+    j.source_type = "ats"
+    kept, rej = run([j])
     assert len(kept) == 1, rej
 
 
@@ -164,8 +194,8 @@ def test_visa_only_if_explicit():
     kept, rej = run([j1, j2, j3])
     assert kept[0].visa_evidence == ""
     assert "Vize işlemleri" in kept[1].visa_evidence
-    # Titre de séjour déjà exigé : inaccessible depuis la Turquie → rejetée, pas seulement signalée
-    assert len(kept) == 2 and rej[0]["reason"] == "requires_local_status", rej
+    # Titre de séjour déjà exigé : gardée, sans fausse preuve de visa, avec un avertissement
+    assert len(kept) == 3 and kept[2].visa_evidence == "" and kept[2].warnings_tr, (rej, kept[2].warnings_tr)
 
 
 def test_scorer_no_substring_false_positives():

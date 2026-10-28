@@ -297,26 +297,77 @@ _VISA_NEG_RE = re.compile(
     r"yok|verilmemektedir|saglanmamaktadir|saglanmaz|olanlar|olan aday)")
 
 
-# Annonces réservées aux personnes DÉJÀ installées en France / déjà titulaires d'un droit au travail :
-# la candidate vit en Turquie, ces offres seraient une fausse joie (texte replié par fold()).
-_LOCAL_STATUS_RE = re.compile(
+# Annonces qui demandent un droit au travail DÉJÀ acquis : la candidate (en Turquie) devra passer
+# par un visa ; on garde l'offre mais on l'avertit clairement (texte replié par fold()).
+_PERMIT_RE = re.compile(
     r"calisma izni(?:ne)? (?:bulunan|olan|sahibi|sahip|olmasi|gerekli|sart|zorunlu)|"
     r"(?:yasal )?(?:calisma (?:ve|veya) )?oturum izni(?:ne)? (?:bulunan|olan|olmayan|sahibi|sahip|olmasi)|"
     r"yasal (?:calisma|oturum) (?:izni|iznine|hakki)|kagidi (?:olan|bulunan)|kagitli|"
-    r"(?:fransa|paris|lyon|marsilya|avrupa)(?:'?(?:da|de|ta|te))?(?: veya [a-z ]{1,30})? (?:yasal olarak )?(?:ikamet eden|yasayan|oturan)|"
-    r"(?:cevresinde|civarinda|bolgesinde|yakininda|yakin cevresinde) (?:ikamet eden|yasayan|oturan)|"
     r"ab vatandasi|avrupa (?:birligi )?vatandasi|avrupa pasaport|"
     r"titre de sejour (?:valide|en cours)|autorisation de travail (?:valide|en cours)|papiers en regle|"
-    r"resid(?:ant|ent|ence) (?:en france|a paris|en ile)|"
-    r"right to work in (?:france|the eu|europe)|eligible to work in (?:france|the eu|europe)|valid work permit|"
-    r"must (?:live|reside) in")
+    r"right to work in (?:france|the eu|europe)|eligible to work in (?:france|the eu|europe)|valid work permit")
+# Annonces qui demandent d'habiter sur place : pas bloquant, elle s'installera en Île-de-France
+_RESIDENCE_RE = re.compile(
+    r"(?:fransa|paris|lyon|marsilya|avrupa)(?:'?(?:da|de|ta|te))?(?: veya [a-z ]{1,30})? (?:yasal olarak )?(?:ikamet eden|yasayan|oturan)|"
+    r"(?:cevresinde|civarinda|bolgesinde|yakininda|yakin cevresinde) (?:ikamet eden|yasayan|oturan)|"
+    r"resid(?:ant|ent|ence) (?:en france|a paris|en ile)|must (?:live|reside) in")
+
+IDF_RE = re.compile(
+    r"\b(?:paris|ile[- ]de[- ]france|idf|seine[- ]saint[- ]denis|hauts[- ]de[- ]seine|val[- ]de[- ]marne|"
+    r"val[- ]d'oise|essonne|yvelines|seine[- ]et[- ]marne|torcy|levallois|saint[- ]denis|aubervilliers|"
+    r"montreuil|nanterre|boulogne|argenteuil|creteil|vitry|bobigny|pantin|clichy|sarcelles|"
+    r"(?:75|77|78|91|92|93|94|95)\d{3}|(?:75|77|78|91|92|93|94|95) bolgesi)\b")
 
 
-def requires_local_status(original: str) -> str:
-    """Extrait de l'annonce exigeant résidence / droit au travail déjà acquis en France, sinon ""."""
-    text = fold(original)
-    m = _LOCAL_STATUS_RE.search(text)
-    return re.sub(r"\s+", " ", text[max(0, m.start() - 30):m.end() + 30]).strip() if m else ""
+def _excerpt(original: str, m, words: int = 4) -> str:
+    """Extrait lisible du texte ORIGINAL (fold() conserve les positions), coupé aux limites de mots."""
+    before = re.findall(r"\S+", original[:m.start()])[-words:]
+    after = re.findall(r"\S+", original[m.end():])[:words]
+    core = original[m.start():m.end()]
+    return re.sub(r"\s+", " ", " ".join(before + [core] + after)).strip(" .,;:-()")
+
+
+def permit_requirement(original: str) -> str:
+    """Extrait exigeant un droit au travail / titre de séjour déjà acquis, sinon ""."""
+    m = _PERMIT_RE.search(fold(original))
+    return _excerpt(original, m) if m else ""
+
+
+def residence_requirement(original: str) -> str:
+    """Extrait exigeant d'habiter déjà sur place, sinon ""."""
+    m = _RESIDENCE_RE.search(fold(original))
+    return _excerpt(original, m) if m else ""
+
+
+_MONTHS = {"ocak": 1, "subat": 2, "mart": 3, "nisan": 4, "mayis": 5, "haziran": 6, "temmuz": 7, "agustos": 8,
+           "eylul": 9, "ekim": 10, "kasim": 11, "aralik": 12, "janvier": 1, "fevrier": 2, "mars": 3, "avril": 4,
+           "mai": 5, "juin": 6, "juillet": 7, "aout": 8, "septembre": 9, "octobre": 10, "novembre": 11,
+           "decembre": 12}
+_EVENT_RE = re.compile(r"\b(?:fuar|organizasyon|etkinlik|festival|kongre|salon|evenement|event|exposition)")
+_DATE_RANGE_RE = re.compile(r"\b(\d{1,2})(?:\s*(?:-|–|ile|au|et)\s*(\d{1,2}))?\s+(" + "|".join(_MONTHS) + r")\w*(?:\s+(20\d\d))?")
+
+
+def event_already_over(job, today: datetime.date) -> str:
+    """Pour une mission liée à un événement daté (salon, fuar…) : extrait si toutes ses dates sont passées."""
+    text = fold(f"{job.title} {job.description or job.snippet}")
+    if not _EVENT_RE.search(text):
+        return ""
+    ref_year = int(str(job.posted_at)[:4]) if str(job.posted_at)[:4].isdigit() else today.year
+    ends = []
+    for m in _DATE_RANGE_RE.finditer(text):
+        day = int(m.group(2) or m.group(1))
+        year = int(m.group(4)) if m.group(4) else ref_year
+        try:
+            ends.append((datetime.date(year, _MONTHS[m.group(3)], day), m.group(0)))
+        except ValueError:
+            continue
+    if ends and all(d < today for d, _ in ends):
+        return max(ends)[1]
+    return ""
+
+
+def is_idf(job) -> bool:
+    return bool(IDF_RE.search(fold(f"{job.city} {job.location} {job.title}")))
 
 
 def find_visa_evidence(original: str) -> Tuple[str, str]:
@@ -457,7 +508,13 @@ def filter_offers(jobs: List, profile: Dict, *, verify_urls: bool = True,
             continue
 
         age = _age_days(job.posted_at, today) if job.posted_at else None
-        if age is not None and age > max_age:
+        over = event_already_over(job, today)
+        if over:
+            rejected.append(_reject(job, "event_passed", f"Événement déjà terminé : « {over} »"))
+            continue
+
+        # Un ATS ne liste que les postes encore ouverts : une annonce permanente ancienne reste valable
+        if age is not None and age > max_age and job.source_type != "ats":
             rejected.append(_reject(job, "too_old", f"Publiée il y a {age} jours (> {max_age})"))
             continue
 
@@ -469,11 +526,6 @@ def filter_offers(jobs: List, profile: Dict, *, verify_urls: bool = True,
             continue
         if en_lvl > allowed["en"]:
             rejected.append(_reject(job, "english_level", f"Anglais avancé exigé : « {en_q} »"))
-            continue
-        local = requires_local_status(f"{job.title} {job.description or job.snippet}")
-        if local:
-            rejected.append(_reject(job, "requires_local_status",
-                                    f"Réservé aux personnes déjà en France / avec droit au travail : « {local} »"))
             continue
         community = (job.source_type == "community") or lang["turkish_text"]
         field_job = bool(_FIELD_JOB_RE.search(fold(job.title)))
@@ -508,9 +560,17 @@ def filter_offers(jobs: List, profile: Dict, *, verify_urls: bool = True,
 
         # --- Raisons honnêtes, score, visa ---
         original = f"{job.title}. {job.snippet}. {job.description}"
+        # « Çalışma izni bulunan » = permis déjà exigé, pas une aide au visa
+        if job.visa_evidence and _PERMIT_RE.search(fold(job.visa_evidence)):
+            job.visa_evidence = ""
         if not job.visa_evidence:
             job.visa_evidence, visa_warning = find_visa_evidence(original)
+            if job.visa_evidence and _PERMIT_RE.search(fold(job.visa_evidence)):
+                job.visa_evidence = ""
         else:
+            visa_warning = ""
+        # Le permis déjà exigé est signalé dans les avertissements, pas en double dans les raisons
+        if visa_warning and permit_requirement(original):
             visa_warning = ""
 
         r_tr, r_fr = [], []
@@ -553,6 +613,32 @@ def filter_offers(jobs: List, profile: Dict, *, verify_urls: bool = True,
         elif url_note:
             r_tr.append("Bağlantı otomatik doğrulanamadı (resmî API ilanı)")
             r_fr.append("Lien non vérifiable automatiquement (offre d'API officielle)")
+        # Île-de-France : sa future région (logement assuré chez son conjoint)
+        if is_idf(job):
+            r_tr.insert(0, "Île-de-France (Paris bölgesi) — yerleşeceğin bölge")
+            r_fr.insert(0, "Île-de-France — la région où elle s'installe")
+            score += 15
+
+        # Avertissements (l'offre reste visible, mais sans fausse promesse)
+        w_tr, w_fr = [], []
+        full = f"{job.title} {job.description or job.snippet}"
+        permit = permit_requirement(full)
+        if permit:
+            w_tr.append(f'İşveren Fransa çalışma/oturum izni istiyor ("{permit}") — vize sponsorluğunu işverene sor')
+            w_fr.append(f"L'employeur demande un titre de séjour/permis de travail (« {permit} ») — demander s'il peut parrainer le visa")
+            score -= 20
+        residence = residence_requirement(full)
+        if residence and not permit:
+            if is_idf(job):
+                w_tr.append(f"Paris bölgesinde oturmak isteniyor (« {residence} ») — Paris'e yerleşince uygun")
+                w_fr.append(f'Résidence en Île-de-France demandée ("{residence}") — OK une fois installée à Paris')
+            else:
+                w_tr.append(f'Bölgede oturmak isteniyor ("{residence}")')
+                w_fr.append(f'Résidence sur place demandée ("{residence}")')
+                score -= 10
+        job.warnings_tr = w_tr
+        job.warnings_fr = w_fr
+
         job.match_reasons_tr = r_tr[:4]
         job.match_reasons_fr = r_fr[:4]
         job.relevance_score = max(0, min(90, score))

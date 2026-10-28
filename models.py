@@ -49,6 +49,9 @@ class JobOpportunity:
     match_reasons_fr: List[str] = field(default_factory=list)
     # Extrait de l'annonce mentionnant visa / relocalisation / sponsor ; "" si l'annonce n'en parle pas
     visa_evidence: str = ""
+    # Points d'attention honnêtes (ex. permis de travail déjà exigé) : l'offre reste visible
+    warnings_tr: List[str] = field(default_factory=list)
+    warnings_fr: List[str] = field(default_factory=list)
 
     def to_dict(self):
         return asdict(self)

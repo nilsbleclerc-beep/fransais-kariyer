@@ -62,10 +62,17 @@ Supprimés : les recherches DuckDuckGo (résultats périmés, postes « Fransız
 - son lien est mort, redirigé ou mène à une annonce expirée ;
 - elle exige un français B1+ ou un anglais B2+ ;
 - elle n'a aucun lien avec la langue turque, alors que le français y est implicite ;
-- elle est **réservée aux personnes déjà en France ou déjà titulaires d'un droit au travail** (« çalışma izni bulunan », « Paris'te ikamet eden », « titre de séjour valide »…) ;
+- il s'agit d'une mission liée à un **événement déjà terminé** (salon, « fuar »…) ;
 - c'est un doublon.
 
 Toutes les offres rejetées sont listées dans `rejected_offers.json`, avec leur motif. Le visa n'est affiché que s'il est cité dans l'annonce.
+
+**Assouplissement du 28/10** : elle **s'installe en Île-de-France chez son conjoint** (logement assuré, `home_region: IDF` dans `profile.json`).
+
+- Les offres en IDF sont mises en avant (+15 au score, raison « Île-de-France »).
+- Une **résidence demandée à Paris** n'est plus bloquante : simple info.
+- Un **permis de travail déjà exigé** n'est plus un rejet mais un **avertissement orange** (« demander à l'employeur s'il peut parrainer le visa »).
+- Les postes listés par un **ATS** ne sont plus jugés trop anciens, puisqu'un ATS ne liste que des postes ouverts.
 
 **Premier scan réel (28/10)** : 25 offres collectées, **8 gardées** (GurbetIlan : BTP, restauration, textile, à Paris, Torcy, Nevers, Le Havre et Lyon), 17 rejetées : 7 trop anciennes, 4 réservées aux résidents, 3 avec français exigé, 2 sans langue compatible, 1 avec anglais avancé exigé.
 
@@ -177,7 +184,7 @@ Les onglets suivent une autre règle :
   python -c "import exporter, json; from models import JobOpportunity; jobs=[JobOpportunity(**d) for d in json.load(open('offres_france_turquie.json',encoding='utf-8'))]; exporter.export_to_html_dashboard(jobs,'dashboard.html')"
   ```
 
-- **Incrémenter `CACHE_NAME` dans `sw.js` (actuellement `v5`)** à chaque changement visible, sinon l'app installée ne se met pas à jour.
+- **Incrémenter `CACHE_NAME` dans `sw.js` (actuellement `v6`)** à chaque changement visible, sinon l'app installée ne se met pas à jour.
 - Un push qui touche `exporter.py`, `scrapers.py`, `companies_data.py` ou `pwa_*` relance le workflow. Le robot commite alors de nouvelles offres : faire `git pull` avant de reprendre.
 
 ---

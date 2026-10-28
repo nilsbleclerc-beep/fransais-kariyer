@@ -653,6 +653,12 @@ UI_V4_CSS = """
             overflow: hidden;
             overflow-wrap: anywhere;
         }
+        .jc-reasons li.jc-warn {
+            color: var(--status-amber-text, #92400e);
+        }
+        .jc-reasons li.jc-warn .ic {
+            color: var(--status-amber-text, #92400e);
+        }
         .jc-reasons li .ic {
             position: absolute;
             left: 0;
@@ -1056,6 +1062,8 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             "reasons_tr": list(j.match_reasons_tr or []),
             "reasons_fr": list(j.match_reasons_fr or j.match_reasons_tr or []),
             "visa_evidence": (j.visa_evidence or "").strip(),
+            "warnings_tr": list(getattr(j, "warnings_tr", None) or []),
+            "warnings_fr": list(getattr(j, "warnings_fr", None) or getattr(j, "warnings_tr", None) or []),
             "description": truncate_description(j.description),
         })
     # JSON inline sûr dans <script> : « </ » → « <\/ » et « <!-- » neutralisé

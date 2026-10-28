@@ -392,6 +392,7 @@
             notFound: "İlan bulunamadı",
             // v5 : offres réelles / pistes
             whyTitle: "Neden bu ilan?",
+            warnTitle: "Dikkat",
             factsTitle: "İlan bilgileri", postedLabel: "Yayın tarihi", verifiedLabel: "Son kontrol", sourceLabel: "Kaynak",
             dateUnknown: "Tarih bilinmiyor", notVerified: "Henüz kontrol edilmedi",
             visaTitle: "Vize", visaQuoteLabel: "İlandan alıntı",
@@ -424,6 +425,7 @@
             notFound: "Offre introuvable",
             // v5 : offres réelles / pistes
             whyTitle: "Pourquoi cette offre ?",
+            warnTitle: "À savoir",
             factsTitle: "Infos de l'annonce", postedLabel: "Publiée le", verifiedLabel: "Vérifiée le", sourceLabel: "Source",
             dateUnknown: "Date inconnue", notVerified: "Pas encore vérifiée",
             visaTitle: "Visa", visaQuoteLabel: "Extrait de l'annonce",
@@ -549,6 +551,8 @@
             city: raw.city || '',
             langReq: Array.isArray(raw.language_requirements) ? raw.language_requirements : [],
             reasonsTr: Array.isArray(raw.reasons_tr) ? raw.reasons_tr.filter(Boolean) : [],
+            warningsTr: Array.isArray(raw.warnings_tr) ? raw.warnings_tr.filter(Boolean) : [],
+            warningsFr: Array.isArray(raw.warnings_fr) ? raw.warnings_fr.filter(Boolean) : [],
             reasonsFr: Array.isArray(raw.reasons_fr) ? raw.reasons_fr.filter(Boolean) : [],
             visaEvidence: String(raw.visa_evidence || '').trim(),
             description: String(raw.description || '').trim()
@@ -776,8 +780,14 @@
 
         renderWhy(job, lang) {
             const reasons = (lang === 'fr' && job.reasonsFr.length) ? job.reasonsFr : job.reasonsTr;
-            if (!reasons.length) return '';
-            return `
+            const warnings = (lang === 'fr' && (job.warningsFr || []).length) ? job.warningsFr : (job.warningsTr || []);
+            const warnHtml = warnings.length ? `
+                <section class="bld-why bld-warn" aria-labelledby="bld-warn-title">
+                    <h3 id="bld-warn-title" class="bld-section-heading">${esc(dt('warnTitle'))}</h3>
+                    <ul class="bld-why-list">${warnings.map(w => `<li>${icon('alert', 18)}<span>${esc(w)}</span></li>`).join('')}</ul>
+                </section>` : '';
+            if (!reasons.length) return warnHtml;
+            return warnHtml + `
                 <section class="bld-why" aria-labelledby="bld-why-title">
                     <h3 id="bld-why-title" class="bld-section-heading">${esc(dt('whyTitle'))}</h3>
                     <ul class="bld-why-list">${reasons.map(r => `<li>${icon('check', 18)}<span>${esc(r)}</span></li>`).join('')}</ul>

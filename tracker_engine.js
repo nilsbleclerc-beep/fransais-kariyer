@@ -1184,8 +1184,13 @@
             // 1-2 raisons appuyées sur l'annonce (à la place des tags génériques)
             const reasonsSrc = (fr ? job.reasons_fr : job.reasons_tr);
             const reasons = ((reasonsSrc && reasonsSrc.length) ? reasonsSrc : (job.reasons_tr || [])).filter(Boolean).slice(0, 2);
-            const reasonsHtml = reasons.length
-                ? `<ul class="jc-reasons">${reasons.map(r => `<li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>${escapeHtml(r)}</li>`).join('')}</ul>`
+            // Point d'attention honnête (ex. permis déjà exigé) : affiché avant les raisons
+            const warnSrc = (fr ? job.warnings_fr : job.warnings_tr) || job.warnings_tr || [];
+            const warnHtml = warnSrc.length
+                ? `<li class="jc-warn"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>${escapeHtml(warnSrc[0])}</li>`
+                : '';
+            const reasonsHtml = (reasons.length || warnHtml)
+                ? `<ul class="jc-reasons">${warnHtml}${reasons.slice(0, warnHtml ? 1 : 2).map(r => `<li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>${escapeHtml(r)}</li>`).join('')}</ul>`
                 : '';
             // Chip visa UNIQUEMENT si l'annonce elle-même en parle
             const visaHtml = String(job.visa_evidence || '').trim()
