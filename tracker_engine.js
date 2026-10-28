@@ -161,6 +161,23 @@
             showResults: "{n} ilanı göster",
             showResultsZero: "Sonuç yok",
 
+            // v5 : offres réelles datées + pistes
+            ageToday: "Bugün",
+            ageYesterday: "Dün",
+            ageDays: "{n} gün önce",
+            ageUnknown: "Tarih bilinmiyor",
+            verifiedShort: "Doğrulandı",
+            verifiedTitle: "Son 48 saatte ilanın hâlâ yayında olduğu kontrol edildi",
+            pillVisaEvidence: "Vize ilanda belirtilmiş",
+            updatedAt: "Son güncelleme: {d}",
+            leadNotOffer: "Bu bir ilan değil — kariyer sayfası",
+            leadLangUnknown: "Dil şartı belirtilmemiş",
+            leadOpenSite: "Kariyer sayfasını aç",
+            leadDetail: "Ayrıntılar",
+            leadsEmpty: "Şu an listelenecek şirket yok.",
+            langNames: { fr: "Fransızca", en: "İngilizce", tr: "Türkçe" },
+            langLevels: { none: "gerekmez", basic: "temel", required: "gerekli", fluent: "akıcı", native: "anadil", optional: "artı" },
+
             // Guide & Tools
             guideTitle: "📘 Fransa İstihdam, Vize & Başvuru Rehberi",
             guideSubtitle: "Türkiye'den Fransa'ya transfer süreçleri, vize prosedürleri ve hazır başvuru şablonları.",
@@ -316,6 +333,23 @@
             showResultsOne: "Voir 1 offre",
             showResultsZero: "Aucune offre",
 
+            // v5 : offres réelles datées + pistes
+            ageToday: "Aujourd'hui",
+            ageYesterday: "Hier",
+            ageDays: "Il y a {n} jours",
+            ageUnknown: "Date inconnue",
+            verifiedShort: "Vérifiée",
+            verifiedTitle: "Annonce vérifiée en ligne il y a moins de 48 h",
+            pillVisaEvidence: "Visa mentionné dans l'annonce",
+            updatedAt: "Mis à jour : {d}",
+            leadNotOffer: "Ce n'est pas une offre — page carrières",
+            leadLangUnknown: "Exigence de langue non précisée",
+            leadOpenSite: "Ouvrir la page carrières",
+            leadDetail: "Détails",
+            leadsEmpty: "Aucune entreprise à afficher pour le moment.",
+            langNames: { fr: "Français", en: "Anglais", tr: "Turc" },
+            langLevels: { none: "non requis", basic: "base", required: "requis", fluent: "courant", native: "natif", optional: "un plus" },
+
             // Guide & Tools
             guideTitle: "📘 Guide des Démarches, Visas & Outils France",
             guideSubtitle: "Mobilité Turquie-France, accords bilatéraux et modèles prêts à l'emploi.",
@@ -332,8 +366,31 @@
         FAVORITES: 'france_jobs_favorites_v2',
         APPLICATIONS: 'france_jobs_applications_v2',
         CHECKLIST: 'france_jobs_checklist_v2',
-        LANG: 'france_jobs_lang_pref'
+        LANG: 'france_jobs_lang_pref',
+        // Schéma des clés favoris/candidatures : 'url-fnv1a-v1' = id stable dérivé de l'URL
+        ID_SCHEME: 'fransa_id_scheme',
+        LEGACY_FAVORITES: 'france_jobs_favorites_legacy_index'
     };
+    const ID_SCHEME = 'url-fnv1a-v1';
+
+    // FNV-1a 32 bits sur l'UTF-8 : MÊME algorithme que exporter.stable_job_id (Python)
+    const fnv1a32 = (text) => {
+        const bytes = (typeof TextEncoder !== 'undefined')
+            ? new TextEncoder().encode(String(text))
+            : unescape(encodeURIComponent(String(text))).split('').map(c => c.charCodeAt(0));
+        let h = 0x811c9dc5;
+        for (let i = 0; i < bytes.length; i++) {
+            h ^= bytes[i];
+            h = Math.imul(h, 0x01000193) >>> 0;
+        }
+        return h >>> 0;
+    };
+    const normalizeUrl = (url) => String(url || '').trim().replace(/\/+$/, '');
+    const stableIdFromUrl = (url) => fnv1a32(normalizeUrl(url));
+
+    // Instantané v4 (index → id stable) des 83 offres publiées avant le passage aux ids stables
+    // (commit 740cb76). Sert UNIQUEMENT à migrer les favoris enregistrés par index.
+    const LEGACY_V4_IDS = [2410060722,2170836891,3336665483,4211336872,3664975379,1946601936,594825396,2496426738,204671127,3615830085,1264125645,772877285,3259806011,1010310410,3043873899,1613371848,3965641887,1311636236,3518915140,3176398100,1501800745,3405188632,2687010302,2057123710,1373796142,3949121800,3147578398,3818381886,1372028316,3312950596,1121922774,1615728469,2485519511,3461326247,1848811603,3514488381,3349375138,1602288868,1417938254,2476197895,260153735,32357563,1866165443,2446198429,2623032985,2899754773,335535525,702139736,3486803334,629514951,3960354158,1375222996,3699875984,265216067,1773888865,2174750389,628406141,1887653261,2725527092,2768397049,2407545766,1783912095,2783897847,3770997350,2508230342,118728246,1812948326,4197170466,2901727252,2792724725,3668630324,2070086835,3469971240,2483970269,2165404509,2129131010,3067987018,253259666,701577076,3639111132,4235373933,590065582,2598907304];
 
     const StorageService = {
         getLang() {
@@ -416,7 +473,9 @@
                 location: jobData.location || existing.location || '',
                 url: jobData.url || existing.url || '',
                 source: jobData.source || existing.source || '',
-                relevance_score: jobData.relevance_score || existing.relevance_score || 50,
+                relevance_score: Number(jobData.relevance_score ?? existing.relevance_score ?? 0) || 0,
+                kind: jobData.kind || existing.kind || 'offer',
+                posted_at: jobData.posted_at || existing.posted_at || '',
                 category: jobData.category || existing.category || '',
                 working_language: jobData.working_language || existing.working_language || '',
                 visa_sponsorship: jobData.visa_sponsorship || existing.visa_sponsorship || '',
@@ -478,6 +537,54 @@
         }
     };
 
+    // Migration douce : anciennes clés = index dans la liste (changeaient à chaque scan)
+    // → nouvelles clés = id stable dérivé de l'URL. Exécutée une seule fois.
+    const IdMigration = {
+        run() {
+            let scheme = null;
+            try { scheme = localStorage.getItem(STORAGE_KEYS.ID_SCHEME); } catch (e) { return; }
+            if (scheme === ID_SCHEME) return;
+            try {
+                const jobs = getJobs();
+                const currentIds = new Set(jobs.map(j => String(j.id)));
+                const byUrl = new Map(jobs.filter(j => j.url).map(j => [normalizeUrl(j.url), String(j.id)]));
+                const resolveUrl = (url) => byUrl.get(normalizeUrl(url)) || String(stableIdFromUrl(url));
+
+                // 1. Candidatures : elles stockent leur URL → correspondance fiable
+                const apps = StorageService.getApplications();
+                const oldToNew = {};
+                const migratedApps = {};
+                Object.keys(apps).forEach(key => {
+                    const app = apps[key] || {};
+                    let newKey = key;
+                    if (!currentIds.has(key) && app.url) newKey = resolveUrl(app.url);
+                    oldToNew[key] = newKey;
+                    if (!migratedApps[newKey] || String(app.updated_at || '') > String(migratedApps[newKey].updated_at || '')) {
+                        migratedApps[newKey] = Object.assign({}, app, { id: newKey });
+                    }
+                });
+
+                // 2. Favoris : via la candidature de même clé, sinon via l'instantané v4
+                const favs = StorageService.getFavorites();
+                const newFavs = new Set();
+                const unresolved = [];
+                favs.forEach(key => {
+                    if (currentIds.has(key)) newFavs.add(key);
+                    else if (oldToNew[key]) newFavs.add(oldToNew[key]);
+                    else if (/^\d+$/.test(key) && LEGACY_V4_IDS[Number(key)] !== undefined) newFavs.add(String(LEGACY_V4_IDS[Number(key)]));
+                    else unresolved.push(key);
+                });
+
+                StorageService.saveApplications(migratedApps);
+                StorageService.saveFavorites(newFavs);
+                if (unresolved.length) localStorage.setItem(STORAGE_KEYS.LEGACY_FAVORITES, JSON.stringify(unresolved));
+                localStorage.setItem(STORAGE_KEYS.ID_SCHEME, ID_SCHEME);
+            } catch (e) {
+                console.warn('[TrackerEngine] Migration des identifiants impossible', e);
+            }
+        }
+    };
+
     // Retour haptique léger (Android) - silencieux si non supporté
     const haptic = (ms = 10) => {
         try {
@@ -527,8 +634,12 @@
     // 3bis. ACCÈS AUX DONNÉES (window.FransaData) & UTILITAIRES
     // --------------------------------------------------------------------------
     // Contrat : window.FransaData = { jobs: [...], get(id) } défini par le bootstrap
-    // inline (exporter.py) avant tous les scripts. id = index dans la liste triée.
+    // inline (exporter.py) avant tous les scripts. id = hash stable de l'URL (exporter.stable_job_id).
+    // kind : "offer" (vraie annonce, Keşfet) | "lead" (fiche entreprise, section pistes du Rehber).
     const getJobs = () => (window.FransaData && Array.isArray(window.FransaData.jobs)) ? window.FransaData.jobs : [];
+    let offersCache = null, leadsCache = null;
+    const getOffers = () => offersCache || (offersCache = getJobs().filter(j => j.kind !== 'lead'));
+    const getLeads = () => leadsCache || (leadsCache = getJobs().filter(j => j.kind === 'lead'));
     const getJob = (id) => (window.FransaData && typeof window.FransaData.get === 'function') ? window.FransaData.get(id) : null;
     const getDict = () => I18N_DICTIONARY[StorageService.getLang()] || I18N_DICTIONARY.tr;
 
@@ -553,6 +664,66 @@
         return new Date(+m[3], +m[2] - 1, +m[1], +(m[4] || 0), +(m[5] || 0)).getTime();
     };
 
+    // 'YYYY-MM-DD' ou ISO → timestamp (0 si illisible). Date seule = minuit LOCAL.
+    const parseIsoDate = (value) => {
+        const v = String(value || '').trim();
+        const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+        if (m) return new Date(+m[1], +m[2] - 1, +m[3]).getTime();
+        const t = /^\d{4}-\d{2}-\d{2}T/.test(v) ? Date.parse(v) : NaN;
+        return Number.isFinite(t) ? t : 0;
+    };
+    const parseAnyDate = (value) => parseIsoDate(value) || parseDiscovered(value);
+    const DAY_MS = 86400000;
+    const VERIFIED_FRESH_MS = 48 * 3600 * 1000;
+
+    // « 3 gün önce » / « Il y a 3 jours » (jours calendaires) ; null si date inconnue
+    const ageLabel = (postedAt, dict) => {
+        const ts = parseIsoDate(postedAt);
+        if (!ts) return null;
+        const now = new Date();
+        const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const d = new Date(ts);
+        const startPosted = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+        const days = Math.max(0, Math.round((startToday - startPosted) / DAY_MS));
+        if (days === 0) return dict.ageToday;
+        if (days === 1) return dict.ageYesterday;
+        return dict.ageDays.replace('{n}', days);
+    };
+    const isFreshlyVerified = (verifiedAt) => {
+        const ts = parseIsoDate(verifiedAt);
+        const delta = Date.now() - ts;
+        return ts > 0 && delta < VERIFIED_FRESH_MS && delta > -3600000;
+    };
+    const formatDateTime = (iso, lang) => {
+        const ts = parseIsoDate(iso);
+        if (!ts) return '';
+        try {
+            return new Intl.DateTimeFormat(lang === 'fr' ? 'fr-FR' : 'tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(ts));
+        } catch (e) {
+            return new Date(ts).toLocaleString();
+        }
+    };
+
+    // Exigence de langue lisible : language_requirements, sinon tags de langue (honnête : rien d'inventé)
+    // « Groupe Turc Majeur » ou « Enseignement du Turc » ne sont PAS des exigences de langue
+    const LANG_TAG_RE = /fransız|ingiliz|türkçe|français|francais|anglais|en turc|turc\s*[&/]|\/\s*turc|bilingue|\b[abc][12]\b/i;
+    const LANG_TAG_EXCLUDE_RE = /eğitim|enseignement|öğretim|okutman/i;
+    const stripEmojiTe = (text) => String(text || '').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu, '').replace(/\s{2,}/g, ' ').trim();
+    const langRequirementText = (job, lang, dict) => {
+        const reqs = Array.isArray(job.language_requirements) ? job.language_requirements : [];
+        if (reqs.length) {
+            return reqs.map(r => {
+                const [code, level] = String(r).split(':');
+                const name = (dict.langNames || {})[code] || String(code || '').toUpperCase();
+                const lvl = (dict.langLevels || {})[level] || String(level || '').toUpperCase();
+                return lvl ? `${name} ${lvl}` : name;
+            }).join(' · ');
+        }
+        const tags = (lang === 'fr' ? job.tags_fr : job.tags_tr) || [];
+        const langTags = tags.filter(t => LANG_TAG_RE.test(t) && !LANG_TAG_EXCLUDE_RE.test(t)).map(stripEmojiTe).filter(Boolean);
+        return langTags.length ? langTags.slice(0, 2).join(' · ') : dict.leadLangUnknown;
+    };
+
     // Format attendu par StorageService.saveApplication à partir d'un job FransaData
     const jobToAppData = (job) => job ? {
         title: job.title_tr,
@@ -561,7 +732,9 @@
         location: job.location,
         url: job.url,
         source: job.source,
-        relevance_score: job.score,
+        relevance_score: job.kind === 'lead' ? 0 : job.score,
+        kind: job.kind || 'offer',
+        posted_at: job.posted_at || '',
         category: job.category_tr,
         working_language: job.working_lang,
         visa_sponsorship: job.visa_tr,
@@ -572,16 +745,6 @@
     } : {};
 
     const plural = (dict, key, n) => ((n === 1 && dict[key + 'One']) ? dict[key + 'One'] : dict[key]).replace('{n}', n);
-
-    // Libellé de visa court pour la carte (null si non significatif)
-    const visaShortLabel = (job, dict) => {
-        const v = String(job.visa_tr || '');
-        if (/ICT|Transfer/i.test(v)) return dict.visaIct;
-        if (/Passeport Talent|Talent/i.test(v)) return dict.visaTalent;
-        if (/MEAE|Memur|Diplomatik/i.test(v)) return dict.visaMeae;
-        if (/Vize|Relokasyon|Visa/i.test(v)) return dict.visaGeneric;
-        return null;
-    };
 
     // --------------------------------------------------------------------------
     // 3ter. NOUVEAUTÉS DEPUIS LA DERNIÈRE VISITE (localStorage fransa_last_visit)
@@ -605,10 +768,10 @@
             window.addEventListener('pagehide', save);
         },
         isNew(job) {
-            return this.previous !== null && FilterEngine.metaFor(job).ts > this.previous;
+            return this.previous !== null && FilterEngine.metaFor(job).seen > this.previous;
         },
         countNew() {
-            return getJobs().filter(j => this.isNew(j)).length;
+            return getOffers().filter(j => this.isNew(j)).length;
         }
     };
 
@@ -632,7 +795,7 @@
             status: 'all', // 'all', 'fav', 'tracked'
             noFrenchOnly: false,
             cciftOnly: false,
-            sortBy: 'score_desc' // 'score_desc', 'date_desc', 'company_asc'
+            sortBy: 'date_desc' // 'date_desc' (défaut : plus récent), 'score_desc', 'company_asc'
         },
         results: [],
         counts: { all: 0, voie_1: 0, voie_2: 0, voie_3: 0, nofr: 0, fav: 0 },
@@ -651,10 +814,13 @@
                         job.title_tr, job.title_fr, job.company, job.location,
                         job.snippet_tr, job.snippet_fr, job.category_tr, job.category_fr,
                         (job.tags_tr || []).join(' '), (job.tags_fr || []).join(' '),
-                        job.working_lang, job.source, job.ccift ? 'ccift deik' : '',
+                        job.working_lang, job.source, job.city, job.ccift ? 'ccift deik' : '',
+                        (job.reasons_tr || []).join(' '), (job.reasons_fr || []).join(' '),
                         TRACK_SEARCH_WORDS[job.track] || ''
                     ].join(' ')),
-                    ts: parseDiscovered(job.discovered_at)
+                    // ts : date de publication (tri « plus récent ») ; seen : première détection (« Yeni »)
+                    ts: parseIsoDate(job.posted_at) || parseAnyDate(job.discovered_at),
+                    seen: parseAnyDate(job.discovered_at) || parseIsoDate(job.posted_at)
                 };
                 this.meta.set(job.id, m);
             }
@@ -713,7 +879,7 @@
             this.apply();
         },
         setSort(sortKey) {
-            this.state.sortBy = SORT_KEYS.includes(sortKey) ? sortKey : 'score_desc';
+            this.state.sortBy = SORT_KEYS.includes(sortKey) ? sortKey : 'date_desc';
             this.apply();
         },
         setCategory(cat) {
@@ -742,7 +908,7 @@
         resetAll() {
             Object.assign(this.state, {
                 query: '', track: 'all', domain: 'all', category: 'all', status: 'all',
-                noFrenchOnly: false, cciftOnly: false, sortBy: 'score_desc'
+                noFrenchOnly: false, cciftOnly: false, sortBy: 'date_desc'
             });
             const searchInput = document.getElementById('searchInput');
             if (searchInput) searchInput.value = '';
@@ -804,7 +970,7 @@
          * opts.render === false : compteurs seulement, la grille n'est pas touchée.
          */
         apply(opts = {}) {
-            const jobs = getJobs();
+            const jobs = getOffers(); // Keşfet : vraies annonces uniquement
             this._favs = StorageService.getFavorites();
             this._apps = StorageService.getApplications();
             this._words = normalizeText(this.state.query).split(/\s+/).filter(Boolean);
@@ -825,7 +991,7 @@
             filtered.forEach(j => {
                 if (j.ccift) countCcift++;
                 if (j.no_french) countNoFrench++;
-                if (/vize|visa|relokasyon|relocalisation|diplomatique/.test(normalizeText(j.visa_tr))) countReloc++;
+                if (String(j.visa_evidence || '').trim()) countReloc++;
             });
 
             this.updateStatsCounters(filtered.length, countCcift, countNoFrench, countReloc);
@@ -835,8 +1001,16 @@
             this.updateHeader();
             FilterSheet.sync();
 
+            // 0 offre au total : état vide honnête (jamais de remplissage avec des fiches)
+            const noOffers = jobs.length === 0;
+            const pane = document.getElementById('tab-content-explore');
+            if (pane) pane.classList.toggle('is-empty-feed', noOffers);
+            const feedEmpty = document.getElementById('no-offers-box');
+            if (feedEmpty) feedEmpty.hidden = !noOffers;
             const emptyEl = document.getElementById('no-results-box');
-            if (emptyEl) emptyEl.hidden = this.results.length > 0;
+            if (emptyEl) emptyEl.hidden = noOffers || this.results.length > 0;
+            const exploreBadge = document.getElementById('badge-explore-count');
+            if (exploreBadge) exploreBadge.textContent = String(jobs.length);
 
             if (opts.render !== false) {
                 CardRenderer.reset(this.results, opts.preserve ? CardRenderer.rendered : 0);
@@ -872,11 +1046,17 @@
         },
 
         updateHeader() {
+            const dict = getDict();
+            const upd = document.getElementById('ex-updated');
+            if (upd) {
+                const iso = (window.FransaData && window.FransaData.generatedAt) || upd.getAttribute('data-generated-at') || '';
+                const when = formatDateTime(iso, StorageService.getLang());
+                upd.textContent = when ? dict.updatedAt.replace('{d}', when) : '';
+            }
             const el = document.getElementById('ex-new-line');
             if (!el) return;
-            const dict = getDict();
             const nNew = VisitTracker.countNew();
-            el.innerHTML = nNew > 0 ? plural(dict, 'helloNewCount', nNew) : plural(dict, 'helloTotalCount', getJobs().length);
+            el.innerHTML = nNew > 0 ? plural(dict, 'helloNewCount', nNew) : plural(dict, 'helloTotalCount', getOffers().length);
         },
 
         // Compteurs de l'onglet Rehber (blocs d'introduction)
@@ -994,23 +1174,30 @@
                 : dict.kapiOther;
             const newBadge = VisitTracker.isNew(job) ? `<span class="jc-new">${escapeHtml(dict.newBadge)}</span>` : '';
 
-            const pills = [];
-            if (job.no_french) {
-                pills.push(`<span class="pill pill-ok"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg><span class="pill-txt">${escapeHtml(dict.pillNoFrench)}</span></span>`);
-            }
-            const visa = visaShortLabel(job, dict);
-            if (visa) {
-                pills.push(`<span class="pill"><svg class="ic" aria-hidden="true"><use href="#i-plane"/></svg><span class="pill-txt">${escapeHtml(visa)}</span></span>`);
-            }
-            if (pills.length < 2 && job.ccift) {
-                pills.push(`<span class="pill pill-gold"><svg class="ic" aria-hidden="true"><use href="#i-building"/></svg><span class="pill-txt">CCIFT · DEİK</span></span>`);
-            }
+            // Âge de l'annonce (posted_at) + vérification récente (verified_at < 48 h)
+            const age = ageLabel(job.posted_at, dict);
+            const ageHtml = `<span class="jc-age${age ? '' : ' is-unknown'}"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg>${escapeHtml(age || dict.ageUnknown)}</span>`;
+            const verifiedHtml = isFreshlyVerified(job.verified_at)
+                ? `<span class="jc-verified" title="${escapeHtml(dict.verifiedTitle)}"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>${escapeHtml(dict.verifiedShort)}</span>`
+                : '';
+
+            // 1-2 raisons appuyées sur l'annonce (à la place des tags génériques)
+            const reasonsSrc = (fr ? job.reasons_fr : job.reasons_tr);
+            const reasons = ((reasonsSrc && reasonsSrc.length) ? reasonsSrc : (job.reasons_tr || [])).filter(Boolean).slice(0, 2);
+            const reasonsHtml = reasons.length
+                ? `<ul class="jc-reasons">${reasons.map(r => `<li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>${escapeHtml(r)}</li>`).join('')}</ul>`
+                : '';
+            // Chip visa UNIQUEMENT si l'annonce elle-même en parle
+            const visaHtml = String(job.visa_evidence || '').trim()
+                ? `<div class="jc-pills"><span class="pill pill-ok"><svg class="ic" aria-hidden="true"><use href="#i-plane"/></svg><span class="pill-txt">${escapeHtml(dict.pillVisaEvidence)}</span></span></div>`
+                : '';
 
             return `<article class="jc" data-id="${id}" data-track="${escapeHtml(job.track)}">` +
                 `<div class="jc-top"><span class="jc-kapi kapi-${trackNum || 0}">${escapeHtml(kapiText)}</span>${newBadge}</div>` +
                 `<h3 class="jc-title" id="jc-t-${id}">${title}</h3>` +
                 `<p class="jc-meta">${meta}</p>` +
-                (pills.length ? `<div class="jc-pills">${pills.slice(0, 2).join('')}</div>` : '') +
+                `<div class="jc-dates">${ageHtml}${verifiedHtml}</div>` +
+                reasonsHtml + visaHtml +
                 `<button type="button" class="jc-hit" data-id="${id}" aria-labelledby="jc-t-${id}"></button>` +
                 `<button type="button" class="jc-star" data-id="${id}" aria-pressed="${isFav}" aria-label="${favLabel}" title="${favLabel}"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></button>` +
                 `</article>`;
@@ -1026,6 +1213,68 @@
                 btn.setAttribute('aria-label', label);
                 btn.title = label;
             });
+        }
+    };
+
+    // --------------------------------------------------------------------------
+    // 4bis-2. PISTES (kind="lead") : liste compacte dans le Rehber — PAS des annonces
+    // --------------------------------------------------------------------------
+    const LEADS_BATCH = 15;
+    const LeadsRenderer = {
+        bound: false,
+        expanded: false,
+
+        bind() {
+            if (this.bound) return;
+            const list = document.getElementById('leadsList');
+            if (!list) return;
+            this.bound = true;
+            list.addEventListener('click', (e) => {
+                const hit = e.target.closest('.lead-main');
+                if (hit && window.BilateralDrawer && typeof window.BilateralDrawer.open === 'function') {
+                    haptic(5);
+                    window.BilateralDrawer.open(Number(hit.getAttribute('data-id')));
+                }
+            });
+            const more = document.getElementById('leadsMore');
+            if (more) more.addEventListener('click', () => { this.expanded = true; this.render(); });
+        },
+
+        render() {
+            const list = document.getElementById('leadsList');
+            if (!list) return;
+            this.bind();
+            const lang = StorageService.getLang();
+            const dict = getDict();
+            const leads = getLeads().slice().sort((a, b) =>
+                String(a.company || '').localeCompare(String(b.company || ''), lang === 'fr' ? 'fr' : 'tr', { sensitivity: 'base' }));
+            const count = document.getElementById('leads-count');
+            if (count) count.textContent = String(leads.length);
+            if (!leads.length) {
+                list.innerHTML = `<li class="leads-empty">${escapeHtml(dict.leadsEmpty)}</li>`;
+            } else {
+                const shown = this.expanded ? leads : leads.slice(0, LEADS_BATCH);
+                list.innerHTML = shown.map(l => this.rowHtml(l, lang, dict)).join('');
+            }
+            const more = document.getElementById('leadsMore');
+            if (more) more.hidden = this.expanded || leads.length <= LEADS_BATCH;
+        },
+
+        rowHtml(lead, lang, dict) {
+            const id = Number(lead.id);
+            const trackNum = { voie_1: 1, voie_2: 2, voie_3: 3 }[lead.track];
+            const kapi = trackNum ? dict.kapiShort.replace('{n}', trackNum) : dict.kapiOther;
+            const city = lead.city || lead.location || '';
+            const langText = langRequirementText(lead, lang, dict);
+            const site = lead.url
+                ? `<a class="lead-link" href="${escapeHtml(lead.url)}" target="_blank" rel="noopener" aria-label="${escapeHtml(dict.leadOpenSite + ' : ' + (lead.company || ''))}" title="${escapeHtml(dict.leadOpenSite)}"><svg class="ic" aria-hidden="true"><use href="#i-external-link"/></svg></a>`
+                : '';
+            return `<li class="lead-row">` +
+                `<button type="button" class="lead-main" data-id="${id}" aria-label="${escapeHtml((lead.company || '') + ' · ' + dict.leadDetail)}">` +
+                `<span class="lead-name">${escapeHtml(lead.company || lead.title_tr)}</span>` +
+                `<span class="lead-meta"><span class="lead-kapi kapi-${trackNum || 0}">${escapeHtml(kapi)}</span>${city ? `<span>${escapeHtml(city)}</span>` : ''}</span>` +
+                `<span class="lead-lang">${escapeHtml(langText)}</span>` +
+                `</button>${site}</li>`;
         }
     };
 
@@ -1051,7 +1300,7 @@
                 const s = e.target.closest('[data-sort]');
                 if (s) { FilterEngine.setSort(s.getAttribute('data-sort')); return; }
                 if (e.target.closest('#sheetResetBtn')) {
-                    Object.assign(FilterEngine.state, { domain: 'all', category: 'all', cciftOnly: false, sortBy: 'score_desc' });
+                    Object.assign(FilterEngine.state, { domain: 'all', category: 'all', cciftOnly: false, sortBy: 'date_desc' });
                     FilterEngine.apply();
                     return;
                 }
@@ -1350,7 +1599,6 @@
                     ${trackBadge}
                     ${cciftBadge}
                     ${noFrenchBadge}
-                    <span class="kanban-badge-score">%${app.relevance_score}</span>
                 </div>
 
                 ${dateHtml}
@@ -1470,7 +1718,7 @@
                     app.visa_sponsorship || '',
                     app.working_language || '',
                     app.is_ccift_deik ? 'OUI (Membre Officiel CCIFT & DEIK)' : 'NON',
-                    `${app.relevance_score}%`,
+                    (app.kind !== 'lead' && app.relevance_score) ? `${app.relevance_score}%` : '',
                     app.url
                 ].map(val => `"${String(val || '').replace(/"/g, '""')}"`);
             });
@@ -1510,6 +1758,9 @@
         scrollPositions: {},
 
         init() {
+            // Ids stables (hash URL) : migration douce des favoris / candidatures indexés
+            IdMigration.run();
+
             // Nouveautés depuis la dernière visite (avant le premier rendu des cartes)
             VisitTracker.init();
 
@@ -1733,6 +1984,8 @@
             KanbanTracker.render();
             // Re-rendu des cartes Keşfet dans la nouvelle langue (même nombre de cartes)
             FilterEngine.apply({ preserve: true });
+            // Pistes (Rehber)
+            LeadsRenderer.render();
 
             // Notification aux autres composants
             window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang } }));
@@ -2128,6 +2381,19 @@
         switchTab(tabKey) {
             HistoryRouter.navigateToTab(tabKey);
         },
+
+        // État vide Keşfet → section pistes du Rehber
+        openLeads() {
+            HistoryRouter.navigateToTab('guide');
+            const sec = document.getElementById('leads-section');
+            if (sec) requestAnimationFrame(() => sec.scrollIntoView({ block: 'start' }));
+        },
+
+        // Utilitaires partagés (drawer_cover_letter_module.js)
+        stableIdFromUrl,
+        ageLabel(postedAt) { return ageLabel(postedAt, getDict()); },
+        isFreshlyVerified,
+        langRequirementText(job) { return langRequirementText(job, StorageService.getLang(), getDict()); },
 
         setLanguage(lang) {
             UIController.applyLanguage(lang);

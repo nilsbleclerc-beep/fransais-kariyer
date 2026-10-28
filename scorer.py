@@ -1,127 +1,108 @@
 """
-Module de calcul de pertinence et d'analyse linguistique stricte (Français non obligatoire / A1 toléré).
+Analyse légère d'un titre/extrait (compatibilité : signature analyze_job inchangée).
+
+Règles « pas de fausses joies » :
+- correspondances en MOTS ENTIERS uniquement (plus de « a1 », « c1 », « coe », « amo », « tech » en sous-chaîne) ;
+- tag visa UNIQUEMENT si l'annonce mentionne explicitement visa / vize / relocation / sponsor / titre de séjour
+  (via quality.find_visa_evidence) — plus jamais sur « yurtdışı », « ofisimizde », « şubemizde » ;
+- détection de langue partagée avec quality.py.
+Le filtrage et le score des offres réelles sont faits par quality.filter_offers.
 """
 import re
 from typing import List, Tuple
-from config import KEYWORDS_LOCATION, KEYWORDS_RELOCATION_VISA, KEYWORDS_LANGUAGE, KEYWORDS_ROLES, NEGATIVE_KEYWORDS
+
 from companies_data import TURKISH_COMPANIES_IN_FRANCE
+from config import KEYWORDS_LOCATION, NEGATIVE_KEYWORDS
+from models import JobOpportunity
+from quality import analyze_languages, find_visa_evidence, fold
+
+
+def _has_word(text_folded: str, kw: str) -> bool:
+    return re.search(r"(?<!\w)" + re.escape(fold(kw)) + r"(?!\w)", text_folded) is not None
+
+
+ROLE_MAP = {
+    "hat yönetmeni": ("Lojistik / Hat Yönetimi", "Gestionnaire de ligne"),
+    "ihracat": ("İhracat", "Export"),
+    "satış": ("Satış & Ticari", "Commercial / Vente"),
+    "lojistik": ("Lojistik & Depo", "Logistique"),
+    "operasyon": ("Operasyon", "Opérations"),
+    "mühendis": ("Mühendislik / Yazılım", "Ingénierie / Tech"),
+    "büro": ("Büro & Yönetim", "Bureau & Gestion"),
+    "tercüman": ("Tercümanlık", "Traduction / Interprétariat"),
+    "ekonomist": ("Ekonomi & Politika Analizi", "Économie & Analyse"),
+    "juriste": ("Hukuk & İnsan Hakları", "Juridique & Droits"),
+}
+
 
 def analyze_job(title: str, snippet: str, url: str = "") -> Tuple[int, List[str], List[str], str, str, bool, str]:
     """
-    Analyse le titre et le snippet d'une offre.
-    Retourne:
-        - score (0 à 100)
-        - tags_tr (list of str en turc)
-        - tags_fr (list of str en français)
-        - detected_location (str)
-        - detected_company (str)
-        - french_required (bool)
-        - working_language (str)
+    Retourne (score 0-90, tags_tr, tags_fr, detected_location, detected_company, french_required, working_language).
+    L'URL n'est plus analysée comme du texte (évite « tech » / « amo » trouvés dans un nom de domaine).
     """
-    text = f"{title} {snippet} {url}".lower()
-    score = 45
-    tags_tr = []
-    tags_fr = []
-    detected_location = "Fransa"
+    original = f"{title} {snippet}"
+    text = fold(original)
+    score = 40
+    tags_tr, tags_fr = [], []
+    detected_location = ""
     detected_company = "Kurum / Şirket"
-    french_required = False
-    working_language = "İngilizce veya Türkçe"
 
-    # 1. Détection de la localisation en France
     for loc in KEYWORDS_LOCATION:
-        if loc.lower() in text:
+        if _has_word(text, loc):
             detected_location = loc
             tags_tr.append(f"📍 {loc}")
             tags_fr.append(f"📍 {loc}")
-            score += 10
-            break
-
-    # 2. Détection d'organisations internationales ou grandes entreprises
-    for comp in TURKISH_COMPANIES_IN_FRANCE:
-        matched = False
-        for kw in comp["keywords"]:
-            if kw.lower() in text:
-                detected_company = comp["name"]
-                tags_tr.append("🏢 Büyük Kurum / Grup")
-                tags_fr.append("🏢 Grande Institution / Groupe")
-                score += 25
-                matched = True
-                break
-        if matched:
-            break
-
-    # 3. Évaluation STRICTE de la langue (Français OBLIGATOIRE vs NON OBLIGATOIRE)
-    french_strict_markers = [
-        "très bon niveau de français", "français courant exigé", "parfaite maîtrise du français",
-        "akıcı fransızca şart", "ileri düzey fransızca zorunlu", "c1", "c2"
-    ]
-    no_french_markers = [
-        "english only", "working language is english", "french is a plus", "french optional",
-        "ingilizce yeterli", "fransızca şart değil", "sadece ingilizce", "türkçe yeterli",
-        "fransızca bilmek avantajdır", "a1", "a2", "débutant", "no french required"
-    ]
-
-    if any(m in text for m in no_french_markers):
-        french_required = False
-        working_language = "İngilizce / Türkçe (Fransızca Gerekmiyor)"
-        tags_tr.append("✅ Fransızca Şart Değil")
-        tags_fr.append("✅ Français Non Obligatoire")
-        score += 20
-    elif any(m in text for m in french_strict_markers):
-        french_required = True
-        working_language = "İleri Düzey Fransızca Zorunlu"
-        tags_tr.append("🗣️ İleri Düzey Fransızca")
-        tags_fr.append("🗣️ Français B2/C1 Requis")
-        score -= 10
-    else:
-        # Par défaut dans les contextes internationaux ou groupes turcs :
-        if any(org in text for org in ["oecd", "ocde", "unesco", "coe", "trendyol", "bbl", "amo", "tech"]):
-            french_required = False
-            working_language = "İngilizce / Türkçe (A1 Kabul)"
-            tags_tr.append("🇬🇧 İngilizce / A1 Fransızca")
-            tags_fr.append("🇬🇧 Anglais / Français A1")
-            score += 15
-        else:
-            french_required = False
-            working_language = "Türkçe Odaklı"
-            tags_tr.append("🇹🇷 Türkçe İletişim")
-            tags_fr.append("🇹🇷 Échanges en Turc")
-
-    # 4. Mots-clés Relocation / Visa / Statut International
-    for kw in KEYWORDS_RELOCATION_VISA:
-        if kw.lower() in text:
-            tags_tr.append("✈️ Vize / Relokasyon Destekli")
-            tags_fr.append("✈️ Visa / Relocalisation Prise en Charge")
-            score += 20
-            break
-
-    # 5. Rôles et fonctions recherchées
-    role_map = {
-        "hat yönetmeni": ("Lojistik / Hat Yönetimi", "Gestionnaire de ligne"),
-        "ihracat": ("İhracat", "Export"),
-        "satış": ("Satış & Ticari", "Commercial / Vente"),
-        "lojistik": ("Lojistik & Depo", "Logistique"),
-        "operasyon": ("Operasyon", "Opérations"),
-        "mühendis": ("Mühendislik / Yazılım", "Ingénierie / Tech"),
-        "büro": ("Büro & Yönetim", "Bureau & Gestion"),
-        "tercüman": ("Tercümanlık", "Traduction / Interprétariat"),
-        "ekonomist": ("Ekonomi & Politika Analizi", "Économie & Analyse"),
-        "juriste": ("Hukuk & İnsan Hakları", "Juridique & Droits")
-    }
-    for kw, (tr_label, fr_label) in role_map.items():
-        if kw.lower() in text:
-            tags_tr.append(f"💼 {tr_label}")
-            tags_fr.append(f"💼 {fr_label}")
             score += 5
             break
 
-    # 6. Pénalités pour faux positifs
+    for comp in TURKISH_COMPANIES_IN_FRANCE:
+        if any(len(kw) >= 3 and _has_word(text, kw) for kw in comp["keywords"]):
+            detected_company = comp["name"]
+            tags_tr.append("🏢 Büyük Kurum / Grup")
+            tags_fr.append("🏢 Grande Institution / Groupe")
+            break
+
+    lang = analyze_languages(JobOpportunity(title=title, company="", location="", url=url, source="", snippet=snippet))
+    fr_lvl, en_lvl = lang["fr"][0], lang["en"][0]
+    french_required = fr_lvl >= 3
+    if french_required:
+        working_language = "Fransızca isteniyor"
+        tags_tr.append("🗣️ Fransızca isteniyor")
+        tags_fr.append("🗣️ Français exigé")
+        score -= 20
+    elif lang["tr_strong"]:
+        working_language = "Türkçe isteniyor"
+        tags_tr.append("🇹🇷 Türkçe isteniyor")
+        tags_fr.append("🇹🇷 Turc demandé")
+        score += 25
+    elif lang["no_french"]:
+        working_language = "Fransızca gerekmiyor (ilanda)"
+        tags_tr.append("✅ Fransızca Şart Değil")
+        tags_fr.append("✅ Français Non Obligatoire")
+        score += 10
+    else:
+        working_language = "İlanda belirtilmemiş"
+    if en_lvl >= 4:
+        tags_tr.append("🇬🇧 İleri düzey İngilizce gerekir")
+        tags_fr.append("🇬🇧 Anglais avancé requis")
+        score -= 15
+
+    evidence, _ = find_visa_evidence(original)
+    if evidence:
+        tags_tr.append("✈️ Vize / Relokasyon (ilanda geçiyor)")
+        tags_fr.append("✈️ Visa / Relocalisation (mentionné)")
+        score += 10
+
+    for kw, (tr_label, fr_label) in ROLE_MAP.items():
+        if _has_word(text, kw):
+            tags_tr.append(f"💼 {tr_label}")
+            tags_fr.append(f"💼 {fr_label}")
+            break
+
     for kw in NEGATIVE_KEYWORDS:
-        if kw.lower() in text:
+        if _has_word(text, kw):
             score -= 25
 
-    score = max(10, min(100, score))
-    tags_tr = list(dict.fromkeys(tags_tr))
-    tags_fr = list(dict.fromkeys(tags_fr))
-
-    return score, tags_tr, tags_fr, detected_location, detected_company, french_required, working_language
+    score = max(0, min(90, score))
+    return (score, list(dict.fromkeys(tags_tr)), list(dict.fromkeys(tags_fr)), detected_location,
+            detected_company, french_required, working_language)

@@ -1441,3 +1441,121 @@ html.bld-detail-open {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ==========================================================================
+   v5 : offres réelles (raisons, dates, visa cité) + pistes (pas une offre)
+   ========================================================================== */
+.bld-why-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.bld-why-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: var(--text-primary, #0f172a);
+    overflow-wrap: anywhere;
+}
+.bld-why-list li .bld-ic {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--status-success-text, #065f46);
+}
+.bld-facts {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--border-subtle, #e2e8f0);
+}
+.bld-fact {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    min-height: 44px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle, #e2e8f0);
+}
+.bld-fact dt {
+    flex-shrink: 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary, #334155);
+}
+.bld-fact dd {
+    margin: 0;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-align: right;
+    color: var(--text-primary, #0f172a);
+    overflow-wrap: anywhere;
+}
+.bld-fact dd.is-ok { color: var(--status-success-text, #065f46); }
+.bld-fact dd.is-muted { font-weight: 500; color: var(--text-tertiary, #64748b); }
+.bld-quote {
+    margin: 0;
+    padding: 12px 14px;
+    border-left: 4px solid var(--status-success, #10b981);
+    border-radius: 0 12px 12px 0;
+    background: var(--status-success-subtle, #ecfdf5);
+}
+.bld-quote blockquote {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    font-style: italic;
+    color: var(--text-primary, #0f172a);
+    overflow-wrap: anywhere;
+}
+.bld-quote figcaption {
+    margin-top: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--status-success-text, #065f46);
+}
+.bld-note {
+    margin: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--status-amber-subtle, #fffbeb);
+    color: var(--status-amber-text, #92400e);
+    font-size: 0.92rem;
+    line-height: 1.45;
+    font-weight: 600;
+}
+.bld-note .bld-ic { flex-shrink: 0; margin-top: 1px; }
+.bld-lead-banner {
+    padding: 16px;
+    border-radius: 16px;
+    background: var(--status-amber-subtle, #fffbeb);
+    border: 1px solid var(--status-amber-border, rgba(217, 119, 6, 0.35));
+}
+.bld-lead-title {
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--status-amber-text, #92400e);
+}
+.bld-lead-title .bld-ic { flex-shrink: 0; }
+.bld-lead-text, .bld-lead-lang {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--text-primary, #0f172a);
+}
+.bld-lead-lang { margin-top: 8px; color: var(--text-secondary, #334155); }

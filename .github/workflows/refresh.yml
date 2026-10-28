@@ -12,6 +12,11 @@ on:
     paths:
       - 'companies_data.py'
       - 'scrapers.py'
+      - 'main.py'
+      - 'quality.py'
+      - 'scorer.py'
+      - 'profile.json'
+      - 'sources/**'
       - 'exporter.py'
       - 'pwa_*'
 
@@ -49,19 +54,26 @@ jobs:
           python generate_icons.py
 
       - name: 🚀 Exécuter le Scanner Bilatéral France-Turquie
+        # Clés des API d'offres : vides si le secret n'est pas défini (la source renvoie alors [] sans erreur)
+        env:
+          FT_CLIENT_ID: ${{ secrets.FT_CLIENT_ID }}
+          FT_CLIENT_SECRET: ${{ secrets.FT_CLIENT_SECRET }}
+          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+          JOOBLE_KEY: ${{ secrets.JOOBLE_KEY }}
         run: |
-          python main.py --pages=4 --dorks=8
+          python main.py --pages=4
 
       - name: 🔍 Vérifier la synchronisation des fichiers
         run: |
           test -f index.html || cp dashboard.html index.html
-          ls -la index.html dashboard.html offres_france_turquie.json
+          ls -la index.html dashboard.html offres_france_turquie.json rejected_offers.json
 
       - name: 💾 Enregistrer et commiter les nouvelles offres
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html dashboard.html offres_france_turquie.json offres_france_turquie.csv manifest.json sw.js icon* apple-touch-icon.png favicon*
+          git add index.html dashboard.html offres_france_turquie.json offres_france_turquie.csv rejected_offers.json manifest.json sw.js icon* apple-touch-icon.png favicon*
           if ! git diff --staged --quiet; then
             git commit -m "🤖 [Auto-Refresh] Nouvelles opportunités bilatérales $(date +'%d/%m/%Y %H:%M')"
             git push

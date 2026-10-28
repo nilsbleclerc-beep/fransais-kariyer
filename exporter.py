@@ -14,6 +14,7 @@ import json
 import html
 import os
 import re
+from datetime import datetime, timezone
 from typing import List
 from models import JobOpportunity
 
@@ -66,6 +67,8 @@ ICON_SPRITE = """<svg xmlns="http://www.w3.org/2000/svg" style="display:none" ar
   <symbol id="i-book-open" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
   <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></symbol>
   <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
   <symbol id="i-filter" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></symbol>
 </svg>"""
 
@@ -76,9 +79,13 @@ FRANSA_DATA_BOOTSTRAP = """<script>
             var el = document.getElementById('fransa-jobs');
             var jobs = [];
             try { jobs = JSON.parse(el ? el.textContent : '[]') || []; } catch (e) { console.error('FransaData JSON invalide', e); }
+            // kind : "offer" = annonce réelle ; "lead" = fiche entreprise/institution (pas une annonce)
             window.FransaData = {
                 jobs: jobs,
-                get(id) { return this.jobs.find(j => j.id === Number(id)) || null; }
+                generatedAt: (el && el.getAttribute('data-generated-at')) || '',
+                get(id) { return this.jobs.find(j => j.id === Number(id)) || null; },
+                offers() { return this.jobs.filter(j => j.kind !== 'lead'); },
+                leads() { return this.jobs.filter(j => j.kind === 'lead'); }
             };
         })();
     </script>"""
@@ -576,6 +583,198 @@ UI_V4_CSS = """
         @media (prefers-reduced-motion: reduce) {
             .sheet-panel, .sheet-scrim, .jc { transition: none; }
         }
+
+        /* ==========================================================================
+           v5 : offres réelles datées (kind="offer") + pistes (kind="lead")
+           ========================================================================== */
+        .ex-updated {
+            margin-top: 2px;
+            font-size: var(--fs-xs);
+            line-height: 16px;
+            color: var(--text-tertiary);
+        }
+        .ex-updated:empty { display: none; }
+        /* 0 offre : pas de recherche ni de pastilles inutiles */
+        #tab-content-explore.is-empty-feed .ex-toolbar,
+        #tab-content-explore.is-empty-feed .ex-chips { display: none; }
+        .ex-empty-feed > .ic { color: var(--accent-primary); }
+        .ex-empty-feed .ex-empty-text { max-width: 36ch; }
+
+        /* Carte : âge de l'annonce + vérification */
+        .jc-age {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            height: 24px;
+            font-size: var(--fs-xs);
+            font-weight: 500;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .jc-age .ic { width: 14px; height: 14px; }
+        .jc-age.is-unknown { color: var(--text-tertiary); }
+        .jc-verified {
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            font-size: var(--fs-xs);
+            font-weight: 600;
+            color: var(--status-success-text);
+            white-space: nowrap;
+        }
+        .jc-verified .ic { width: 14px; height: 14px; stroke-width: 2.5; }
+        .jc-dates {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-3);
+            margin-top: 2px;
+            min-width: 0;
+        }
+        .jc-reasons {
+            list-style: none;
+            margin: var(--sp-2) 0 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+        .jc-reasons li {
+            position: relative;
+            padding-left: 20px;
+            font-size: var(--fs-sm);
+            line-height: 20px;
+            color: var(--text-secondary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            overflow-wrap: anywhere;
+        }
+        .jc-reasons li .ic {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            width: 14px;
+            height: 14px;
+            stroke-width: 2.5;
+            color: var(--status-success-text);
+        }
+
+        /* Rehber : pistes (ce ne sont PAS des annonces) */
+        .leads-section {
+            margin: 0 0 var(--sp-6);
+            padding: var(--sp-4);
+            background: var(--surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+        }
+        .leads-title {
+            display: flex;
+            align-items: baseline;
+            gap: var(--sp-2);
+            font-size: var(--fs-md);
+            line-height: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .leads-count {
+            flex: 0 0 auto;
+            min-width: 24px;
+            padding: 0 6px;
+            border-radius: 999px;
+            background: var(--surface-subtle);
+            color: var(--text-secondary);
+            font-size: var(--fs-xs);
+            line-height: 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .leads-hint {
+            display: flex;
+            gap: var(--sp-2);
+            margin: var(--sp-2) 0 var(--sp-3);
+            font-size: var(--fs-sm);
+            line-height: 20px;
+            color: var(--text-secondary);
+        }
+        .leads-hint .ic { width: 18px; height: 18px; margin-top: 1px; color: var(--accent-primary); }
+        .leads-list { list-style: none; margin: 0; padding: 0; }
+        .lead-row {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-1);
+            min-height: 64px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        .lead-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            padding: var(--sp-2) 0;
+            border: 0;
+            background: transparent;
+            color: inherit;
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .lead-main:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; border-radius: 8px; }
+        .lead-name {
+            max-width: 100%;
+            font-size: var(--fs-sm);
+            line-height: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .lead-meta {
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: var(--fs-xs);
+            line-height: 16px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .lead-meta > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+        .lead-kapi {
+            flex: 0 0 auto;
+            padding: 0 6px;
+            border-radius: 6px;
+            line-height: 18px;
+            font-weight: 600;
+            color: var(--kapi-0);
+            background: var(--kapi-0-bg);
+        }
+        .lead-kapi.kapi-1 { color: var(--kapi-1); background: var(--kapi-1-bg); }
+        .lead-kapi.kapi-2 { color: var(--kapi-2); background: var(--kapi-2-bg); }
+        .lead-kapi.kapi-3 { color: var(--kapi-3); background: var(--kapi-3-bg); }
+        .lead-lang { font-size: var(--fs-xs); line-height: 16px; color: var(--text-tertiary); }
+        .lead-link {
+            flex: 0 0 auto;
+            width: var(--tap);
+            height: var(--tap);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: var(--accent-primary);
+        }
+        .lead-link .ic { width: 20px; height: 20px; }
+        .lead-link:active { background: var(--surface-subtle); }
+        .lead-link:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: -4px; }
+        .leads-empty { padding: var(--sp-3) 0 0; font-size: var(--fs-sm); color: var(--text-tertiary); }
 """
 
 
@@ -618,9 +817,15 @@ VISA_TRANSLATIONS = {
         "Détachement Intra-Groupe (Salarié Détaché ICT) / Visa Relocalisation"
 }
 
+VISA_NOT_MENTIONED_FR = "Non mentionné dans l'annonce"
+
 def get_visa_fr(visa_tr: str) -> str:
-    if not visa_tr:
-        return "Visa / Relocalisation Prise en Charge"
+    """Traduction FR du statut visa. JAMAIS « pris en charge » par défaut : vide / inconnu → non mentionné."""
+    visa_tr = str(visa_tr or "").strip()
+    if not visa_tr or visa_tr == "İlanda belirtilmemiş":
+        return VISA_NOT_MENTIONED_FR
+    if visa_tr.startswith("Doğrulanmadı"):
+        return "Non vérifié — à demander à l'entreprise"
     if visa_tr in VISA_TRANSLATIONS:
         return VISA_TRANSLATIONS[visa_tr]
     for k, v in VISA_TRANSLATIONS.items():
@@ -632,7 +837,7 @@ def get_visa_fr(visa_tr: str) -> str:
         return "Sponsoring Visa Passeport Talent / French Tech"
     if "MEAE" in visa_tr or "Memur" in visa_tr or "Diplomatik" in visa_tr:
         return "Statut International : Titre Spécial Délivré par le MEAE"
-    return "Visa / Relocalisation Prise en Charge"
+    return VISA_NOT_MENTIONED_FR
 
 
 def determine_job_domain(j: JobOpportunity) -> str:
@@ -687,6 +892,54 @@ def determine_job_track(j: JobOpportunity) -> str:
         
     return "autre"
 
+DESCRIPTION_MAX_CHARS = 1200
+
+
+def truncate_description(text: str, limit: int = DESCRIPTION_MAX_CHARS) -> str:
+    """Tronque la description longue pour l'export client (coupe à un espace, ajoute « … »)."""
+    text = re.sub(r"\s+", " ", str(text or "")).strip()
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    space = cut.rfind(" ")
+    if space > limit * 0.8:
+        cut = cut[:space]
+    return cut.rstrip(" ,;:.-") + "…"
+
+
+def _fnv1a32(text: str) -> int:
+    """FNV-1a 32 bits sur l'UTF-8 (même algorithme que stableIdFromUrl dans tracker_engine.js)."""
+    h = 0x811C9DC5
+    for b in text.encode("utf-8"):
+        h ^= b
+        h = (h * 0x01000193) & 0xFFFFFFFF
+    return h
+
+
+def normalize_job_url(url: str) -> str:
+    return str(url or "").strip().rstrip("/")
+
+
+def stable_job_id(j: JobOpportunity, used: set) -> int:
+    """
+    Identifiant numérique STABLE d'un scan à l'autre, dérivé de l'URL (favoris / candidatures
+    en localStorage indexés dessus). Repli sur entreprise + titre si l'URL est vide ;
+    en cas de collision, on re-hache avec un suffixe.
+    """
+    base = normalize_job_url(j.url) or f"{j.company}|{j.title}"
+    jid = _fnv1a32(base)
+    n = 1
+    while jid in used or jid == 0:
+        jid = _fnv1a32(f"{base}#{n}")
+        n += 1
+    used.add(jid)
+    return jid
+
+
+def job_kind(j: JobOpportunity) -> str:
+    return "lead" if str(getattr(j, "kind", "") or "").lower() == "lead" else "offer"
+
+
 def export_to_csv(jobs: List[JobOpportunity], filepath: str = "offres_france_turquie.csv"):
     """Exporte les résultats au format CSV UTF-8 avec BOM pour Excel."""
     with open(filepath, mode="w", encoding="utf-8-sig", newline="") as f:
@@ -695,13 +948,15 @@ def export_to_csv(jobs: List[JobOpportunity], filepath: str = "offres_france_tur
             "Score / Uygunluk", "Voie / KAPI", "Pozisyon / Titre (TR)", "Titre (FR)", "Firma / Entreprise",
             "Konum / Lieu", "CCIFT / DEİK Üyesi mi?", "Fransızca Gerekli mi?", "Çalışma Dili", "Vize Durumu",
             "Kategori (TR)", "Catégorie (FR)", "Etiketler / Tags", "Kaynak / Source",
-            "Başvuru Linki / URL", "Açıklama / Résumé"
+            "Başvuru Linki / URL", "Açıklama / Résumé",
+            "Tür / Type", "Yayın tarihi / Publiée le", "Son kontrol / Vérifiée le", "Şehir / Ville",
+            "Dil şartları / Langues", "Vize kanıtı / Preuve visa"
         ])
         for j in jobs:
             is_ccift_str = "EVET (CCIFT/DEİK)" if (j.is_ccift_deik or any("CCIFT" in t for t in j.tags)) else "Diğer"
             track = determine_job_track(j)
             writer.writerow([
-                f"{j.relevance_score}%",
+                f"{j.relevance_score}%" if job_kind(j) == "offer" and j.relevance_score else "",
                 track.upper(),
                 j.title,
                 j.title_fr or j.title,
@@ -716,7 +971,13 @@ def export_to_csv(jobs: List[JobOpportunity], filepath: str = "offres_france_tur
                 ", ".join(j.tags),
                 j.source,
                 j.url,
-                j.snippet
+                j.snippet,
+                "İlan / Offre" if job_kind(j) == "offer" else "Şirket / Piste",
+                j.posted_at or "",
+                j.verified_at or "",
+                j.city or "",
+                ", ".join(j.language_requirements or []),
+                j.visa_evidence or ""
             ])
     print(f"[✓] Fichier CSV exporté : {filepath}")
 
@@ -740,20 +1001,30 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
     - Bibliothèque vectorielle SVG complète intégrée (zéro emoji disparate)
     - Système d'onglets, Kanban et Persistance LocalStorage
     """
-    total = len(jobs)
-    no_french_count = sum(1 for j in jobs if not j.french_required)
-    reloc_count = sum(1 for j in jobs if any(k in str(j.tags + j.tags_fr) for k in ["Vize", "Relokasyon", "Visa", "Relocalisation", "MAE", "Passeport"]))
-    ccift_count = sum(1 for j in jobs if (j.is_ccift_deik or any("CCIFT" in t or "DEİK" in t for t in (j.tags + j.tags_fr))))
+    # Keşfet ne montre QUE les vraies annonces (kind="offer") : compteurs calculés sur elles seules.
+    # Les fiches entreprise/institution (kind="lead") vont dans la section « pistes » du Rehber.
+    offers = [j for j in jobs if job_kind(j) == "offer"]
+    leads_total = len(jobs) - len(offers)
+    total = len(offers)
+    no_french_count = sum(1 for j in offers if not j.french_required)
+    reloc_count = sum(1 for j in offers if (j.visa_evidence or "").strip())
+    ccift_count = sum(1 for j in offers if (j.is_ccift_deik or any("CCIFT" in t or "DEİK" in t for t in (j.tags + j.tags_fr))))
+    generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
     track_counts = {"voie_1": 0, "voie_2": 0, "voie_3": 0, "autre": 0}
 
     jobs_data = []
-    for idx, j in enumerate(jobs):
+    used_ids = set()
+    for j in jobs:
         is_ccift = j.is_ccift_deik or any("CCIFT" in t or "DEİK" in t for t in j.tags)
         track = determine_job_track(j)
-        track_counts[track] = track_counts.get(track, 0) + 1
+        kind = job_kind(j)
+        if kind == "offer":
+            track_counts[track] = track_counts.get(track, 0) + 1
         jobs_data.append({
-            "id": idx,
+            # id numérique stable (hash de l'URL) : les favoris / candidatures survivent aux scans
+            "id": stable_job_id(j, used_ids),
+            "kind": kind,
             "title_tr": j.title,
             "title_fr": j.title_fr or j.title,
             "company": j.company,
@@ -776,6 +1047,16 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             "domain": determine_job_domain(j),
             "discovered_at": j.discovered_at or "",
             "contact_info": j.contact_info or "",
+            "source_type": j.source_type or "",
+            "posted_at": j.posted_at or "",
+            "verified_at": j.verified_at or "",
+            "country": j.country or "",
+            "city": j.city or "",
+            "language_requirements": list(j.language_requirements or []),
+            "reasons_tr": list(j.match_reasons_tr or []),
+            "reasons_fr": list(j.match_reasons_fr or j.match_reasons_tr or []),
+            "visa_evidence": (j.visa_evidence or "").strip(),
+            "description": truncate_description(j.description),
         })
     # JSON inline sûr dans <script> : « </ » → « <\/ » et « <!-- » neutralisé
     jobs_json = (json.dumps(jobs_data, ensure_ascii=False, separators=(",", ":"))
@@ -847,7 +1128,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     
     <!-- DONNÉES DES OFFRES (JSON inline) + BOOTSTRAP window.FransaData : avant tout autre script -->
-    <script id="fransa-jobs" type="application/json">{jobs_json}</script>
+    <script id="fransa-jobs" type="application/json" data-generated-at="{generated_at}">{jobs_json}</script>
     {FRANSA_DATA_BOOTSTRAP}
     <script>
         (function() {{
@@ -2894,6 +3175,7 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         <section class="ex-head" aria-labelledby="ex-hello">
             <h1 class="ex-hello" id="ex-hello" data-tr="Merhaba 👋" data-fr="Bonjour 👋">Merhaba 👋</h1>
             <p class="ex-sub" id="ex-new-line">{total} ilan</p>
+            <p class="ex-updated" id="ex-updated" data-generated-at="{generated_at}"></p>
         </section>
 
         <!-- Recherche + Filtres -->
@@ -2926,7 +3208,15 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
         <div class="cards-grid" id="cardsGrid"></div>
         <button type="button" class="ex-more" id="cardsSentinel" hidden><span data-tr="Daha fazla ilan" data-fr="Plus d'offres">Daha fazla ilan</span></button>
 
-        <!-- État vide -->
+        <!-- État vide HONNÊTE : aucune annonce compatible aujourd'hui (jamais de remplissage avec des fiches) -->
+        <div class="ex-empty ex-empty-feed" id="no-offers-box" hidden>
+            <svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg>
+            <p class="ex-empty-title" data-tr="Bugün profiline uygun yeni ilan yok" data-fr="Pas de nouvelle offre adaptée à ton profil aujourd'hui">Bugün profiline uygun yeni ilan yok</p>
+            <p class="ex-empty-text" data-tr="Robot her sabah 08:00'de ilanları yeniden tarıyor. Sadece gerçek, tarihli ve dil seviyene uygun ilanlar burada görünür." data-fr="Le robot refait une recherche chaque matin à 08:00. Seules les vraies offres, datées et adaptées à ton niveau de langue, s'affichent ici.">Robot her sabah 08:00'de ilanları yeniden tarıyor. Sadece gerçek, tarihli ve dil seviyene uygun ilanlar burada görünür.</p>
+            <button type="button" class="btn-filled" onclick="window.TrackerEngine.openLeads()"><svg class="ic" aria-hidden="true"><use href="#i-building"/></svg><span data-tr="Doğrudan başvurulabilecek şirketler" data-fr="Entreprises à contacter directement">Doğrudan başvurulabilecek şirketler</span></button>
+        </div>
+
+        <!-- État vide (filtres) -->
         <div class="ex-empty" id="no-results-box" hidden>
             <svg class="ic" aria-hidden="true"><use href="#i-search"/></svg>
             <p class="ex-empty-title" data-tr="Sonuç bulunamadı" data-fr="Aucun résultat">Sonuç bulunamadı</p>
@@ -3048,6 +3338,17 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
                 <h2 data-tr="Fransa İstihdam, Vize &amp; Başvuru Rehberi" data-fr="Guide Emploi en France, Visas &amp; Outils Bilatéraux">Fransa İstihdam, Vize &amp; Başvuru Rehberi</h2>
                 <p data-tr="Türkiye'den Fransa'ya transfer süreçleri, vize prosedürleri ve hazır başvuru şablonları." data-fr="Procédures de transfert Turquie-France, démarches visas et modèles de candidature prêts à l'emploi.">Türkiye'den Fransa'ya transfer süreçleri, vize prosedürleri ve hazır başvuru şablonları.</p>
             </div>
+
+            <!-- PISTES (kind="lead") : entreprises / institutions à contacter, ce ne sont PAS des annonces -->
+            <section class="leads-section" id="leads-section" aria-labelledby="leads-title">
+                <h2 class="leads-title" id="leads-title"><span data-tr="Doğrudan başvurulabilecek şirketler ve kurumlar" data-fr="Entreprises et institutions à contacter">Doğrudan başvurulabilecek şirketler ve kurumlar</span> <span class="leads-count" id="leads-count">{leads_total}</span></h2>
+                <p class="leads-hint">
+                    <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
+                    <span data-tr="Bunlar ilan değil: kariyer sayfaları. Açık pozisyon olup olmadığını sitede kontrol et ya da kendiliğinden başvur." data-fr="Ce ne sont pas des offres : ce sont des pages carrières. Vérifie s'il y a un poste ouvert sur le site ou envoie une candidature spontanée.">Bunlar ilan değil: kariyer sayfaları. Açık pozisyon olup olmadığını sitede kontrol et ya da kendiliğinden başvur.</span>
+                </p>
+                <ul class="leads-list" id="leadsList"></ul>
+                <button type="button" class="ex-more" id="leadsMore" hidden><span data-tr="Tümünü göster" data-fr="Tout afficher">Tümünü göster</span></button>
+            </section>
 
             <!-- Blocs d'introduction (déplacés depuis Keşfet) -->
             <div class="guide-intro-blocks">
@@ -3376,8 +3677,8 @@ Best regards,
             <div class="sheet-body">
                 <h3 class="sheet-label" data-tr="Sıralama" data-fr="Trier par">Sıralama</h3>
                 <div class="chip-wrap" role="group">
-                    <button type="button" class="chip" data-sort="score_desc" aria-pressed="true"><span data-tr="Önerilen" data-fr="Recommandées">Önerilen</span></button>
-                    <button type="button" class="chip" data-sort="date_desc" aria-pressed="false"><span data-tr="En yeni" data-fr="Plus récentes">En yeni</span></button>
+                    <button type="button" class="chip" data-sort="date_desc" aria-pressed="true"><span data-tr="En yeni" data-fr="Plus récentes">En yeni</span></button>
+                    <button type="button" class="chip" data-sort="score_desc" aria-pressed="false"><span data-tr="Önerilen" data-fr="Recommandées">Önerilen</span></button>
                     <button type="button" class="chip" data-sort="company_asc" aria-pressed="false"><span data-tr="Şirket A-Z" data-fr="Entreprise A-Z">Şirket A-Z</span></button>
                 </div>
                 <h3 class="sheet-label" data-tr="Uzmanlık alanı" data-fr="Domaine">Uzmanlık alanı</h3>

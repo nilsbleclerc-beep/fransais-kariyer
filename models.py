@@ -24,10 +24,31 @@ class JobOpportunity:
     discovered_at: str = ""
     french_required: bool = False
     working_language: str = "İngilizce veya Türkçe"
-    visa_sponsorship: str = "Vize / Relokasyon Sağlanıyor"
+    visa_sponsorship: str = "İlanda belirtilmemiş"
     is_ccift_deik: bool = False
     track: str = "autre"
     domain: str = ""
+
+    # --- Offres réelles vérifiées (sources/*) ---
+    # "offer" = annonce réelle et individuelle ; "lead" = fiche entreprise/institution (pas une annonce)
+    kind: str = "offer"
+    # "official_api" | "ats" | "board" | "community" | "static"
+    source_type: str = ""
+    # Date de publication de l'annonce (YYYY-MM-DD), "" si inconnue
+    posted_at: str = ""
+    # Dernière vérification que l'annonce est en ligne (ISO 8601 UTC), "" si non vérifiée
+    verified_at: str = ""
+    country: str = ""
+    city: str = ""
+    # Texte complet de l'annonce, utilisé pour le filtrage (tronqué à l'export)
+    description: str = ""
+    # Exigences de langue détectées, ex. ["tr:required", "fr:none", "en:basic"]
+    language_requirements: List[str] = field(default_factory=list)
+    # Raisons concrètes de la correspondance, chacune appuyée sur le texte de l'annonce
+    match_reasons_tr: List[str] = field(default_factory=list)
+    match_reasons_fr: List[str] = field(default_factory=list)
+    # Extrait de l'annonce mentionnant visa / relocalisation / sponsor ; "" si l'annonce n'en parle pas
+    visa_evidence: str = ""
 
     def to_dict(self):
         return asdict(self)

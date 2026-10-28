@@ -1,0 +1,270 @@
+{
+  "generated_at": "2026-10-28T17:57:22+00:00",
+  "profile": {
+    "residence_country": "TR",
+    "target_country": "FR",
+    "languages": {
+      "tr": "native",
+      "en": "A2-B1",
+      "fr": "A1"
+    },
+    "domains": "any",
+    "max_age_days": 45,
+    "max_pages": 4
+  },
+  "sources": {
+    "france_travail": {
+      "status": "ok",
+      "collected": 0,
+      "kept": 0,
+      "error": "",
+      "rejected": {}
+    },
+    "eures": {
+      "status": "ok",
+      "collected": 0,
+      "kept": 0,
+      "error": "",
+      "rejected": {}
+    },
+    "adzuna": {
+      "status": "ok",
+      "collected": 0,
+      "kept": 0,
+      "error": "",
+      "rejected": {}
+    },
+    "jooble": {
+      "status": "ok",
+      "collected": 0,
+      "kept": 0,
+      "error": "",
+      "rejected": {}
+    },
+    "gurbetilan": {
+      "status": "ok",
+      "collected": 13,
+      "kept": 8,
+      "error": "",
+      "rejected": {
+        "french_level": 1,
+        "requires_local_status": 4
+      }
+    },
+    "kariyer_net": {
+      "status": "ok",
+      "collected": 0,
+      "kept": 0,
+      "error": "",
+      "rejected": {}
+    },
+    "company_ats": {
+      "status": "ok",
+      "collected": 12,
+      "kept": 0,
+      "error": "",
+      "rejected": {
+        "english_level": 1,
+        "too_old": 7,
+        "no_language_fit": 2,
+        "french_level": 2
+      }
+    }
+  },
+  "counts": {
+    "french_level": 3,
+    "requires_local_status": 4,
+    "english_level": 1,
+    "too_old": 7,
+    "no_language_fit": 2
+  },
+  "rejected": [
+    {
+      "url": "https://www.gurbetilan.com/ads/paris-merogis-steakhouse-restoranimiz-icin-deneyimli-garson-araniyor/",
+      "title": "Paris – Mérogis – Steakhouse Restoranımız İçin Deneyimli Garson Aranıyor",
+      "source": "GurbetIlan France",
+      "reason": "french_level",
+      "detail": "Français exigé : « fr:5 »",
+      "company": "Annonceur GurbetIlan (non nommé)",
+      "location": "Paris, France",
+      "posted_at": "2026-10-28",
+      "module": "gurbetilan"
+    },
+    {
+      "url": "https://www.gurbetilan.com/ads/paris-fuar-organizasyonu-icin-turkce-konusan-servis-hostesi-araniyor/",
+      "title": "Paris – Fuar Organizasyonu İçin Türkçe Konuşan Servis Hostesi Aranıyor",
+      "source": "GurbetIlan France",
+      "reason": "requires_local_status",
+      "detail": "Réservé aux personnes déjà en France / avec droit au travail : « rganizasyonumuz icin paris ve cevresinde yasayan, misafirlerimizi guler yuzle »",
+      "company": "Annonceur GurbetIlan (non nommé)",
+      "location": "Paris, France",
+      "posted_at": "2026-10-20",
+      "module": "gurbetilan"
+    },
+    {
+      "url": "https://www.gurbetilan.com/ads/paris-fuar-organizasyonu-icin-servis-ve-karsilama-personeli-ariyoruz/",
+      "title": "Paris – Fuar Organizasyonu İçin Servis ve Karşılama Personeli Arıyoruz",
+      "source": "GurbetIlan France",
+      "reason": "requires_local_status",
+      "detail": "Réservé aux personnes déjà en France / avec droit au travail : « rkadaslari ariyoruz. paris ve cevresinde ikamet eden, organizasyonel sureclerde go »",
+      "company": "Annonceur GurbetIlan (non nommé)",
+      "location": "Paris, France",
+      "posted_at": "2026-10-15",
+      "module": "gurbetilan"
+    },
+    {
+      "url": "https://www.gurbetilan.com/ads/paris-ve-cevresi-mantolama-ite-ustasi-aranmaktadir/",
+      "title": "Paris ve Çevresi – Mantolama (ITE) Ustası Aranmaktadır",
+      "source": "GurbetIlan France",
+      "reason": "requires_local_status",
+      "detail": "Réservé aux personnes déjà en France / avec droit au travail : « sureli calismayi hedefleyen, calisma izni bulunan. calisma sartlari & saglanan »",
+      "company": "Annonceur GurbetIlan (non nommé)",
+      "location": "Paris ve Çevresi, France",
+      "posted_at": "2026-10-10",
+      "module": "gurbetilan"
+    },
+    {
+      "url": "https://www.gurbetilan.com/ads/levallois-perret-restaurant-personeli-aranmaktadir/",
+      "title": "Levallois-Perret – Restaurant Personeli Aranmaktadır",
+      "source": "GurbetIlan France",
+      "reason": "requires_local_status",
+      "detail": "Réservé aux personnes déjà en France / avec droit au travail : « ecrube sahibi olmak fransa'da yasal calisma ve oturum iznine sahip olmak (oturum izni olmayan ad »",
+      "company": "Annonceur GurbetIlan (non nommé)",
+      "location": "Levallois-Perret, France",
+      "posted_at": "2026-10-10",
+      "module": "gurbetilan"
+    },
+    {
+      "url": "https://jobs.lever.co/trendyol/db3f0f77-c56e-4e96-acd7-984a0c00cddb",
+      "title": "Category Lead - Luxury",
+      "source": "Trendyol (Lever)",
+      "reason": "english_level",
+      "detail": "Anglais avancé exigé : « professional proficiency »",
+      "company": "Trendyol",
+      "location": "Paris, France",
+      "posted_at": "2026-10-08",
+      "module": "company_ats"
+    },
+    {
+      "url": "https://jobs.dfds.com/jobs/7990324-officier-polyvalent-lieutenant-officier-mecanicien",
+      "title": "Officier Polyvalent / Lieutenant / Officier Mécanicien",
+      "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
+      "reason": "too_old",
+      "detail": "Publiée il y a 120 jours (> 45)",
+      "company": "DFDS France (ex-Ekol Lojistik)",
+      "location": "Dieppe / Calais, France",
+      "posted_at": "2026-06-30",
+      "module": "company_ats"
+    },
+    {
+      "url": "https://jobs.dfds.com/jobs/7053461-officier-mecanicien-h-f",
+      "title": "Officier Mécanicien (H/F)",
+      "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
+      "reason": "too_old",
+      "detail": "Publiée il y a 287 jours (> 45)",
+      "company": "DFDS France (ex-Ekol Lojistik)",
+      "location": "Calais / Dieppe, France",
+      "posted_at": "2026-01-14",
+      "module": "company_ats"
+    },
+    {
+      "url": "https://jobs.dfds.com/jobs/3529112-eleve-officier-polyvalent-pont-machine",
+      "title": "Elève Officier Polyvalent/Pont/Machine",
+      "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
+      "reason": "too_old",
+      "detail": "Publiée il y a 1015 jours (> 45)",
+      "company": "DFDS France (ex-Ekol Lojistik)",
+      "location": "Calais / Dieppe, France",
+      "posted_at": "2024-01-17",
+      "module": "company_ats"
+    },
+    {
+      "url": "https://jobs.dfds.com/jobs/8585135-traffic-supervisor",
+      "title": "Traffic Supervisor",
+      "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "DFDS France (ex-Ekol Lojistik)",
+      "location": "Sète, France",
+      "posted_at": "2026-10-21",
+      "module": "company_ats"
+    },
+    {
+      "url": "https://jobs.dfds.com/jobs/8585039-operations-agency-coordinator",
+      "title": "Operations & Agency coordinator",
+      "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "DFDS France (ex-Ekol Lojistik)",
+      "location": "Marseille, France",
+      "posted_at": "2026-10-21",
+      "module": "company_ats"
+    },
+    {
+      "url": "https://jobs.dfds.com/jobs/8584909-agency-supervisor",
+      "title": "Agency Supervisor",
+      "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
+      "reason": "french_level",
+      "detail": "Français exigé : « Français et anglais courant »",
+      "company": "DFDS France (ex-Ekol Lojistik)",
+      "location": "Marseille, France",
+      "posted_at": "2026-10-21",
+      "module": "company_ats"
+    },
+    {
+      "url": "https://jobs.dfds.com/jobs/8519405-sales-manager",
+      "title": "Sales Manager",
+      "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
+      "reason": "french_level",
+      "detail": "Français exigé : « fluent in French »",
+      "company": "DFDS France (ex-Ekol Lojistik)",
+      "location": "Calais / Loon-Plage / Boulogne-sur-Mer, France",
+      "posted_at": "2026-10-08",
+      "module": "company_ats"
+    },
+    {
+      "url": "https://jobs.dfds.com/jobs/8351835-aide-de-cuisine-h-f",
+      "title": "Aide de cuisine (H/F)",
+      "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
+      "reason": "too_old",
+      "detail": "Publiée il y a 49 jours (> 45)",
+      "company": "DFDS France (ex-Ekol Lojistik)",
+      "location": "Calais / Dieppe, France",
+      "posted_at": "2026-09-09",
+      "module": "company_ats"
+    },
+    {
+      "url": "https://jobs.dfds.com/jobs/8351120-steward-polyvalent",
+      "title": "Steward polyvalent",
+      "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
+      "reason": "too_old",
+      "detail": "Publiée il y a 49 jours (> 45)",
+      "company": "DFDS France (ex-Ekol Lojistik)",
+      "location": "Calais / Dieppe, France",
+      "posted_at": "2026-09-09",
+      "module": "company_ats"
+    },
+    {
+      "url": "https://jobs.dfds.com/jobs/8010410-stagiaire-pont-machine-h-f-2026",
+      "title": "Stagiaire Pont/Machine (H/F) 2026",
+      "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
+      "reason": "too_old",
+      "detail": "Publiée il y a 118 jours (> 45)",
+      "company": "DFDS France (ex-Ekol Lojistik)",
+      "location": "Calais, France",
+      "posted_at": "2026-07-02",
+      "module": "company_ats"
+    },
+    {
+      "url": "https://jobs.dfds.com/jobs/6282176-join-the-tarifa-jet-crew-in-saint-malo",
+      "title": "Join the Tarifa Jet Crew in Saint-Malo !",
+      "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
+      "reason": "too_old",
+      "detail": "Publiée il y a 447 jours (> 45)",
+      "company": "DFDS France (ex-Ekol Lojistik)",
+      "location": "Saint-Malo, France",
+      "posted_at": "2025-08-07",
+      "module": "company_ats"
+    }
+  ]
+}

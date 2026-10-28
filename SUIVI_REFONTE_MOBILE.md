@@ -33,6 +33,64 @@ Le desktop doit rester utilisable, sans être optimisé.
 | `783b83b` | Correctifs mobiles : plus de débordement horizontal, barre de navigation en bas, retour Android via l'historique, zones sûres, cibles de 48 dp, zoom réactivé, drawer lisible en mode sombre, partage natif (`navigator.share`), Kanban utilisable au doigt, cohérence TR/FR, 🇬🇧 réservé à « anglais suffisant ». |
 | `a3a5360` | **Fondations, Keşfet et Détail** : offres en JSON inline (`window.FransaData`) rendues en JS par lots de 20 (page passée de 1,42 Mo à 595 Ko). Police système, sprite d'icônes SVG, nouvel écran Keşfet (pastilles, feuille Filtres, cartes de 160 px, « yeni ilan »). Détail en plein écran (« Bu ilan bana uygun mu? », frise visa, barre ⭐ + « Ön yazı hazırla »). Correction du domaine IT et des préfixes de titres FR. |
 
+| *(28/10)* | **Recherche d'offres réelles, zéro faux positif** : voir la section ci-dessous. |
+
+---
+
+## Recherche d'offres réelles (28/10/2026)
+
+**Profil de la candidate** (`profile.json`) : turc natif, anglais A2/B1, français A1, tous domaines, offres de 45 jours au plus.
+
+**Sources** (`sources/*.py`, contrat `fetch(profile) -> List[JobOpportunity]`) :
+
+| Source | Type | État | Clé requise |
+| --- | --- | --- | --- |
+| GurbetIlan | communauté turque | ✅ en ligne : date, ville et texte complet | non |
+| Kariyer.net (rubrique « yurtdışı → Fransa » uniquement) | job board turc | ✅ en ligne (0 offre en France le 28/10) | non |
+| ATS groupes turcs : Trendyol (Lever), DFDS ex-Ekol (Teamtailor), Pladis/Godiva (Workday) | ATS | ✅ en ligne | non |
+| France Travail – API Offres v2 (« turc », « turcophone »…) | officielle | ⏳ codé, **en attente des clés** | `FT_CLIENT_ID` / `FT_CLIENT_SECRET` |
+| Adzuna | agrégateur | ⏳ codé, **en attente de la clé** | `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` |
+| Jooble | agrégateur | ⏳ codé, **en attente de la clé** | `JOOBLE_KEY` |
+| EURES | portail européen | ❌ pas d'API publique (ses offres françaises passent par France Travail) | — |
+
+Supprimés : les recherches DuckDuckGo (résultats périmés, postes « Fransızca bilen » situés à Istanbul).
+
+**Filtre anti-faux-positifs** (`quality.py`). Une offre est rejetée si :
+
+- elle n'est pas en France ;
+- elle date de plus de 45 jours ;
+- son lien est mort, redirigé ou mène à une annonce expirée ;
+- elle exige un français B1+ ou un anglais B2+ ;
+- elle n'a aucun lien avec la langue turque, alors que le français y est implicite ;
+- elle est **réservée aux personnes déjà en France ou déjà titulaires d'un droit au travail** (« çalışma izni bulunan », « Paris'te ikamet eden », « titre de séjour valide »…) ;
+- c'est un doublon.
+
+Toutes les offres rejetées sont listées dans `rejected_offers.json`, avec leur motif. Le visa n'est affiché que s'il est cité dans l'annonce.
+
+**Premier scan réel (28/10)** : 25 offres collectées, **8 gardées** (GurbetIlan : BTP, restauration, textile, à Paris, Torcy, Nevers, Le Havre et Lyon), 17 rejetées : 7 trop anciennes, 4 réservées aux résidents, 3 avec français exigé, 2 sans langue compatible, 1 avec anglais avancé exigé.
+
+Les fiches entreprises et institutions (33) sont désormais des « pistes » (`kind="lead"`) affichées dans Rehber, avec la mention « Bu bir ilan değil ». Elles ne sont plus présentées comme des offres.
+
+### 🔑 Action requise : clés API (gratuites)
+
+Une fois inscrit sur chaque service, ajouter les clés dans GitHub : *Settings → Secrets and variables → Actions → New repository secret*.
+
+1. **France Travail** (la source la plus utile : offres officielles avec l'exigence de langue « Turc ») : créer une application sur https://francetravail.io, souscrire à l'API **Offres d'emploi v2**, puis ajouter `FT_CLIENT_ID` et `FT_CLIENT_SECRET`.
+2. **Adzuna** : s'inscrire sur https://developer.adzuna.com/signup, puis ajouter `ADZUNA_APP_ID` et `ADZUNA_APP_KEY`.
+3. **Jooble** : remplir le formulaire sur https://jooble.org/api/about, puis ajouter `JOOBLE_KEY`.
+
+Au premier scan avec clés, relire `rejected_offers.json`. Points à vérifier :
+
+- les paramètres France Travail et Jooble ont été codés en partie de mémoire ;
+- les marqueurs d'annonce expirée peuvent se déclencher à tort sur certains sites.
+
+### Pistes d'amélioration de la recherche
+
+- [ ] Quand les clés seront là, ajuster les mots-clés France Travail (ex. « turc » + codes ROME des métiers en tension) et vérifier le volume.
+- [ ] Rejeter aussi les offres d'événements déjà passés (ex. un salon dont les dates sont échues).
+- [ ] Pour DFDS, la date d'une annonce permanente est celle de sa première publication : ces annonces sont donc rejetées comme trop anciennes alors qu'elles sont peut-être encore ouvertes.
+- [ ] Ajouter des ATS si de nouveaux groupes turcs ouvrent un listing public (Beko recrute via France Travail et Wizbii ; Şişecam et Ekol bloquent les robots).
+
 ---
 
 ## Contrats techniques à respecter
@@ -119,7 +177,7 @@ Les onglets suivent une autre règle :
   python -c "import exporter, json; from models import JobOpportunity; jobs=[JobOpportunity(**d) for d in json.load(open('offres_france_turquie.json',encoding='utf-8'))]; exporter.export_to_html_dashboard(jobs,'dashboard.html')"
   ```
 
-- **Incrémenter `CACHE_NAME` dans `sw.js` (actuellement `v4`)** à chaque changement visible, sinon l'app installée ne se met pas à jour.
+- **Incrémenter `CACHE_NAME` dans `sw.js` (actuellement `v5`)** à chaque changement visible, sinon l'app installée ne se met pas à jour.
 - Un push qui touche `exporter.py`, `scrapers.py`, `companies_data.py` ou `pwa_*` relance le workflow. Le robot commite alors de nouvelles offres : faire `git pull` avant de reprendre.
 
 ---

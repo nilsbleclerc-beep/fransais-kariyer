@@ -389,7 +389,22 @@
             tracked: "✓ Takip listesine eklendi", trackUnavailable: "Takip şu anda kullanılamıyor",
             markApplied: "Başvurdum olarak işaretle?", yes: "Evet", dismiss: "Kapat",
             markedApplied: "✓ Başvuruldu olarak işaretlendi",
-            notFound: "İlan bulunamadı"
+            notFound: "İlan bulunamadı",
+            // v5 : offres réelles / pistes
+            whyTitle: "Neden bu ilan?",
+            factsTitle: "İlan bilgileri", postedLabel: "Yayın tarihi", verifiedLabel: "Son kontrol", sourceLabel: "Kaynak",
+            dateUnknown: "Tarih bilinmiyor", notVerified: "Henüz kontrol edilmedi",
+            visaTitle: "Vize", visaQuoteLabel: "İlandan alıntı",
+            visaNone: "Vize desteği ilanda belirtilmemiş — işverene sorulmalı",
+            langUnknown: "Dil şartı ilanda net değil — ilanı kontrol et",
+            yourLevel: "Senin seviyen: ", nativeAdvantage: "Anadilin — avantaj",
+            levelHard: "Senin seviyenin üstünde",
+            langNames: { fr: "Fransızca", en: "İngilizce", tr: "Türkçe" },
+            levels: { none: "Gerekmez", optional: "Artı (zorunlu değil)", basic: "Temel seviye yeterli", required: "Gerekli", fluent: "Akıcı seviye gerekli", native: "Anadil seviyesi gerekli" },
+            levelCefr: "Seviye {l}",
+            leadBanner: "Bu bir ilan değil — kariyer sayfası",
+            leadBannerText: "Bu şirket/kurum Türkiye'den gelen adaylara açık olabilir ama şu an belirli bir ilan yok. Kariyer sayfasında açık pozisyonlara bak ya da kendiliğinden başvur.",
+            leadLangLabel: "Dil", leadLangUnknown: "Dil şartı belirtilmemiş", langGeneric: "Dil şartları"
         },
         fr: {
             back: "Retour", more: "Plus d'options", share: "Partager", openSite: "Site officiel", track: "Suivre",
@@ -406,7 +421,22 @@
             tracked: "✓ Ajoutée au suivi", trackUnavailable: "Suivi indisponible pour le moment",
             markApplied: "Marquer comme candidature envoyée ?", yes: "Oui", dismiss: "Fermer",
             markedApplied: "✓ Marquée comme candidature envoyée",
-            notFound: "Offre introuvable"
+            notFound: "Offre introuvable",
+            // v5 : offres réelles / pistes
+            whyTitle: "Pourquoi cette offre ?",
+            factsTitle: "Infos de l'annonce", postedLabel: "Publiée le", verifiedLabel: "Vérifiée le", sourceLabel: "Source",
+            dateUnknown: "Date inconnue", notVerified: "Pas encore vérifiée",
+            visaTitle: "Visa", visaQuoteLabel: "Extrait de l'annonce",
+            visaNone: "Visa non mentionné dans l'annonce — à demander à l'employeur",
+            langUnknown: "Exigence de langue peu claire — vérifie l'annonce",
+            yourLevel: "Ton niveau : ", nativeAdvantage: "Ta langue maternelle — un atout",
+            levelHard: "Au-dessus de ton niveau",
+            langNames: { fr: "Français", en: "Anglais", tr: "Turc" },
+            levels: { none: "Non requis", optional: "Un plus (pas obligatoire)", basic: "Niveau de base suffisant", required: "Requis", fluent: "Niveau courant requis", native: "Niveau natif requis" },
+            levelCefr: "Niveau {l}",
+            leadBanner: "Ce n'est pas une offre — page carrières",
+            leadBannerText: "Cette entreprise/institution peut être ouverte aux candidats depuis la Turquie, mais il n'y a pas d'annonce précise pour l'instant. Consulte les postes ouverts sur sa page carrières ou envoie une candidature spontanée.",
+            leadLangLabel: "Langue", leadLangUnknown: "Exigence de langue non précisée", langGeneric: "Langues"
         }
     };
 
@@ -509,9 +539,19 @@
             workingLang: raw.working_lang || '',
             isCcift: !!raw.ccift,
             isNoFrench: !!raw.no_french,
-            score: raw.score,
             source: raw.source || '',
-            track
+            track,
+            // v5 : offres réelles datées / pistes
+            kind: raw.kind === 'lead' ? 'lead' : 'offer',
+            sourceType: raw.source_type || '',
+            postedAt: raw.posted_at || '',
+            verifiedAt: raw.verified_at || '',
+            city: raw.city || '',
+            langReq: Array.isArray(raw.language_requirements) ? raw.language_requirements : [],
+            reasonsTr: Array.isArray(raw.reasons_tr) ? raw.reasons_tr.filter(Boolean) : [],
+            reasonsFr: Array.isArray(raw.reasons_fr) ? raw.reasons_fr.filter(Boolean) : [],
+            visaEvidence: String(raw.visa_evidence || '').trim(),
+            description: String(raw.description || '').trim()
         };
     }
 
@@ -647,18 +687,29 @@
 
             const body = document.getElementById('bld-drawer-body');
             if (body) {
-                body.innerHTML = this.renderHero(job, title, kapi, lang)
-                    + this.renderFit(job, kapi, lang)
-                    + this.renderRoadmap(job.track, lang)
-                    + this.renderDescription(job, lang)
-                    + this.renderContact(job);
+                drawer.setAttribute('data-kind', job.kind);
+                // Piste (fiche entreprise) : bandeau « pas une offre », PAS de « Bu ilan bana uygun mu? »
+                body.innerHTML = job.kind === 'lead'
+                    ? this.renderHero(job, title, kapi, lang)
+                        + this.renderLeadBanner(job, lang)
+                        + this.renderRoadmap(job.track, lang)
+                        + this.renderDescription(job, lang)
+                        + this.renderContact(job)
+                    : this.renderHero(job, title, kapi, lang)
+                        + this.renderWhy(job, lang)
+                        + this.renderFacts(job, lang)
+                        + this.renderFit(job, kapi, lang)
+                        + this.renderVisa(job, lang)
+                        + this.renderRoadmap(job.track, lang)
+                        + this.renderDescription(job, lang)
+                        + this.renderContact(job);
             }
             this.syncFavorite();
             this.syncAppBar();
         },
 
         renderHero(job, title, kapi, lang) {
-            const meta = [job.company, job.location].filter(Boolean).join(' · ');
+            const meta = [job.company, job.city || job.location].filter(Boolean).join(' · ');
             return `
                 <header class="bld-hero">
                     <span class="bld-kapi-badge">${icon(kapi.icon, 16)}<span>${esc(kapi[lang])}</span></span>
@@ -667,8 +718,8 @@
                 </header>`;
         },
 
-        renderFit(job, kapi, lang) {
-            const row = (ok, label, value, sub) => `
+        fitRow(ok, label, value, sub) {
+            return `
                 <li class="bld-fit-row">
                     <span class="bld-fit-icon ${ok ? 'is-ok' : 'is-warn'}">${icon(ok ? 'check' : 'alert', 18)}</span>
                     <span class="bld-fit-text">
@@ -677,18 +728,114 @@
                         ${sub ? `<span class="bld-fit-sub">${esc(sub)}</span>` : ''}
                     </span>
                 </li>`;
-            // Résumé court de la voie en gras (lisible d'un coup d'œil), détail visa de l'offre en dessous
-            const visaText = lang === 'fr' ? kapi.visaFr : kapi.visaTr;
-            const visaSub = lang === 'fr' ? job.visaFr : job.visaTr;
-            const frenchSub = job.workingLang ? dt('workLang') + job.workingLang : '';
+        },
+
+        /**
+         * Exigence « code:niveau » (ex. "fr:none", "en:B1", "tr:required") comparée au profil :
+         * turc natif, anglais A2/B1, français A1.
+         */
+        langRow(req) {
+            const parts = String(req || '').toLowerCase().split(':');
+            const code = parts[0] || '';
+            const level = (parts[1] || '').trim();
+            const names = dt('langNames') || {};
+            const name = names[code] || code.toUpperCase();
+            const cefr = /^[abc][12]$/.test(level) ? level.toUpperCase() : '';
+            const value = cefr ? dt('levelCefr').replace('{l}', cefr) : ((dt('levels') || {})[level] || level || '—');
+            const RANK = { a1: 1, a2: 2, b1: 3, b2: 4, c1: 5, c2: 6 };
+            const PROFILE = { tr: { max: 99, label: '' }, en: { max: 3, label: 'A2/B1' }, fr: { max: 1, label: 'A1' } };
+            if (code === 'tr') return this.fitRow(true, name, value, dt('nativeAdvantage'));
+            const prof = PROFILE[code];
+            let need;
+            if (cefr) need = RANK[level];
+            else if (level === 'none' || level === 'optional') need = 0;
+            else if (level === 'basic') need = 1;
+            else if (level === 'fluent' || level === 'native') need = 5;
+            else need = code === 'en' ? 3 : 4; // "required" sans niveau : on reste prudent
+            const ok = !prof || need <= prof.max;
+            const sub = prof ? (dt('yourLevel') + prof.label + (ok ? '' : ' — ' + dt('levelHard'))) : '';
+            return this.fitRow(ok, name, value, sub);
+        },
+
+        renderFit(job, kapi, lang) {
+            const order = { fr: 0, en: 1, tr: 2 };
+            const reqs = job.langReq.slice().sort((a, b) =>
+                (order[String(a).split(':')[0]] ?? 9) - (order[String(b).split(':')[0]] ?? 9));
+            const langRows = reqs.length
+                ? reqs.map(r => this.langRow(r)).join('')
+                : this.fitRow(false, dt('langGeneric'), dt('langUnknown'), '');
             return `
                 <section class="bld-fit-card" aria-labelledby="bld-fit-title">
                     <h3 id="bld-fit-title" class="bld-section-heading">${esc(dt('fitTitle'))}</h3>
                     <ul class="bld-fit-list">
-                        ${row(job.isNoFrench, dt('frenchLabel'), job.isNoFrench ? dt('noFrench') : dt('frenchReq'), frenchSub)}
-                        ${row(job.track !== 'autre', dt('visaLabel'), visaText, visaSub)}
-                        ${row(true, dt('locationLabel'), job.location || dt('locationDefault'), '')}
+                        ${langRows}
+                        ${this.fitRow(true, dt('locationLabel'), job.city || job.location || dt('locationDefault'), '')}
                     </ul>
+                </section>`;
+        },
+
+        renderWhy(job, lang) {
+            const reasons = (lang === 'fr' && job.reasonsFr.length) ? job.reasonsFr : job.reasonsTr;
+            if (!reasons.length) return '';
+            return `
+                <section class="bld-why" aria-labelledby="bld-why-title">
+                    <h3 id="bld-why-title" class="bld-section-heading">${esc(dt('whyTitle'))}</h3>
+                    <ul class="bld-why-list">${reasons.map(r => `<li>${icon('check', 18)}<span>${esc(r)}</span></li>`).join('')}</ul>
+                </section>`;
+        },
+
+        formatDate(value, withTime) {
+            const v = String(value || '').trim();
+            if (!v) return '';
+            const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+            const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(v);
+            if (isNaN(d.getTime())) return v;
+            const opts = withTime
+                ? { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }
+                : { day: 'numeric', month: 'long', year: 'numeric' };
+            try { return new Intl.DateTimeFormat(State.lang === 'fr' ? 'fr-FR' : 'tr-TR', opts).format(d); }
+            catch (e) { return d.toLocaleDateString(); }
+        },
+
+        renderFacts(job, lang) {
+            const te = window.TrackerEngine;
+            const age = te && typeof te.ageLabel === 'function' ? te.ageLabel(job.postedAt) : '';
+            const posted = job.postedAt ? this.formatDate(job.postedAt, false) + (age ? ' · ' + age : '') : dt('dateUnknown');
+            const verified = job.verifiedAt ? this.formatDate(job.verifiedAt, true) : dt('notVerified');
+            const fresh = te && typeof te.isFreshlyVerified === 'function' && te.isFreshlyVerified(job.verifiedAt);
+            const row = (label, value, cls) => `<div class="bld-fact"><dt>${esc(label)}</dt><dd${cls ? ` class="${cls}"` : ''}>${value}</dd></div>`;
+            return `
+                <section aria-labelledby="bld-facts-title">
+                    <h3 id="bld-facts-title" class="bld-section-heading">${esc(dt('factsTitle'))}</h3>
+                    <dl class="bld-facts">
+                        ${row(dt('postedLabel'), esc(posted), job.postedAt ? '' : 'is-muted')}
+                        ${row(dt('verifiedLabel'), (fresh ? icon('check', 16) : '') + esc(verified), fresh ? 'is-ok' : (job.verifiedAt ? '' : 'is-muted'))}
+                        ${job.source ? row(dt('sourceLabel'), esc(job.source)) : ''}
+                    </dl>
+                </section>`;
+        },
+
+        renderVisa(job, lang) {
+            const body = job.visaEvidence
+                ? `<figure class="bld-quote"><blockquote>« ${esc(job.visaEvidence)} »</blockquote><figcaption>${esc(dt('visaQuoteLabel'))}</figcaption></figure>`
+                : `<p class="bld-note">${icon('info', 18)}<span>${esc(dt('visaNone'))}</span></p>`;
+            return `
+                <section aria-labelledby="bld-visa-title">
+                    <h3 id="bld-visa-title" class="bld-section-heading">${esc(dt('visaTitle'))}</h3>
+                    ${body}
+                </section>`;
+        },
+
+        renderLeadBanner(job, lang) {
+            const te = window.TrackerEngine;
+            const langText = te && typeof te.langRequirementText === 'function'
+                ? te.langRequirementText({ language_requirements: job.langReq, tags_tr: job.tagsTr, tags_fr: job.tagsFr })
+                : dt('leadLangUnknown');
+            return `
+                <section class="bld-lead-banner" role="note" aria-labelledby="bld-lead-title">
+                    <p id="bld-lead-title" class="bld-lead-title">${icon('info', 20)}<span>${esc(dt('leadBanner'))}</span></p>
+                    <p class="bld-lead-text">${esc(dt('leadBannerText'))}</p>
+                    <p class="bld-lead-lang"><strong>${esc(dt('leadLangLabel'))} :</strong> ${esc(langText)}</p>
                 </section>`;
         },
 
@@ -719,7 +866,7 @@
         },
 
         renderDescription(job, lang) {
-            const snippet = lang === 'fr' ? job.snippetFr : job.snippetTr;
+            const snippet = job.description || (lang === 'fr' ? job.snippetFr : job.snippetTr);
             // Le lieu est déjà affiché (en-tête + « uygun mu? ») : on écarte les tags 📍
             const tags = (lang === 'fr' ? job.tagsFr : job.tagsTr)
                 .filter(tag => String(tag).indexOf('\u{1F4CD}') !== 0)

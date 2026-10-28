@@ -8,10 +8,12 @@ KEYWORDS_LOCATION = [
     "Toulouse", "Nice", "Bordeaux", "Strasbourg", "Nantes"
 ]
 
+# Mentions EXPLICITES de visa / relocalisation uniquement (mots entiers).
+# « yurtdışı », « ofisimizde », « şubemizde », « tayin »… ne prouvent PAS un soutien visa : retirés.
+# La détection effective est faite par quality.find_visa_evidence (gère aussi « titre de séjour exigé »).
 KEYWORDS_RELOCATION_VISA = [
-    "relokasyon", "relocation", "vize", "vize desteği", "çalışma izni",
-    "yurtdışı", "yurtdışında", "görevlendirilmek üzere", "şubemizde",
-    "ofisimizde", "expat", "tayin", "fransa operasyonu", "fransa ofisi"
+    "relokasyon", "relocation", "relocalisation", "vize", "vize desteği", "visa", "visa sponsorship",
+    "passeport talent", "çalışma izni"
 ]
 
 KEYWORDS_LANGUAGE = [
@@ -31,20 +33,5 @@ NEGATIVE_KEYWORDS = [
     "anaokulu", "kreş"
 ]
 
-# Requêtes automatisées pour le moteur de recherche (exhaustives et optimisées)
-SEARCH_DORKS = [
-    'site:kariyer.net Fransa ihracat',
-    'site:kariyer.net Fransa lojistik',
-    'site:kariyer.net Fransa satış',
-    'site:kariyer.net Fransızca yöneticisi',
-    'site:tr.linkedin.com/jobs Fransa Türkçe',
-    'site:tr.linkedin.com/jobs Fransa iş ilanı',
-    'site:fr.linkedin.com/jobs "Turkish" OR "Turc" Paris',
-    'site:fr.indeed.com "turc" OR "turcophone" OR "turque"',
-    'site:eleman.net Fransa iş ilanları',
-    'site:secretcv.com Fransa iş ilanları',
-    'site:yenibiris.com Fransa iş ilanları',
-    'Fransa Türk iş ilanları Paris Lyon',
-    'site:tr.jooble.org Türkçe bilen Fransa',
-    'Fransa Türk nakliye lojistik iş ilanı'
-]
+# La recherche DuckDuckGo (SEARCH_DORKS) a été supprimée : résultats périmés et pages de liste
+# présentés comme des offres. Les offres viennent désormais de sources/* (API, ATS, sites d'annonces).

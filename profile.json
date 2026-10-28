@@ -1,0 +1,12 @@
+{
+  "_comment": "Profil de la candidate : sert à écarter les offres qui ne la concernent pas (pas de fausses joies).",
+  "residence_country": "TR",
+  "target_country": "FR",
+  "languages": {
+    "tr": "native",
+    "en": "A2-B1",
+    "fr": "A1"
+  },
+  "domains": "any",
+  "max_age_days": 45
+}
