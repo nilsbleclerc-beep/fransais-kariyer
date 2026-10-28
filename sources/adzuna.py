@@ -16,7 +16,8 @@ SOURCE = "Adzuna"
 SEARCH_URL = "https://api.adzuna.com/v1/api/jobs/fr/search/{page}"
 WHAT_OR = "turc turcophone turque turkish"
 PER_PAGE = 50
-MAX_PAGES = 4
+# 1 page par scan : le compte gratuit (non abonné) n'a que 25 appels de test au total
+MAX_PAGES = 1
 
 
 def snippet_of(text: str, limit: int = 300) -> str:
