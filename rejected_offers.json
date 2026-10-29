@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T00:22:45+00:00",
+  "generated_at": "2026-10-29T00:41:48+00:00",
   "profile": {
     "residence_country": "TR",
     "target_country": "FR",
@@ -72,6 +72,27 @@
         "no_language_fit": 7,
         "french_level": 2
       }
+    },
+    "yenibiris": {
+      "status": "ok",
+      "collected": 0,
+      "kept": 0,
+      "error": "",
+      "rejected": {}
+    },
+    "iskur": {
+      "status": "ok",
+      "collected": 0,
+      "kept": 0,
+      "error": "",
+      "rejected": {}
+    },
+    "tr_consulates": {
+      "status": "ok",
+      "collected": 0,
+      "kept": 0,
+      "error": "",
+      "rejected": {}
     }
   },
   "counts": {
@@ -229,7 +250,7 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/land/ad/5944274200?se=GtjUsS7T8RGYhfwhaoVLwA&utm_medium=api&utm_source=25ece07d&v=11AEF9E55B571C6361CFF408930A5CA338315D6A",
+      "url": "https://www.adzuna.fr/land/ad/5944274200?se=AmOpITHT8RGGEZv-xSOJ3w&utm_medium=api&utm_source=25ece07d&v=11AEF9E55B571C6361CFF408930A5CA338315D6A",
       "title": "Conseiller de vente Parfumerie luxe bilingue/trilingue H/F",
       "source": "Adzuna",
       "reason": "english_level",
@@ -460,6 +481,28 @@
       "module": "adzuna"
     },
     {
+      "url": "https://www.adzuna.fr/details/5937388243?utm_medium=api&utm_source=25ece07d",
+      "title": "French Luxury Brand Partnerships Category Lead",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Trendyol",
+      "location": "Paris, Ile-de-France",
+      "posted_at": "2026-10-22",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5937384929?utm_medium=api&utm_source=25ece07d",
+      "title": "Responsable Service Résidentiel F/H (Nanterre)",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Daikin",
+      "location": "Nanterre, Hauts-de-Seine",
+      "posted_at": "2026-10-22",
+      "module": "adzuna"
+    },
+    {
       "url": "https://www.adzuna.fr/details/5937222106?utm_medium=api&utm_source=25ece07d",
       "title": "Régleur sur commande numérique en 2×8 (H/F)",
       "source": "Adzuna",
@@ -654,28 +697,6 @@
       "detail": "Pays étranger dans le titre : « portugal »",
       "company": "CB Talents",
       "location": "Lyon, Rhône",
-      "posted_at": "2026-10-16",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5929903367?utm_medium=api&utm_source=25ece07d",
-      "title": "CONDUCTEUR DE LIGNE",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Saica Pack",
-      "location": "Mayenne, Pays de la Loire",
-      "posted_at": "2026-10-16",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5929902516?utm_medium=api&utm_source=25ece07d",
-      "title": "DIRECTEUR DE PRODUCTION",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Saica Pack",
-      "location": "Châteauneuf-la-Forêt, Limoges",
       "posted_at": "2026-10-16",
       "module": "adzuna"
     },
