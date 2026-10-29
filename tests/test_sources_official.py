@@ -60,7 +60,8 @@ def _restore_env(saved):
 def test_no_keys_returns_empty():
     saved = _clear_env()
     try:
-        for mod in (france_travail, eures, adzuna, jooble):
+        # EURES ne demande pas de clé : il n'est pas concerné par ce test
+        for mod in (france_travail, adzuna, jooble):
             assert mod.fetch({}) == [], mod.__name__
     finally:
         _restore_env(saved)
@@ -118,6 +119,20 @@ def test_jooble_mapping():
     assert "<b>" not in j.description and "turc" in j.description and j.country == "FR"
 
 
+def test_eures_mapping():
+    from sources import eures
+    jv = {"id": "MjE1VEJaVyA5", "creationDate": 1793177644000, "locationMap": {"FR": ["FR104"]},
+          "employer": {"name": "L'AKDENIZ"},
+          "translations": {"fr": {"title": "Cuisinier spécialités turcs (H/F)",
+                                  "description": "Restaurant de spécialités turques recherche un cuisinier."}}}
+    job = eures.map_job(jv)
+    assert job.city == "Essonne" and "Île-de-France" in job.location, (job.city, job.location)
+    assert job.language_requirements == ["tr:required"] and job.source_type == "official_api"
+    assert job.contact_info == "Offre France Travail n° 215TBZW", job.contact_info
+    assert job.url.endswith("/jv-details/MjE1VEJaVyA5?lang=fr")
+    assert eures.place_from_nuts(["FRK24"]) == ("", "Auvergne-Rhône-Alpes, France")
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in list(globals().items()):
@@ -129,3 +144,4 @@ if __name__ == "__main__":
                 failed += 1
                 print(f"FAIL {name} : {e!r}")
     sys.exit(1 if failed else 0)
+

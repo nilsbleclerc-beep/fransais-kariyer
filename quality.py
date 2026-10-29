@@ -506,6 +506,8 @@ def filter_offers(jobs: List, profile: Dict, *, verify_urls: bool = True,
 
     kept, rejected = [], []
     seen_urls, seen_keys = set(), set()
+    # Titres des offres France Travail déjà reçues via EURES (Adzuna republie les mêmes sous « France Travail »)
+    seen_ft_titles = set()
 
     for job in jobs:
         nurl = normalize_url(job.url)
@@ -560,6 +562,9 @@ def filter_offers(jobs: List, profile: Dict, *, verify_urls: bool = True,
         if key in seen_keys:
             rejected.append(_reject(job, "duplicate", "Même titre / entreprise / ville"))
             continue
+        if fold(job.company).strip() == "france travail" and key[0] in seen_ft_titles:
+            rejected.append(_reject(job, "duplicate", "Offre France Travail déjà reçue via EURES"))
+            continue
 
         url_note = False
         if verify_urls:
@@ -579,6 +584,8 @@ def filter_offers(jobs: List, profile: Dict, *, verify_urls: bool = True,
 
         seen_urls.add(nurl)
         seen_keys.add(key)
+        if job.source.startswith("EURES"):
+            seen_ft_titles.add(key[0])
 
         # --- Raisons honnêtes, score, visa ---
         original = f"{job.title}. {job.snippet}. {job.description}"
@@ -597,7 +604,16 @@ def filter_offers(jobs: List, profile: Dict, *, verify_urls: bool = True,
 
         r_tr, r_fr = [], []
         score = 40
-        if lang["tr_strong"]:
+        if lang["tr_strong"] in ("tr:requis", "tr:atout"):
+            if lang["tr_strong"] == "tr:requis":
+                r_tr.append("Türkçe işveren tarafından şart koşuluyor (ilan kriteri)")
+                r_fr.append("Turc exigé par l'employeur (critère de l'offre)")
+                score += 30
+            else:
+                r_tr.append("Türkçe işveren tarafından tercih ediliyor (ilan kriteri)")
+                r_fr.append("Turc souhaité par l'employeur (critère de l'offre)")
+                score += 20
+        elif lang["tr_strong"]:
             r_tr.append(f'Türkçe isteniyor (ilanda: "{lang["tr_strong"]}")')
             r_fr.append(f'Turc demandé (annonce : "{lang["tr_strong"]}")')
             score += 30
