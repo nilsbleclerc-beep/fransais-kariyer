@@ -78,7 +78,7 @@ Toutes les offres rejetées sont listées dans `rejected_offers.json`, avec leur
 
 **Premier scan réel (28/10)** : 25 offres collectées, **8 gardées** (GurbetIlan : BTP, restauration, textile, à Paris, Torcy, Nevers, Le Havre et Lyon), 17 rejetées : 7 trop anciennes, 4 réservées aux résidents, 3 avec français exigé, 2 sans langue compatible, 1 avec anglais avancé exigé.
 
-Les fiches entreprises et institutions (33) sont désormais des « pistes » (`kind="lead"`) affichées dans Rehber, avec la mention « Bu bir ilan değil ». Elles ne sont plus présentées comme des offres.
+Les 33 fiches entreprises/institutions (Voie 1, 2, 3) ont été **supprimées de l'app le 29/10** : leur contenu (postes « actifs », « visa pris en charge », emails RH) avait été rédigé par une IA à la création du projet et jamais vérifié. L'annuaire RH du panneau de détail est vidé pour la même raison. `companies_data.py` reste utilisé par le scorer et `sources/company_ats.py` (noms d'entreprises seulement).
 
 ### 🔑 Action requise : clés API (gratuites)
 

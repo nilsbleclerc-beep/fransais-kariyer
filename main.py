@@ -5,7 +5,7 @@ Fransaİş — collecte d'offres d'emploi RÉELLES en France pour une candidate 
 1. Charge le profil (profile.json : langues, ancienneté max des annonces).
 2. Appelle chaque collecteur de sources.SOURCE_MODULES (module absent ou en erreur : journalisé, ignoré).
 3. Filtre avec quality.filter_offers (France, fraîcheur, URL vivante, langue compatible, doublons).
-4. Ajoute les fiches statiques (kind="lead" : groupes turcs, institutions, scale-ups — ce ne sont pas des offres).
+4. N'ajoute plus de fiches statiques : leur contenu (postes « actifs », emails RH) n'était pas vérifié.
 5. Écrit offres_france_turquie.json/.csv, rejected_offers.json (audit, non affiché) et dashboard.html.
 """
 import argparse
@@ -22,7 +22,6 @@ from rich.panel import Panel
 from rich.table import Table
 
 import quality
-from scrapers import BilateralJobScanner
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 console = Console()
@@ -132,7 +131,8 @@ def run_agent(pages: int = 4, html: bool = True, verify_urls: bool = True):
     source_leads = [j for j in kept if j.kind != "offer"]
 
     console.print("[bold]3. Fiches entreprises / institutions (leads, pas des offres)[/bold]")
-    leads = source_leads + BilateralJobScanner().get_all_leads()
+    # Plus de fiches statiques (contenu jamais vérifié) : uniquement de vraies annonces
+    leads = source_leads
     print_summary(stats, offers, leads)
 
     if offers:

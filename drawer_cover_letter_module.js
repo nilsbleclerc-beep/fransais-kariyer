@@ -26,39 +26,8 @@
     // --------------------------------------------------------------------------
     // 1. ANNUAIRE RH BILATÉRAL & ENRICHISSEMENT DES ENTREPRISES
     // --------------------------------------------------------------------------
-    const BILATERAL_COMPANIES_REGISTRY = {
-        "beko": { hr_email: "recrutement@beko.fr", ats: "https://www.bekoeurope.com/careers", portal: "https://www.kockariyerim.com", voie: "voie_2" },
-        "turkish airlines": { hr_email: "cdghr@thy.com", ats: "https://careers.turkishairlines.com", portal: "https://careers.turkishairlines.com/", voie: "voie_2" },
-        "thy": { hr_email: "cdghr@thy.com", ats: "https://careers.turkishairlines.com", portal: "https://careers.turkishairlines.com/", voie: "voie_2" },
-        "trendyol": { hr_email: "talent@trendyol.com", ats: "https://jobs.lever.co/trendyol", portal: "https://jobs.lever.co/trendyol", voie: "voie_2" },
-        "barsan": { hr_email: "info@barsan.com", ats: "https://www.barsan.com", portal: "https://www.barsan.com", voie: "voie_2" },
-        "ekol": { hr_email: "france@ekol.com", ats: "https://jobs.dfds.com/", portal: "https://www.ekol.com/en/career/job-applications/", voie: "voie_2" },
-        "şişecam": { hr_email: "kariyer@sisecam.com", ats: "https://jobs.sisecam.com", portal: "https://jobs.sisecam.com", voie: "voie_2" },
-        "sisecam": { hr_email: "kariyer@sisecam.com", ats: "https://jobs.sisecam.com", portal: "https://jobs.sisecam.com", voie: "voie_2" },
-        "vestel": { hr_email: "info@vestel.fr", ats: "https://www.vestelkariyer.com", portal: "https://www.zorlukariyer.com", voie: "voie_2" },
-        "eczacıbaşı": { hr_email: "kariyer@eczacibasi.com.tr", ats: "https://burgbad.fr", portal: "https://eczacibasikariyer.com.tr", voie: "voie_2" },
-        "vitra": { hr_email: "kariyer@eczacibasi.com.tr", ats: "https://burgbad.fr", portal: "https://eczacibasikariyer.com.tr", voie: "voie_2" },
-        "çimsa": { hr_email: "ik@sabanci.com", ats: "https://cimsakariyerim.com", portal: "https://kariyer.sabanci.com", voie: "voie_2" },
-        "kordsa": { hr_email: "ik@sabanci.com", ats: "https://cimsakariyerim.com", portal: "https://kariyer.sabanci.com", voie: "voie_2" },
-        "horoz": { hr_email: "ik@horoz.com.tr", ats: "https://www.bleckmann.com/careers/", portal: "https://www.horoz.com.tr/is-basvurusu", voie: "voie_2" },
-        "bbl": { hr_email: "recrutement@groupe-bbl.com", ats: "https://www.groupe-bbl.com/carrieres/", portal: "https://www.groupe-bbl.com/carrieres/", voie: "voie_2" },
-        "oecd": { hr_email: "oecdrecruitment@oecd.org", ats: "https://careers.smartrecruiters.com/OECD", portal: "https://www.oecd.org/en/about/careers.html", voie: "voie_1" },
-        "ocde": { hr_email: "oecdrecruitment@oecd.org", ats: "https://careers.smartrecruiters.com/OECD", portal: "https://www.oecd.org/en/about/careers.html", voie: "voie_1" },
-        "unesco": { hr_email: "staffing-team@unesco.org", ats: "https://careers.unesco.org/", portal: "https://careers.unesco.org/", voie: "voie_1" },
-        "conseil de l'europe": { hr_email: "recruitment@coe.int", ats: "https://www.coe-recruitment.com", portal: "https://www.coe.int/en/web/jobs", voie: "voie_1" },
-        "coe": { hr_email: "recruitment@coe.int", ats: "https://www.coe-recruitment.com", portal: "https://www.coe.int/en/web/jobs", voie: "voie_1" },
-        "interpol": { hr_email: "recruitment@interpol.int", ats: "https://recruitment.interpol.int/", portal: "https://recruitment.interpol.int/", voie: "voie_1" },
-        "circ": { hr_email: "personnel@iarc.who.int", ats: "https://careers.who.int/", portal: "https://www.iarc.who.int/about-iarc-jobs/", voie: "voie_1" },
-        "iarc": { hr_email: "personnel@iarc.who.int", ats: "https://careers.who.int/", portal: "https://www.iarc.who.int/about-iarc-jobs/", voie: "voie_1" },
-        "euronews": { hr_email: "recruitment@euronews.com", ats: "https://join.com/companies/euronews", portal: "https://www.euronews.com/about/careers", voie: "voie_1" },
-        "inalco": { hr_email: "recrutement@inalco.fr", ats: "https://www.inalco.fr/recrutement", portal: "https://www.galaxie.enseignementsup-recherche.gouv.fr/ensup/candidats.html", voie: "voie_1" },
-        "mistral": { hr_email: "jobs@mistral.ai", ats: "https://jobs.lever.co/mistral", portal: "https://mistral.ai/careers", voie: "voie_3" },
-        "qonto": { hr_email: "talent@qonto.com", ats: "https://boards.greenhouse.io/qonto", portal: "https://qonto.com/en/careers", voie: "voie_3" },
-        "datadog": { hr_email: "recruiting@datadoghq.com", ats: "https://careers.datadoghq.com/", portal: "https://careers.datadoghq.com/", voie: "voie_3" },
-        "criteo": { hr_email: "talent-acquisition@criteo.com", ats: "https://careers.criteo.com/", portal: "https://careers.criteo.com/", voie: "voie_3" },
-        "amo": { hr_email: "jobs@amo.co", ats: "https://www.welcometothejungle.com/fr/companies/amo", portal: "https://www.welcometothejungle.com/fr/companies/amo", voie: "voie_3" },
-        "aftcom": { hr_email: "jobs@aftcom.com", ats: "https://aftcom.com/recrutement/", portal: "https://aftcom.com/recrutement/", voie: "voie_2" }
-    };
+    // Vidé le 29/10/2026 : emails RH et liens jamais vérifiés. Seul le contact présent dans l'annonce est affiché.
+    const BILATERAL_COMPANIES_REGISTRY = {};
 
     // --------------------------------------------------------------------------
     // 2. ÉCUSSONS OFFICIELS DES VOIES PRIORITAIRES

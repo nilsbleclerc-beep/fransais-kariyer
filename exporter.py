@@ -3221,7 +3221,6 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             <svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg>
             <p class="ex-empty-title" data-tr="Bugün profiline uygun yeni ilan yok" data-fr="Pas de nouvelle offre adaptée à ton profil aujourd'hui">Bugün profiline uygun yeni ilan yok</p>
             <p class="ex-empty-text" data-tr="Robot her sabah 08:00'de ilanları yeniden tarıyor. Sadece gerçek, tarihli ve dil seviyene uygun ilanlar burada görünür." data-fr="Le robot refait une recherche chaque matin à 08:00. Seules les vraies offres, datées et adaptées à ton niveau de langue, s'affichent ici.">Robot her sabah 08:00'de ilanları yeniden tarıyor. Sadece gerçek, tarihli ve dil seviyene uygun ilanlar burada görünür.</p>
-            <button type="button" class="btn-filled" onclick="window.TrackerEngine.openLeads()"><svg class="ic" aria-hidden="true"><use href="#i-building"/></svg><span data-tr="Doğrudan başvurulabilecek şirketler" data-fr="Entreprises à contacter directement">Doğrudan başvurulabilecek şirketler</span></button>
         </div>
 
         <!-- État vide (filtres) -->
@@ -3348,15 +3347,6 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
             </div>
 
             <!-- PISTES (kind="lead") : entreprises / institutions à contacter, ce ne sont PAS des annonces -->
-            <section class="leads-section" id="leads-section" aria-labelledby="leads-title">
-                <h2 class="leads-title" id="leads-title"><span data-tr="Doğrudan başvurulabilecek şirketler ve kurumlar" data-fr="Entreprises et institutions à contacter">Doğrudan başvurulabilecek şirketler ve kurumlar</span> <span class="leads-count" id="leads-count">{leads_total}</span></h2>
-                <p class="leads-hint">
-                    <svg class="ic" aria-hidden="true"><use href="#i-info"/></svg>
-                    <span data-tr="Bunlar ilan değil: kariyer sayfaları. Açık pozisyon olup olmadığını sitede kontrol et ya da kendiliğinden başvur." data-fr="Ce ne sont pas des offres : ce sont des pages carrières. Vérifie s'il y a un poste ouvert sur le site ou envoie une candidature spontanée.">Bunlar ilan değil: kariyer sayfaları. Açık pozisyon olup olmadığını sitede kontrol et ya da kendiliğinden başvur.</span>
-                </p>
-                <ul class="leads-list" id="leadsList"></ul>
-                <button type="button" class="ex-more" id="leadsMore" hidden><span data-tr="Tümünü göster" data-fr="Tout afficher">Tümünü göster</span></button>
-            </section>
 
             <!-- Blocs d'introduction (déplacés depuis Keşfet) -->
             <div class="guide-intro-blocks">
