@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T01:10:14+00:00",
+  "generated_at": "2026-10-29T05:35:27+00:00",
   "profile": {
     "residence_country": "TR",
     "target_country": "FR",
@@ -23,8 +23,8 @@
     },
     "eures": {
       "status": "ok",
-      "collected": 48,
-      "kept": 36,
+      "collected": 46,
+      "kept": 34,
       "error": "",
       "rejected": {
         "too_old": 5,
@@ -38,22 +38,18 @@
       "kept": 7,
       "error": "",
       "rejected": {
-        "no_language_fit": 33,
-        "english_level": 3,
+        "no_language_fit": 36,
+        "english_level": 2,
         "duplicate": 4,
-        "in_turkey": 1,
-        "not_in_france": 2
+        "in_turkey": 1
       }
     },
     "gurbetilan": {
       "status": "ok",
-      "collected": 13,
-      "kept": 10,
+      "collected": 0,
+      "kept": 0,
       "error": "",
-      "rejected": {
-        "french_level": 1,
-        "event_passed": 2
-      }
+      "rejected": {}
     },
     "kariyer_net": {
       "status": "ok",
@@ -97,13 +93,11 @@
   },
   "counts": {
     "too_old": 5,
-    "french_level": 9,
-    "english_level": 7,
-    "no_language_fit": 40,
+    "french_level": 8,
+    "english_level": 6,
+    "no_language_fit": 43,
     "duplicate": 4,
-    "in_turkey": 1,
-    "not_in_france": 2,
-    "event_passed": 2
+    "in_turkey": 1
   },
   "rejected": [
     {
@@ -239,6 +233,17 @@
       "module": "eures"
     },
     {
+      "url": "https://www.adzuna.fr/details/5945020670?utm_medium=api&utm_source=25ece07d",
+      "title": "Tourneur CN en 2×8 (H/F)",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Cofabrik RH",
+      "location": "Rives, Grenoble",
+      "posted_at": "2026-10-29",
+      "module": "adzuna"
+    },
+    {
       "url": "https://www.adzuna.fr/details/5944459242?utm_medium=api&utm_source=25ece07d",
       "title": "Exploitant Transport Courte Distance H/F",
       "source": "Adzuna",
@@ -261,7 +266,29 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/land/ad/5944274200?se=WKYyCjXT8RGGEZv-xSOJ3w&utm_medium=api&utm_source=25ece07d&v=11AEF9E55B571C6361CFF408930A5CA338315D6A",
+      "url": "https://www.adzuna.fr/details/5944425032?utm_medium=api&utm_source=25ece07d",
+      "title": "Régleur (H/F)",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "L'industrie recrute",
+      "location": "Rives, Grenoble",
+      "posted_at": "2026-10-28",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5944424980?utm_medium=api&utm_source=25ece07d",
+      "title": "Adjoint au Responsable Logistique Industriel H/F",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "L'industrie recrute",
+      "location": "Belleville, Villefranche-sur-Saône",
+      "posted_at": "2026-10-28",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/land/ad/5944274200?se=2FpzZVrT8RGO1P9J30UEbA&utm_medium=api&utm_source=25ece07d&v=11AEF9E55B571C6361CFF408930A5CA338315D6A",
       "title": "Conseiller de vente Parfumerie luxe bilingue/trilingue H/F",
       "source": "Adzuna",
       "reason": "english_level",
@@ -324,17 +351,6 @@
       "company": "TrustFlight",
       "location": "France",
       "posted_at": "2026-10-27",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5941938157?utm_medium=api&utm_source=25ece07d",
-      "title": "Ipa Chief Risk Officer & Head Of Internal & Operational Risks Assistance F - M H/F",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Axa partners",
-      "location": "Malakoff, Antony",
-      "posted_at": "2026-10-26",
       "module": "adzuna"
     },
     {
@@ -415,6 +431,17 @@
       "module": "adzuna"
     },
     {
+      "url": "https://www.adzuna.fr/details/5939982216?utm_medium=api&utm_source=25ece07d",
+      "title": "Manager, Communications - EMEA (Emerging Markets)",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Deciem Inc",
+      "location": "Paris, Ile-de-France",
+      "posted_at": "2026-10-24",
+      "module": "adzuna"
+    },
+    {
       "url": "https://www.adzuna.fr/details/5939924218?utm_medium=api&utm_source=25ece07d",
       "title": "Business Analyst ERP Dynamics 365 (H/F) - CDI",
       "source": "Adzuna",
@@ -433,17 +460,6 @@
       "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
       "company": "Mercato de l'emploi",
       "location": "Meurthe-et-Moselle, Grand-Est",
-      "posted_at": "2026-10-23",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5938655684?utm_medium=api&utm_source=25ece07d",
-      "title": "Conseiller de Vente Parfumerie Luxe Bilingue - Trilingue H/F",
-      "source": "Adzuna",
-      "reason": "english_level",
-      "detail": "Anglais avancé exigé : « Anglais courant »",
-      "company": "Crit",
-      "location": "Roissy-en-Brie, Torcy",
       "posted_at": "2026-10-23",
       "module": "adzuna"
     },
@@ -510,6 +526,17 @@
       "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
       "company": "Daikin",
       "location": "Nanterre, Hauts-de-Seine",
+      "posted_at": "2026-10-22",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5937301358?utm_medium=api&utm_source=25ece07d",
+      "title": "Responsable Consolidation Groupe H/F",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Groupe ADP",
+      "location": "Roissy-en-Brie, Torcy",
       "posted_at": "2026-10-22",
       "module": "adzuna"
     },
@@ -677,72 +704,6 @@
       "location": "Lormont, Bordeaux",
       "posted_at": "2026-10-16",
       "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5930502923?utm_medium=api&utm_source=25ece07d",
-      "title": "AFFRETEUR.SE NATIONAL.E INTERNATIONAL.E - F/H",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Dimotrans",
-      "location": "Lormont, Bordeaux",
-      "posted_at": "2026-10-16",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5930202293?utm_medium=api&utm_source=25ece07d",
-      "title": "PORTUGAL IS YOUR NEXT DESTINATION!",
-      "source": "Adzuna",
-      "reason": "not_in_france",
-      "detail": "Pays étranger dans le titre : « portugal »",
-      "company": "CB Talents",
-      "location": "Paris, Ile-de-France",
-      "posted_at": "2026-10-16",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5930202292?utm_medium=api&utm_source=25ece07d",
-      "title": "PORTUGAL IS YOUR NEXT DESTINATION!",
-      "source": "Adzuna",
-      "reason": "not_in_france",
-      "detail": "Pays étranger dans le titre : « portugal »",
-      "company": "CB Talents",
-      "location": "Lyon, Rhône",
-      "posted_at": "2026-10-16",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.gurbetilan.com/ads/paris-merogis-steakhouse-restoranimiz-icin-deneyimli-garson-araniyor/",
-      "title": "Paris – Mérogis – Steakhouse Restoranımız İçin Deneyimli Garson Aranıyor",
-      "source": "GurbetIlan France",
-      "reason": "french_level",
-      "detail": "Français exigé : « fr:5 »",
-      "company": "Annonceur GurbetIlan (non nommé)",
-      "location": "Paris, France",
-      "posted_at": "2026-10-28",
-      "module": "gurbetilan"
-    },
-    {
-      "url": "https://www.gurbetilan.com/ads/paris-fuar-organizasyonu-icin-turkce-konusan-servis-hostesi-araniyor/",
-      "title": "Paris – Fuar Organizasyonu İçin Türkçe Konuşan Servis Hostesi Aranıyor",
-      "source": "GurbetIlan France",
-      "reason": "event_passed",
-      "detail": "Événement déjà terminé : « 17-21 ekim »",
-      "company": "Annonceur GurbetIlan (non nommé)",
-      "location": "Paris, France",
-      "posted_at": "2026-10-20",
-      "module": "gurbetilan"
-    },
-    {
-      "url": "https://www.gurbetilan.com/ads/paris-fuar-organizasyonu-icin-servis-ve-karsilama-personeli-ariyoruz/",
-      "title": "Paris – Fuar Organizasyonu İçin Servis ve Karşılama Personeli Arıyoruz",
-      "source": "GurbetIlan France",
-      "reason": "event_passed",
-      "detail": "Événement déjà terminé : « 17-21 ekim »",
-      "company": "Annonceur GurbetIlan (non nommé)",
-      "location": "Paris, France",
-      "posted_at": "2026-10-15",
-      "module": "gurbetilan"
     },
     {
       "url": "https://jobs.lever.co/trendyol/db3f0f77-c56e-4e96-acd7-984a0c00cddb",
