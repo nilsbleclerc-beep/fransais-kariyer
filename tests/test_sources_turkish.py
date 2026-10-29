@@ -6,7 +6,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from sources import company_ats, gurbetilan, kariyer_net  # noqa: E402
+from sources import company_ats, gurbetilan, iskur, kariyer_net, tr_consulates, yenibiris  # noqa: E402
 
 TODAY = datetime.date(2026, 10, 28)
 
@@ -172,6 +172,168 @@ def test_fetch_never_raises():
             assert gurbetilan.fetch({}) == [] and kariyer_net.fetch({}) == [] and company_ats.fetch({}) == []
     finally:
         gurbetilan.http_get, kariyer_net.http_get, company_ats.http_get, company_ats.http_post = saved
+
+
+# ------------------------------------------------------------------ Yenibiriş ------------------
+def yb_card(url, title, company, location):
+    return (f'<div class="row listViewRows "><div class="titleWorks"><div class="jobTitleLnk jobHoover">'
+            f'<a href="{url}" class="line-clamp-1 gtmTitle" title="{title}">{title}</a></div>'
+            f'<div class="jobCompanyLnk gtmCompanyName" title="{company}">{company}</div>'
+            f'<div class="fs16 gtmLocation" title="{location}">{location}</div></div>'
+            '<div class="orderDateTxt gtmDate"><div title="Dün">Dün</div></div></div>')
+
+
+def yb_detail(locality="Paris", region="Fransa", posted="2026-10-20", valid="2026-12-20"):
+    ld = ('{"@context":"http://schema.org","datePosted":"' + posted + '","description":"Garson aranıyor",'
+          '"jobLocation":{"@type":"Place","address":{"@type":"PostalAddress","addressLocality":"' + locality + '",'
+          '"addressRegion":"' + region + '"}},"@type":"JobPosting","title":"Garson","hiringOrganization":"Anadolu '
+          'Restoran","validThrough":"' + valid + '"}')
+    return (f'<html><head><script type="application/ld+json">{ld}</script></head><body><div id="adTemplateDiv">'
+            '<div class="well mb0 mainInfos"><div class="mb20"><p>Paris restoranımız için garson aranıyor.</p>'
+            '<p>Türkçe bilen, Fransızca şart değil.</p><p>Vize desteği sağlanır.</p></div></div></div></body></html>')
+
+
+def test_yenibiris_list():
+    assert yenibiris.parse_list('<div class="resultCountTxt"><span>Fransa iş ilanı bulunamamıştır.</span></div>') == []
+    html = yb_card("https://www.yenibiris.com/is-ilani/garson/1", "Garson", "Anadolu Restoran", "Fransa - Paris") + \
+        yb_card("/is-ilani/asci/2", "Aşçı", "X", "Fransa")
+    cards = yenibiris.parse_list(html)
+    assert [c["url"] for c in cards] == ["https://www.yenibiris.com/is-ilani/garson/1",
+                                         "https://www.yenibiris.com/is-ilani/asci/2"]
+    assert cards[0]["location"] == "Fransa - Paris" and cards[0]["company"] == "Anadolu Restoran"
+
+
+def test_yenibiris_detail():
+    card = {"title": "Garson", "company": "Anadolu Restoran", "location": "Fransa - Paris"}
+    j, why = yenibiris.parse_detail(yb_detail(), "https://www.yenibiris.com/is-ilani/garson/1", card, today=TODAY)
+    assert j is not None, why
+    assert j.city == "Paris" and j.country == "FR" and j.posted_at == "2026-10-20" and j.source_type == "board"
+    assert j.company == "Anadolu Restoran" and j.language_requirements == ["tr:required", "fr:none"]
+    assert j.visa_evidence == "Vize desteği sağlanır."
+    j, why = yenibiris.parse_detail(yb_detail(locality="İstanbul", region="Turkey"), "u", {"location": "İstanbul"},
+                                    today=TODAY)
+    assert j is None and why.startswith("hors France")
+    j, why = yenibiris.parse_detail(yb_detail(posted="2026-06-01"), "u", card, today=TODAY)
+    assert j is None and why.startswith("trop ancienne")
+    j, why = yenibiris.parse_detail(yb_detail(valid="2026-10-01"), "u", card, today=TODAY)
+    assert j is None and why.startswith("expirée")
+
+
+# ------------------------------------------------------------------ İŞKUR ----------------------
+ISKUR_FORM = """<form><input type="hidden" name="__VIEWSTATE" value="vs"/><input type="text" name="ctl04$ctlArananMetin2"/>
+<select name="ctl04$ctlIl" id="ctl04_ctlIl"><option value="">--Tüm İller--</option><option value="34">İSTANBUL</option>
+<option value="61">TRABZON</option></select>
+<select name="ctl04$ctlCalismaYeri" id="ctl04_ctlCalismaYeri"><option value=""></option><option value="1">Yurtiçi</option>
+<option value="0">Yurtdışı</option></select>
+<select name="ctl04$ctlUlke" id="ctl04_ctlUlke"><option value=""></option><option value="2">ALMANYA</option>
+<option value="14">FRANSA</option></select></form>"""
+
+
+def iskur_row(no, title, workplace, deadline="26.11.2026"):
+    p = "ctl04_ctlGridAcikIslerListeDetail_ctl02_"
+    return (f'<tr><td><a id="{p}flag_{no}" href="#">{title}</a><span id="{p}ctlIsverenTurDL">Özel</span>'
+            f'<span id="{p}Label9">2</span></td><td><span id="{p}ctlCalismaYeriDL">İlçe Geneli Başvuru <br> '
+            f'(Çalışma Yeri: {workplace}) </span></td><td><span id="{p}ctlSonBasvuruTarihi">{deadline}</span></td></tr>')
+
+
+ISKUR_DETAIL = ('<span id="ctl01_ctlIsIlanBilgileri_ctlGenelSartlar"><p>Paris\'teki restoranımızda çalışacak aşçı. '
+                'Türkçe bilen. Konaklama ve vize desteği verilir.</p></span>'
+                '<span id="ctl01_ctlIsIlanBilgileri_ctlGenelSartlar2"><p>En az 2 yıl deneyim.</p></span>'
+                '<span id="ctl01_ctlIsIlanBilgileri_repeaterMeslek_ctl01_ctlMeslekLabel">Aşçı</span>')
+
+
+def test_iskur_form_and_results():
+    from bs4 import BeautifulSoup
+    form = BeautifulSoup(ISKUR_FORM, "html.parser")
+    assert iskur.turkish_provinces(form) == ["istanbul", "trabzon"]
+    data = iskur.search_payload(form)
+    assert data["ctl04$ctlCalismaYeri"] == "0" and data["ctl04$ctlUlke"] == "14"
+    assert data["__EVENTTARGET"] == iskur.SEARCH_TARGET and data["__VIEWSTATE"] == "vs"
+    grid = ('<table id="ctl04_ctlGridAcikIslerListeDetail"><tr><th>x</th></tr>'
+            + iskur_row("00001", "Aşçı", "FRANSA / PARİS") + iskur_row("00002", "Garson", "TRABZON / ORTAHİSAR") + "</table>")
+    rows = iskur.parse_results(grid)
+    assert [r["ilan_no"] for r in rows] == ["00001", "00002"]
+    assert rows[0]["workplace"] == "FRANSA / PARİS" and rows[0]["deadline"] == "2026-11-26" and rows[0]["positions"] == "2"
+
+
+def test_iskur_detail():
+    prov = ["istanbul", "trabzon"]
+    row = {"ilan_no": "00001", "title": "Aşçı", "workplace": "FRANSA / PARİS", "deadline": "2026-11-26", "positions": "2"}
+    j, why = iskur.parse_detail(ISKUR_DETAIL, row, prov, today=TODAY)
+    assert j is not None, why
+    assert j.city == "Paris" and j.country == "FR" and j.source_type == "official_api" and j.posted_at == ""
+    assert j.url == "https://esube.iskur.gov.tr/Istihdam/AcikIsIlanDetay.aspx?uiID=00001"
+    assert j.language_requirements == ["tr:required"] and "vize desteği" in j.visa_evidence
+    assert "Son başvuru tarihi : 2026-11-26" in j.description
+    j, why = iskur.parse_detail(ISKUR_DETAIL, dict(row, workplace="TRABZON / ORTAHİSAR"), prov, today=TODAY)
+    assert j is None and why.startswith("hors France")
+    j, why = iskur.parse_detail(ISKUR_DETAIL, dict(row, deadline="2026-10-01"), prov, today=TODAY)
+    assert j is None and why.startswith("expirée")
+    j, why = iskur.parse_detail(ISKUR_DETAIL, dict(row, workplace="FRANSA"), prov, today=TODAY)
+    assert j.city == "France" and j.location == "France"
+    assert iskur.city_title("SAINT-DENİS") == "Saint-Denis" and iskur.city_title("NICE") == "Nice"
+
+
+# ------------------------------------------------------------------ Missions turques -------------
+def mfa_item(id_, title, date):
+    return (f'<li><a href="/Mission/ShowAnnouncement/{id_}"><span class="ks-announcement-header">{title} '
+            '<!-- Başlık --></span><span class="ks-announcement-from">Paris Büyükelçiliği</span>'
+            f'<span class="ks-announcement-date"><i class="fa fa-clock-o"></i> {date}</span></a></li>')
+
+
+MFA_LIST = "<ul>" + mfa_item(1, "Türk Uyruklu Sözleşmeli Sekreter Sınavı Duyurusu", "20.10.2026") + \
+    mfa_item(2, "Türk Uyruklu Sözleşmeli Sekreter Sınavı Sonuçları", "25.10.2026") + \
+    mfa_item(3, "No: 164, 27 Ağustos 2026, İslam İşbirliği Teşkilatı Genel Sekreteri Seçimi Hk.", "27.08.2026") + \
+    mfa_item(4, "Ticaret Ataşeliği Mahalli Sekreter Alım İlanı", "13.06.2025") + "</ul>"
+
+
+def mfa_detail(title, date="20.10.2026"):
+    return (f'<p class="lead ks-announcement-head" id="applicationHeader">{title}</p>'
+            f'<span class="ks-announcement-date">{date}</span><div class="ks-announcement-content">'
+            '<p>Büyükelçiliğimizde bir adet sözleşmeli sekreter istihdam edilecektir.</p>'
+            '<p>Türkçe ve Fransızca dillerine hakim\nolmak, Fransa\'da oturma ya da çalışma iznine sahip olmak.</p></div>')
+
+
+def test_consulates_list():
+    items = tr_consulates.parse_list(MFA_LIST, "paris-be.mfa.gov.tr")
+    assert len(items) == 4 and items[0]["url"] == "https://paris-be.mfa.gov.tr/Mission/ShowAnnouncement/1"
+    assert items[0]["date"] == "2026-10-20" and items[0]["title"] == "Türk Uyruklu Sözleşmeli Sekreter Sınavı Duyurusu"
+    assert [tr_consulates.is_recruitment_title(i["title"]) for i in items] == [True, False, False, True]
+    assert not tr_consulates.is_recruitment_title("No: 301, 20 Eylül 2014, Musul Başkonsolosluğumuz Personeli Hk.")
+
+
+def test_consulates_detail():
+    item = {"url": "https://paris-be.mfa.gov.tr/Mission/ShowAnnouncement/1", "title": "t", "date": "2026-10-20"}
+    j, why = tr_consulates.parse_detail(mfa_detail("Türk Uyruklu Sözleşmeli Sekreter Sınavı Duyurusu"), item,
+                                        "T.C. Paris Büyükelçiliği", "Paris", today=TODAY)
+    assert j is not None, why
+    assert j.city == "Paris" and j.country == "FR" and j.posted_at == "2026-10-20" and j.source_type == "official_api"
+    assert j.company == "T.C. Paris Büyükelçiliği" and j.language_requirements == ["tr:required", "fr:fluent"]
+    assert "dillerine hakim olmak" in j.description  # lignes coupées recollées
+    j, why = tr_consulates.parse_detail(mfa_detail("Sekreter Sınavı Sonuçları"), item, "M", "Paris", today=TODAY)
+    assert j is None and why == "pas une annonce de recrutement"
+    j, why = tr_consulates.parse_detail(mfa_detail("Mahalli Sekreter Alım İlanı", "13.06.2025"), item, "M", "Paris",
+                                        today=TODAY)
+    assert j is None and why.startswith("trop ancienne")
+
+
+def test_watch_sources_never_raise():
+    mods = (yenibiris, iskur, tr_consulates)
+    saved = [(m.http_get, getattr(m, "http_post", None)) for m in mods]
+    boom = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("réseau coupé"))
+    none = lambda *a, **k: None
+    try:
+        for fake in (none, boom):
+            for m in mods:
+                m.http_get = fake
+                if hasattr(m, "http_post"):
+                    m.http_post = fake
+            assert yenibiris.fetch({}) == [] and iskur.fetch({}) == [] and tr_consulates.fetch({}) == []
+    finally:
+        for m, (g, p) in zip(mods, saved):
+            m.http_get = g
+            if p is not None:
+                m.http_post = p
 
 
 if __name__ == "__main__":

@@ -113,6 +113,18 @@ def test_past_event_rejected():
     assert len(kept) == 1, rej
 
 
+def test_turkish_negation_and_mastery():
+    """« Fransızca şart değil » n'est PAS une exigence ; « Fransızca dillerine vakıf » en est une."""
+    install_http({})
+    ok = job(title="Garson", description="Türkçe bilen, Fransızca şart değil. Paris.", url="https://ex.fr/o/neg",
+             source_type="community")
+    ko = job(title="Sekreter", description="Türkçe ve Fransızca dillerine vakıf olmak.", url="https://ex.fr/o/vakif",
+             source_type="community")
+    kept, rej = run([ok, ko])
+    assert [k.title for k in kept] == ["Garson"], (kept, rej)
+    assert rej[0]["reason"] == "french_level", rej
+
+
 def test_old_ats_posting_kept():
     """Un ATS ne liste que des postes ouverts : une annonce permanente ancienne n'est pas périmée."""
     install_http({})

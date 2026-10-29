@@ -18,4 +18,8 @@ SOURCE_MODULES = [
     "gurbetilan",
     "kariyer_net",
     "company_ats",
+    # Sources « à surveiller » (0 offre en France le 29/10/2026) : remontent automatiquement dès qu'une offre apparaît
+    "yenibiris",
+    "iskur",
+    "tr_consulates",
 ]

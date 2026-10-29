@@ -150,6 +150,8 @@ def _lang_patterns(T: str) -> List[Tuple[re.Pattern, Optional[int]]]:
         (rf"\b(?:akici|ileri\s+(?:duzey|seviye|derece)\w*|cok iyi(?:\s+(?:derecede|seviyede|duzeyde))?|anadil\w*\s+(?:seviyesinde|duzeyinde))\s+{T}", FLUENT),
         (rf"\biyi\s+(?:derecede|seviyede|duzeyde)\s+{T}", 4),
         (rf"\b{T}\s+(?:\w+\s+){{0,2}}?(?:akici|ileri\s+(?:duzey|seviye)\w*|iyi\s+derecede)", FLUENT),
+        # « Fransızca dillerine vakıf » / « Fransızcaya hakim » = maîtrise de la langue
+        (rf"\b{T}\w*\s+(?:\w+\s+){{0,2}}?(?:vakif|hakim)\b", FLUENT),
         (rf"\b{T}\s+bilen\b", REQUIRED_NO_LEVEL),
         (rf"\b{T}\s*:?\s*(?:exige|obligatoire|indispensable|requis|imperatif|required|mandatory|essential|zorunlu|sart|gerekli)\b", REQUIRED_NO_LEVEL),
         (rf"\b(?:exige|obligatoire|indispensable|required|mandatory)\s*:?\s*{T}", REQUIRED_NO_LEVEL),
@@ -242,6 +244,8 @@ def analyze_languages(job) -> Dict:
                 after = text[m.end():m.end() + 45]
                 if _ADVANTAGE_RE.search(after.split(".")[0]):
                     continue  # « français courant serait un plus » : atout, pas exigence
+                if re.match(r"\s*(?:degil|olmasa da|aranmaz|gerekmez)\b", after):
+                    continue  # « Fransızca şart değil » : négation, pas exigence
                 r = rank if rank is not None else RANK.get(m.group(1), 0)
                 if r > best:
                     best, quote = r, _quote(original, m)

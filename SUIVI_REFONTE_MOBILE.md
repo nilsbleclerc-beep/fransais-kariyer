@@ -53,7 +53,7 @@ Le desktop doit rester utilisable, sans être optimisé.
 | Jooble | agrégateur | ⏸ **désactivé** (29/10) : la clé française fonctionne, mais la recherche ignore les mots-clés (12 247 résultats pour « turc », « bilingue turc » ou « turkish speaking ») et 0 offre liée au turc sur 345 testées. Le code est conservé (`sources/jooble.py`) : décommenter dans `sources/__init__.py` pour le réactiver. | `JOOBLE_KEY` |
 | **EURES** (offres France Travail **exigeant le turc**) | portail européen | ✅ **meilleure source** (29/10) : moteur de recherche public du portail, filtre « langue requise : turc » + pays France, puis fiche détaillée pour les langues exigées ou souhaitées et la ville. 47 offres, **36 gardées** (dont une dizaine en IDF), 6 rejetées car le français y est exigé. Dédoublonnage avec Adzuna (offres « France Travail » de même titre). | non |
 
-Web turc testé le 29/10 (İŞKUR, Yenibiriş, isbul, SecretCV, eleman.net, sahibinden, Hodrimeydan, médias de la diaspora, agences de placement, consulats turcs) : **aucune offre réellement située en France** ; Yenibiriş (`/is-ilanlari/fransa`) et les annonces des consulats turcs sont à surveiller.
+Web turc testé le 29/10 (İŞKUR, Yenibiriş, isbul, SecretCV, eleman.net, sahibinden, Hodrimeydan, médias de la diaspora, agences de placement, consulats turcs) : **aucune offre réellement située en France** ; **Surveillés automatiquement chaque jour** (0 offre au 29/10, remontent seules dès qu'une offre en France apparaît) : Yenibiriş (`sources/yenibiris.py`), İŞKUR yurtdışı → Fransa (`sources/iskur.py`), annonces de recrutement des 5 missions diplomatiques turques en France (`sources/tr_consulates.py`).
 
 Supprimés : les recherches DuckDuckGo (résultats périmés, postes « Fransızca bilen » situés à Istanbul).
 
