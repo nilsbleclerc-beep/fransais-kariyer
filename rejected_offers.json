@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T05:35:27+00:00",
+  "generated_at": "2026-10-30T05:36:48+00:00",
   "profile": {
     "residence_country": "TR",
     "target_country": "FR",
@@ -23,33 +23,36 @@
     },
     "eures": {
       "status": "ok",
-      "collected": 46,
-      "kept": 34,
+      "collected": 44,
+      "kept": 33,
       "error": "",
       "rejected": {
         "too_old": 5,
-        "french_level": 6,
-        "english_level": 1
+        "english_level": 1,
+        "french_level": 5
       }
     },
     "adzuna": {
       "status": "ok",
       "collected": 50,
-      "kept": 7,
+      "kept": 8,
       "error": "",
       "rejected": {
-        "no_language_fit": 36,
+        "no_language_fit": 34,
+        "duplicate": 5,
         "english_level": 2,
-        "duplicate": 4,
         "in_turkey": 1
       }
     },
     "gurbetilan": {
       "status": "ok",
-      "collected": 0,
-      "kept": 0,
+      "collected": 14,
+      "kept": 11,
       "error": "",
-      "rejected": {}
+      "rejected": {
+        "french_level": 1,
+        "event_passed": 2
+      }
     },
     "kariyer_net": {
       "status": "ok",
@@ -93,22 +96,34 @@
   },
   "counts": {
     "too_old": 5,
-    "french_level": 8,
     "english_level": 6,
-    "no_language_fit": 43,
-    "duplicate": 4,
-    "in_turkey": 1
+    "french_level": 8,
+    "no_language_fit": 41,
+    "duplicate": 5,
+    "in_turkey": 1,
+    "event_passed": 2
   },
   "rejected": [
     {
-      "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjEzTEdQVyA5?lang=fr",
-      "title": "Chef cuisinier spécialisé en gastronomie turque (H/F)",
+      "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjEyRlBKVCA5?lang=fr",
+      "title": "MENUISIER - AGENCEUR DE MEUBLES SUR MESURE (H/F)",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 55 jours (> 45)",
-      "company": "AYBA",
-      "location": "Seine-et-Marne, Île-de-France, France",
-      "posted_at": "2026-09-04",
+      "detail": "Publiée il y a 84 jours (> 45)",
+      "company": "EREL AGENCEMENT MENUISERIE",
+      "location": "Auvergne-Rhône-Alpes, France",
+      "posted_at": "2026-08-07",
+      "module": "eures"
+    },
+    {
+      "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjE1SEpaUSA5?lang=fr",
+      "title": "Conducteur / Conductrice de Poids Lourd (H/F)",
+      "source": "EURES (France Travail)",
+      "reason": "english_level",
+      "detail": "Anglais avancé exigé : « en:6 »",
+      "company": "BOSPHORE INTERNATIONAL TRANSIT",
+      "location": "Occitanie, France",
+      "posted_at": "2026-10-16",
       "module": "eures"
     },
     {
@@ -116,21 +131,10 @@
       "title": "Cuisinier / Cuisinière",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 51 jours (> 45)",
+      "detail": "Publiée il y a 52 jours (> 45)",
       "company": "PIZZ'ALKAN",
       "location": "Occitanie, France",
       "posted_at": "2026-09-08",
-      "module": "eures"
-    },
-    {
-      "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjE0TFBGRyA5?lang=fr",
-      "title": "Conducteur de travaux (H/F)",
-      "source": "EURES (France Travail)",
-      "reason": "french_level",
-      "detail": "Français exigé : « fr:6 »",
-      "company": "DOGUKAN PLATRERIE",
-      "location": "Bretagne, France",
-      "posted_at": "2026-09-28",
       "module": "eures"
     },
     {
@@ -171,7 +175,7 @@
       "title": "BOUCHER H/F Avec expérience (H/F) 2 postes à pourvoir",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 59 jours (> 45)",
+      "detail": "Publiée il y a 60 jours (> 45)",
       "company": "ALYE",
       "location": "Centre-Val de Loire, France",
       "posted_at": "2026-08-31",
@@ -182,21 +186,10 @@
       "title": "Cariste",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 70 jours (> 45)",
+      "detail": "Publiée il y a 71 jours (> 45)",
       "company": "STAR IMPEX",
       "location": "Grand Est, France",
       "posted_at": "2026-08-20",
-      "module": "eures"
-    },
-    {
-      "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjE1SEpaUSA5?lang=fr",
-      "title": "Conducteur / Conductrice de Poids Lourd (H/F)",
-      "source": "EURES (France Travail)",
-      "reason": "english_level",
-      "detail": "Anglais avancé exigé : « en:6 »",
-      "company": "BOSPHORE INTERNATIONAL TRANSIT",
-      "location": "Occitanie, France",
-      "posted_at": "2026-10-16",
       "module": "eures"
     },
     {
@@ -204,7 +197,7 @@
       "title": "Livreur/Monteur de meubles (H/F)",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 119 jours (> 45)",
+      "detail": "Publiée il y a 120 jours (> 45)",
       "company": "DIZAYN MEUBLES",
       "location": "Essonne, Île-de-France, France",
       "posted_at": "2026-07-02",
@@ -231,6 +224,72 @@
       "location": "Auvergne-Rhône-Alpes, France",
       "posted_at": "2026-10-08",
       "module": "eures"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5946440915?utm_medium=api&utm_source=25ece07d",
+      "title": "Stage - Chargé de Marketing Junior H/F",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "JCDecaux",
+      "location": "Neuilly-sur-Seine, Nanterre",
+      "posted_at": "2026-10-30",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5946437809?utm_medium=api&utm_source=25ece07d",
+      "title": "Stage Chargé de Projet Orange Wholesale H/F",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Orange SA",
+      "location": "Châtillon, Antony",
+      "posted_at": "2026-10-30",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5946320453?utm_medium=api&utm_source=25ece07d",
+      "title": "Multilingual EU Customer Support Specialist",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Cross Border Talents",
+      "location": "Paris, Ile-de-France",
+      "posted_at": "2026-10-30",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5946320307?utm_medium=api&utm_source=25ece07d",
+      "title": "General Application - Customer Support",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Cross Border Talents",
+      "location": "Paris, Ile-de-France",
+      "posted_at": "2026-10-30",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5945724315?utm_medium=api&utm_source=25ece07d",
+      "title": "Cuisinier spécialités turcs (H/F) - Logement possible",
+      "source": "Adzuna",
+      "reason": "duplicate",
+      "detail": "Offre France Travail déjà reçue via EURES",
+      "company": "France Travail",
+      "location": "Bourgoin-Jallieu, La Tour-du-Pin",
+      "posted_at": "2026-10-29",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5945666727?utm_medium=api&utm_source=25ece07d",
+      "title": "Stagiaire projet TISAX F/H",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "SEGEPO DECOLLETAGE",
+      "location": "France",
+      "posted_at": "2026-10-29",
+      "module": "adzuna"
     },
     {
       "url": "https://www.adzuna.fr/details/5945020670?utm_medium=api&utm_source=25ece07d",
@@ -288,7 +347,7 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/land/ad/5944274200?se=2FpzZVrT8RGO1P9J30UEbA&utm_medium=api&utm_source=25ece07d&v=11AEF9E55B571C6361CFF408930A5CA338315D6A",
+      "url": "https://www.adzuna.fr/details/5944274200?utm_medium=api&utm_source=25ece07d",
       "title": "Conseiller de vente Parfumerie luxe bilingue/trilingue H/F",
       "source": "Adzuna",
       "reason": "english_level",
@@ -431,17 +490,6 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/details/5939982216?utm_medium=api&utm_source=25ece07d",
-      "title": "Manager, Communications - EMEA (Emerging Markets)",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Deciem Inc",
-      "location": "Paris, Ile-de-France",
-      "posted_at": "2026-10-24",
-      "module": "adzuna"
-    },
-    {
       "url": "https://www.adzuna.fr/details/5939924218?utm_medium=api&utm_source=25ece07d",
       "title": "Business Analyst ERP Dynamics 365 (H/F) - CDI",
       "source": "Adzuna",
@@ -458,7 +506,7 @@
       "source": "Adzuna",
       "reason": "no_language_fit",
       "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Mercato de l'emploi",
+      "company": "Mercato de l'Emploi",
       "location": "Meurthe-et-Moselle, Grand-Est",
       "posted_at": "2026-10-23",
       "module": "adzuna"
@@ -508,17 +556,6 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/details/5937388243?utm_medium=api&utm_source=25ece07d",
-      "title": "French Luxury Brand Partnerships Category Lead",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Trendyol",
-      "location": "Paris, Ile-de-France",
-      "posted_at": "2026-10-22",
-      "module": "adzuna"
-    },
-    {
       "url": "https://www.adzuna.fr/details/5937384929?utm_medium=api&utm_source=25ece07d",
       "title": "Responsable Service Résidentiel F/H (Nanterre)",
       "source": "Adzuna",
@@ -526,17 +563,6 @@
       "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
       "company": "Daikin",
       "location": "Nanterre, Hauts-de-Seine",
-      "posted_at": "2026-10-22",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5937301358?utm_medium=api&utm_source=25ece07d",
-      "title": "Responsable Consolidation Groupe H/F",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Groupe ADP",
-      "location": "Roissy-en-Brie, Torcy",
       "posted_at": "2026-10-22",
       "module": "adzuna"
     },
@@ -607,17 +633,6 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/details/5933184627?utm_medium=api&utm_source=25ece07d",
-      "title": "Responsable Consolidation groupe F/H",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Groupe ADP",
-      "location": "Paris, Ile-de-France",
-      "posted_at": "2026-10-18",
-      "module": "adzuna"
-    },
-    {
       "url": "https://www.adzuna.fr/details/5932973818?utm_medium=api&utm_source=25ece07d",
       "title": "Aide cuisine spécialiste Pide (H/F)",
       "source": "Adzuna",
@@ -673,37 +688,37 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/details/5931741714?utm_medium=api&utm_source=25ece07d",
-      "title": "Responsable technique (H/F) - International",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Scalers France",
-      "location": "Paris, Ile-de-France",
-      "posted_at": "2026-10-17",
-      "module": "adzuna"
+      "url": "https://www.gurbetilan.com/ads/paris-merogis-steakhouse-restoranimiz-icin-deneyimli-garson-araniyor/",
+      "title": "Paris – Mérogis – Steakhouse Restoranımız İçin Deneyimli Garson Aranıyor",
+      "source": "GurbetIlan France",
+      "reason": "french_level",
+      "detail": "Français exigé : « fr:5 »",
+      "company": "Annonceur GurbetIlan (non nommé)",
+      "location": "Paris, France",
+      "posted_at": "2026-10-28",
+      "module": "gurbetilan"
     },
     {
-      "url": "https://www.adzuna.fr/details/5931254097?utm_medium=api&utm_source=25ece07d",
-      "title": "Chef d'équipe nettoyage industriel Week end CDI",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "BIMBO QSR",
-      "location": "Aix en Provence Sud-Ouest, Aix-en-Provence",
-      "posted_at": "2026-10-17",
-      "module": "adzuna"
+      "url": "https://www.gurbetilan.com/ads/paris-fuar-organizasyonu-icin-turkce-konusan-servis-hostesi-araniyor/",
+      "title": "Paris – Fuar Organizasyonu İçin Türkçe Konuşan Servis Hostesi Aranıyor",
+      "source": "GurbetIlan France",
+      "reason": "event_passed",
+      "detail": "Événement déjà terminé : « 17-21 ekim »",
+      "company": "Annonceur GurbetIlan (non nommé)",
+      "location": "Paris, France",
+      "posted_at": "2026-10-20",
+      "module": "gurbetilan"
     },
     {
-      "url": "https://www.adzuna.fr/details/5930890296?utm_medium=api&utm_source=25ece07d",
-      "title": "Affreteur.Se National.E International.E - H/F",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Dimotrans Group",
-      "location": "Lormont, Bordeaux",
-      "posted_at": "2026-10-16",
-      "module": "adzuna"
+      "url": "https://www.gurbetilan.com/ads/paris-fuar-organizasyonu-icin-servis-ve-karsilama-personeli-ariyoruz/",
+      "title": "Paris – Fuar Organizasyonu İçin Servis ve Karşılama Personeli Arıyoruz",
+      "source": "GurbetIlan France",
+      "reason": "event_passed",
+      "detail": "Événement déjà terminé : « 17-21 ekim »",
+      "company": "Annonceur GurbetIlan (non nommé)",
+      "location": "Paris, France",
+      "posted_at": "2026-10-15",
+      "module": "gurbetilan"
     },
     {
       "url": "https://jobs.lever.co/trendyol/db3f0f77-c56e-4e96-acd7-984a0c00cddb",
