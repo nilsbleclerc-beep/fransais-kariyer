@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-30T05:36:48+00:00",
+  "generated_at": "2026-10-31T05:33:20+00:00",
   "profile": {
     "residence_country": "TR",
     "target_country": "FR",
@@ -23,13 +23,13 @@
     },
     "eures": {
       "status": "ok",
-      "collected": 44,
-      "kept": 33,
+      "collected": 43,
+      "kept": 34,
       "error": "",
       "rejected": {
-        "too_old": 5,
         "english_level": 1,
-        "french_level": 5
+        "too_old": 4,
+        "french_level": 4
       }
     },
     "adzuna": {
@@ -38,9 +38,9 @@
       "kept": 8,
       "error": "",
       "rejected": {
-        "no_language_fit": 34,
+        "no_language_fit": 35,
         "duplicate": 5,
-        "english_level": 2,
+        "english_level": 1,
         "in_turkey": 1
       }
     },
@@ -95,26 +95,15 @@
     }
   },
   "counts": {
-    "too_old": 5,
-    "english_level": 6,
-    "french_level": 8,
-    "no_language_fit": 41,
+    "english_level": 5,
+    "too_old": 4,
+    "french_level": 7,
+    "no_language_fit": 42,
     "duplicate": 5,
     "in_turkey": 1,
     "event_passed": 2
   },
   "rejected": [
-    {
-      "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjEyRlBKVCA5?lang=fr",
-      "title": "MENUISIER - AGENCEUR DE MEUBLES SUR MESURE (H/F)",
-      "source": "EURES (France Travail)",
-      "reason": "too_old",
-      "detail": "Publiée il y a 84 jours (> 45)",
-      "company": "EREL AGENCEMENT MENUISERIE",
-      "location": "Auvergne-Rhône-Alpes, France",
-      "posted_at": "2026-08-07",
-      "module": "eures"
-    },
     {
       "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjE1SEpaUSA5?lang=fr",
       "title": "Conducteur / Conductrice de Poids Lourd (H/F)",
@@ -127,11 +116,22 @@
       "module": "eures"
     },
     {
+      "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjEyRlBKVCA5?lang=fr",
+      "title": "MENUISIER - AGENCEUR DE MEUBLES SUR MESURE (H/F)",
+      "source": "EURES (France Travail)",
+      "reason": "too_old",
+      "detail": "Publiée il y a 85 jours (> 45)",
+      "company": "EREL AGENCEMENT MENUISERIE",
+      "location": "Auvergne-Rhône-Alpes, France",
+      "posted_at": "2026-08-07",
+      "module": "eures"
+    },
+    {
       "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjEzTk5YWiA5?lang=fr",
       "title": "Cuisinier / Cuisinière",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 52 jours (> 45)",
+      "detail": "Publiée il y a 53 jours (> 45)",
       "company": "PIZZ'ALKAN",
       "location": "Occitanie, France",
       "posted_at": "2026-09-08",
@@ -146,17 +146,6 @@
       "company": "AROBASE EMPLOI",
       "location": "Tresses, Nouvelle-Aquitaine, France",
       "posted_at": "2026-10-22",
-      "module": "eures"
-    },
-    {
-      "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjE0TE1TSyA5?lang=fr",
-      "title": "Maçon / Maçonne pierre",
-      "source": "EURES (France Travail)",
-      "reason": "french_level",
-      "detail": "Français exigé : « fr:6 »",
-      "company": "Non renseigné",
-      "location": "Nouvelle-Aquitaine, France",
-      "posted_at": "2026-09-28",
       "module": "eures"
     },
     {
@@ -175,21 +164,10 @@
       "title": "BOUCHER H/F Avec expérience (H/F) 2 postes à pourvoir",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 60 jours (> 45)",
+      "detail": "Publiée il y a 61 jours (> 45)",
       "company": "ALYE",
       "location": "Centre-Val de Loire, France",
       "posted_at": "2026-08-31",
-      "module": "eures"
-    },
-    {
-      "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjEyU0ZQSyA5?lang=fr",
-      "title": "Cariste",
-      "source": "EURES (France Travail)",
-      "reason": "too_old",
-      "detail": "Publiée il y a 71 jours (> 45)",
-      "company": "STAR IMPEX",
-      "location": "Grand Est, France",
-      "posted_at": "2026-08-20",
       "module": "eures"
     },
     {
@@ -197,7 +175,7 @@
       "title": "Livreur/Monteur de meubles (H/F)",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 120 jours (> 45)",
+      "detail": "Publiée il y a 121 jours (> 45)",
       "company": "DIZAYN MEUBLES",
       "location": "Essonne, Île-de-France, France",
       "posted_at": "2026-07-02",
@@ -226,24 +204,57 @@
       "module": "eures"
     },
     {
-      "url": "https://www.adzuna.fr/details/5946440915?utm_medium=api&utm_source=25ece07d",
-      "title": "Stage - Chargé de Marketing Junior H/F",
+      "url": "https://www.adzuna.fr/details/5947538464?utm_medium=api&utm_source=25ece07d",
+      "title": "Responsable Développement Logistique H/F",
       "source": "Adzuna",
       "reason": "no_language_fit",
       "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "JCDecaux",
-      "location": "Neuilly-sur-Seine, Nanterre",
+      "company": "Dachser France",
+      "location": "Aulnay-sous-Bois, Le Raincy",
+      "posted_at": "2026-10-31",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5947384821?utm_medium=api&utm_source=25ece07d",
+      "title": "Technicien de Maintenance Préventive Weekend",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "BIMBO QSR",
+      "location": "Châtellerault-Nord, Châtellerault",
+      "posted_at": "2026-10-31",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5947108236?utm_medium=api&utm_source=25ece07d",
+      "title": "Affreteur.Se Confirme.E - H/F",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Dimotrans Group",
+      "location": "Mougins, Grasse",
       "posted_at": "2026-10-30",
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/details/5946437809?utm_medium=api&utm_source=25ece07d",
-      "title": "Stage Chargé de Projet Orange Wholesale H/F",
+      "url": "https://www.adzuna.fr/details/5946879336?utm_medium=api&utm_source=25ece07d",
+      "title": "Coordinateur Central PIC (Plan Industriel & Commercial) F/H",
       "source": "Adzuna",
       "reason": "no_language_fit",
       "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Orange SA",
-      "location": "Châtillon, Antony",
+      "company": "SOCIETE NOISEENNE D'OUTILLAGE DE PRESSE",
+      "location": "Roissy-en-Brie, Torcy",
+      "posted_at": "2026-10-30",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5946611716?utm_medium=api&utm_source=25ece07d",
+      "title": "Stage : Stage Chargé de projet Orange Wholesale F/H",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Orange",
+      "location": "Saint-Aubin-du-Cormier, Fougères",
       "posted_at": "2026-10-30",
       "module": "adzuna"
     },
@@ -347,23 +358,12 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/details/5944274200?utm_medium=api&utm_source=25ece07d",
-      "title": "Conseiller de vente Parfumerie luxe bilingue/trilingue H/F",
-      "source": "Adzuna",
-      "reason": "english_level",
-      "detail": "Anglais avancé exigé : « Anglais courant »",
-      "company": "Crit",
-      "location": "Roissy-en-Brie, Torcy",
-      "posted_at": "2026-10-28",
-      "module": "adzuna"
-    },
-    {
       "url": "https://www.adzuna.fr/details/5944240367?utm_medium=api&utm_source=25ece07d",
       "title": "Responsable Import (H/F)",
       "source": "Adzuna",
       "reason": "no_language_fit",
       "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Adsearch",
+      "company": "ADSEARCH",
       "location": "Roissy-en-Brie, Torcy",
       "posted_at": "2026-10-28",
       "module": "adzuna"
@@ -506,20 +506,20 @@
       "source": "Adzuna",
       "reason": "no_language_fit",
       "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Mercato de l'Emploi",
+      "company": "Mercato de l'emploi",
       "location": "Meurthe-et-Moselle, Grand-Est",
       "posted_at": "2026-10-23",
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/details/5938304887?utm_medium=api&utm_source=25ece07d",
-      "title": "CHEF D'EQUIPE PRODUCTION H/F",
+      "url": "https://www.adzuna.fr/details/5938655684?utm_medium=api&utm_source=25ece07d",
+      "title": "Conseiller de Vente Parfumerie Luxe Bilingue - Trilingue H/F",
       "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "SNOP",
-      "location": "Audincourt, Montbéliard",
-      "posted_at": "2026-10-22",
+      "reason": "english_level",
+      "detail": "Anglais avancé exigé : « Anglais courant »",
+      "company": "Crit",
+      "location": "Roissy-en-Brie, Torcy",
+      "posted_at": "2026-10-23",
       "module": "adzuna"
     },
     {
@@ -552,17 +552,6 @@
       "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
       "company": "CRIT RUNGIS",
       "location": "Charles-de-Gaulles Aéroport, Val-d'Oise",
-      "posted_at": "2026-10-22",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5937384929?utm_medium=api&utm_source=25ece07d",
-      "title": "Responsable Service Résidentiel F/H (Nanterre)",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Daikin",
-      "location": "Nanterre, Hauts-de-Seine",
       "posted_at": "2026-10-22",
       "module": "adzuna"
     },
@@ -673,17 +662,6 @@
       "detail": "Titre situant le poste en Turquie : Turkey Content Specialist",
       "company": "Amo",
       "location": "Paris, Ile-de-France",
-      "posted_at": "2026-10-17",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5932037495?utm_medium=api&utm_source=25ece07d",
-      "title": "Conseiller de vente Parfumerie luxe bilingue/trilingue H/F",
-      "source": "Adzuna",
-      "reason": "english_level",
-      "detail": "Anglais avancé exigé : « Anglais courant »",
-      "company": "CRIT LE PLESSIS BELLEVILLE",
-      "location": "Charles-de-Gaulles Aéroport, Val-d'Oise",
       "posted_at": "2026-10-17",
       "module": "adzuna"
     },
