@@ -140,7 +140,10 @@
                 </div>
                 <div id="ghTokenSaved" hidden>
                     <p data-tr="✅ Bu cihazda GitHub anahtarı kayıtlı: <strong>Yenile</strong> butonu hemen yeni bir tarama başlatır (~3 dk)." data-fr="✅ Clé GitHub enregistrée sur cet appareil : le bouton <strong>Actualiser</strong> lance tout de suite une nouvelle recherche (~3 min).">✅ Bu cihazda GitHub anahtarı kayıtlı: <strong>Yenile</strong> butonu hemen yeni bir tarama başlatır (~3 dk).</p>
-                    <button type="button" class="cloud-token-clear" onclick="window.PWAHandler.clearGithubToken()"><span data-tr="Anahtarı bu cihazdan sil" data-fr="Supprimer la clé de cet appareil">Anahtarı bu cihazdan sil</span></button>
+                    <div class="cloud-token-row">
+                        <button type="button" class="cloud-token-save" onclick="window.PWAHandler.shareTokenLink()"><span data-tr="📤 Başka bir telefona gönder" data-fr="📤 Envoyer à un autre téléphone">📤 Başka bir telefona gönder</span></button>
+                        <button type="button" class="cloud-token-clear" onclick="window.PWAHandler.clearGithubToken()"><span data-tr="Sil" data-fr="Supprimer">Sil</span></button>
+                    </div>
                 </div>
                 <div id="ghTokenForm">
                     <p data-tr="Taramayı istediğin an başlatmak için GitHub anahtarını <strong>bir kez</strong> bu cihaza kaydet (yalnızca bu cihazda saklanır)." data-fr="Pour lancer la recherche quand tu veux, enregistre <strong>une seule fois</strong> la clé GitHub sur cet appareil (elle reste uniquement sur cet appareil).">Taramayı istediğin an başlatmak için GitHub anahtarını <strong>bir kez</strong> bu cihaza kaydet (yalnızca bu cihazda saklanır).</p>

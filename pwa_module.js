@@ -83,6 +83,20 @@
         window.location.reload();
     }
 
+    // Lien d'installation de la clé (« …/index.html#gh=github_pat_… ») envoyé depuis un autre téléphone :
+    // la clé est enregistrée puis retirée de l'adresse avant que le routeur d'onglets ne lise le hash.
+    // Le fragment # n'est jamais envoyé au serveur.
+    let tokenImportedFromLink = false;
+    (function importTokenFromLink() {
+        const m = /^#gh=((?:github_pat_|ghp_)[A-Za-z0-9_]{20,})$/.exec(window.location.hash || '');
+        if (!m) return;
+        setGithubToken(m[1]);
+        tokenImportedFromLink = true;
+        try {
+            history.replaceState(history.state, '', window.location.pathname + window.location.search);
+        } catch (e) { /* adresse laissée telle quelle */ }
+    })();
+
     function isBannerSnoozed() {
         try {
             const dismissedTime = localStorage.getItem('pwa_banner_dismissed_time');
@@ -184,6 +198,12 @@
             this.setupLanguageWatchers();
             this.setupOverlayListeners();
             this.checkServerStatus();
+            if (tokenImportedFromLink) {
+                const lang = getLang();
+                setTimeout(() => this.toast(lang === 'fr'
+                    ? "✅ Bouton Actualiser activé sur ce téléphone."
+                    : "✅ Yenile butonu bu telefonda etkinleştirildi.", 'success', 5000), 800);
+            }
         },
 
         /**
@@ -609,6 +629,31 @@
             this.renderCloudTokenState();
             this.toast(lang === 'fr' ? "✅ Clé enregistrée sur cet appareil. Le bouton Actualiser lance maintenant une vraie recherche."
                 : "✅ Anahtar bu cihaza kaydedildi. Yenile butonu artık gerçek bir tarama başlatıyor.", 'success', 5000);
+        },
+
+        // Envoie à un autre téléphone un lien qui y installe la clé en un toucher (WhatsApp, SMS…)
+        async shareTokenLink() {
+            const token = getGithubToken();
+            const lang = getLang();
+            if (!token) return;
+            const link = `${window.location.origin}${window.location.pathname}#gh=${token}`;
+            const text = lang === 'fr'
+                ? "Touche ce lien pour activer le bouton Actualiser de Fransaİş sur ton téléphone :"
+                : "Fransaİş'te Yenile butonunu telefonunda etkinleştirmek için bu bağlantıya dokun:";
+            try {
+                if (navigator.share) {
+                    await navigator.share({ title: 'Fransaİş', text, url: link });
+                    return;
+                }
+            } catch (e) {
+                if (e && e.name === 'AbortError') return;
+            }
+            try {
+                await navigator.clipboard.writeText(`${text} ${link}`);
+                this.toast(lang === 'fr' ? "📋 Lien copié : colle-le dans WhatsApp." : "📋 Bağlantı kopyalandı: WhatsApp'a yapıştır.", 'success', 4000);
+            } catch (e) {
+                window.prompt(lang === 'fr' ? "Copie ce lien :" : "Bu bağlantıyı kopyala:", link);
+            }
         },
 
         clearGithubToken() {
