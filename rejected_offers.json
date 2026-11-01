@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-31T05:33:20+00:00",
+  "generated_at": "2026-11-01T05:39:05+00:00",
   "profile": {
     "residence_country": "TR",
     "target_country": "FR",
@@ -35,19 +35,17 @@
     "adzuna": {
       "status": "ok",
       "collected": 50,
-      "kept": 8,
+      "kept": 7,
       "error": "",
       "rejected": {
-        "no_language_fit": 35,
-        "duplicate": 5,
-        "english_level": 1,
-        "in_turkey": 1
+        "no_language_fit": 41,
+        "duplicate": 2
       }
     },
     "gurbetilan": {
       "status": "ok",
-      "collected": 14,
-      "kept": 11,
+      "collected": 15,
+      "kept": 12,
       "error": "",
       "rejected": {
         "french_level": 1,
@@ -63,12 +61,12 @@
     },
     "company_ats": {
       "status": "ok",
-      "collected": 12,
+      "collected": 11,
       "kept": 0,
       "error": "",
       "rejected": {
         "english_level": 3,
-        "no_language_fit": 7,
+        "no_language_fit": 6,
         "french_level": 2
       }
     },
@@ -95,12 +93,11 @@
     }
   },
   "counts": {
-    "english_level": 5,
+    "english_level": 4,
     "too_old": 4,
     "french_level": 7,
-    "no_language_fit": 42,
-    "duplicate": 5,
-    "in_turkey": 1,
+    "no_language_fit": 47,
+    "duplicate": 2,
     "event_passed": 2
   },
   "rejected": [
@@ -120,7 +117,7 @@
       "title": "MENUISIER - AGENCEUR DE MEUBLES SUR MESURE (H/F)",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 85 jours (> 45)",
+      "detail": "Publiée il y a 86 jours (> 45)",
       "company": "EREL AGENCEMENT MENUISERIE",
       "location": "Auvergne-Rhône-Alpes, France",
       "posted_at": "2026-08-07",
@@ -131,7 +128,7 @@
       "title": "Cuisinier / Cuisinière",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 53 jours (> 45)",
+      "detail": "Publiée il y a 54 jours (> 45)",
       "company": "PIZZ'ALKAN",
       "location": "Occitanie, France",
       "posted_at": "2026-09-08",
@@ -164,7 +161,7 @@
       "title": "BOUCHER H/F Avec expérience (H/F) 2 postes à pourvoir",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 61 jours (> 45)",
+      "detail": "Publiée il y a 62 jours (> 45)",
       "company": "ALYE",
       "location": "Centre-Val de Loire, France",
       "posted_at": "2026-08-31",
@@ -175,7 +172,7 @@
       "title": "Livreur/Monteur de meubles (H/F)",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 121 jours (> 45)",
+      "detail": "Publiée il y a 122 jours (> 45)",
       "company": "DIZAYN MEUBLES",
       "location": "Essonne, Île-de-France, France",
       "posted_at": "2026-07-02",
@@ -204,13 +201,90 @@
       "module": "eures"
     },
     {
-      "url": "https://www.adzuna.fr/details/5947538464?utm_medium=api&utm_source=25ece07d",
-      "title": "Responsable Développement Logistique H/F",
+      "url": "https://www.adzuna.fr/details/5948555937?utm_medium=api&utm_source=25ece07d",
+      "title": "Alternance - Assistant Commercial H/F",
       "source": "Adzuna",
       "reason": "no_language_fit",
       "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Dachser France",
-      "location": "Aulnay-sous-Bois, Le Raincy",
+      "company": "Studi",
+      "location": "Morsang-sur-Orge, Evry",
+      "posted_at": "2026-11-01",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5948553437?utm_medium=api&utm_source=25ece07d",
+      "title": "Alternance - Assistant Administratif H/F",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Studi",
+      "location": "Morsang-sur-Orge, Evry",
+      "posted_at": "2026-11-01",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5948552955?utm_medium=api&utm_source=25ece07d",
+      "title": "Alternance - Assistant Administratif H/F",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Studi",
+      "location": "Morsang-sur-Orge, Evry",
+      "posted_at": "2026-11-01",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5948550184?utm_medium=api&utm_source=25ece07d",
+      "title": "Alternance - Assistant Commercial et Administratif H/F",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Studi",
+      "location": "Morsang-sur-Orge, Evry",
+      "posted_at": "2026-11-01",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5948401836?utm_medium=api&utm_source=25ece07d",
+      "title": "Conseillers(ères) de Vente saisonniers – Courchevel H/F",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Moncler",
+      "location": "Courchevel, Savoie",
+      "posted_at": "2026-11-01",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5948229734?utm_medium=api&utm_source=25ece07d",
+      "title": "Conseiller(ère) de vente",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Jennah",
+      "location": "Aubervilliers, Saint-Denis",
+      "posted_at": "2026-10-31",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5948227653?utm_medium=api&utm_source=25ece07d",
+      "title": "Conseiller(ère) de vente",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Jennah",
+      "location": "Noisy-le-Sec, Bobigny",
+      "posted_at": "2026-10-31",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5947986623?utm_medium=api&utm_source=25ece07d",
+      "title": "AFFRETEUR.SE CONFIRME.E - F/H",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Dimotrans",
+      "location": "Mougins, Grasse",
       "posted_at": "2026-10-31",
       "module": "adzuna"
     },
@@ -358,7 +432,7 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/details/5944240367?utm_medium=api&utm_source=25ece07d",
+      "url": "https://www.adzuna.fr/land/ad/5944240367?se=mFzxJrbV8RGRQOLR_vdAhg&utm_medium=api&utm_source=25ece07d&v=35C45E3B5E6DB11075BFD656110F196CEF3F4BBC",
       "title": "Responsable Import (H/F)",
       "source": "Adzuna",
       "reason": "no_language_fit",
@@ -468,7 +542,7 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/details/5940638024?utm_medium=api&utm_source=25ece07d",
+      "url": "https://www.adzuna.fr/land/ad/5940638024?se=mFzxJrbV8RGRQOLR_vdAhg&utm_medium=api&utm_source=25ece07d&v=C7390970293925E9B1F68EA5065E543AEDF631DF",
       "title": "Ingénieur Méthodes Peinture H/F (CDI)",
       "source": "Adzuna",
       "reason": "no_language_fit",
@@ -501,24 +575,13 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/details/5939442982?utm_medium=api&utm_source=25ece07d",
+      "url": "https://www.adzuna.fr/land/ad/5939442982?se=mFzxJrbV8RGRQOLR_vdAhg&utm_medium=api&utm_source=25ece07d&v=3B22C31C1BCF403EFEFA8B2E9777FA3A3192894C",
       "title": "Responsable Commercial Export – Matériels TP / Agricoles (H/F) (CDI)",
       "source": "Adzuna",
       "reason": "no_language_fit",
       "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
       "company": "Mercato de l'emploi",
       "location": "Meurthe-et-Moselle, Grand-Est",
-      "posted_at": "2026-10-23",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5938655684?utm_medium=api&utm_source=25ece07d",
-      "title": "Conseiller de Vente Parfumerie Luxe Bilingue - Trilingue H/F",
-      "source": "Adzuna",
-      "reason": "english_level",
-      "detail": "Anglais avancé exigé : « Anglais courant »",
-      "company": "Crit",
-      "location": "Roissy-en-Brie, Torcy",
       "posted_at": "2026-10-23",
       "module": "adzuna"
     },
@@ -608,61 +671,6 @@
       "company": "Dimotrans",
       "location": "Pusignan, Genas",
       "posted_at": "2026-10-20",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5935140500?utm_medium=api&utm_source=25ece07d",
-      "title": "Cuisinier / Cuisinière (H/F)",
-      "source": "Adzuna",
-      "reason": "duplicate",
-      "detail": "Offre France Travail déjà reçue via EURES",
-      "company": "France Travail",
-      "location": "Loire, Auvergne-Rhône-Alpes",
-      "posted_at": "2026-10-20",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5932973818?utm_medium=api&utm_source=25ece07d",
-      "title": "Aide cuisine spécialiste Pide (H/F)",
-      "source": "Adzuna",
-      "reason": "duplicate",
-      "detail": "Offre France Travail déjà reçue via EURES",
-      "company": "France Travail",
-      "location": "Ferney-Voltaire, Gex",
-      "posted_at": "2026-10-18",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5932973815?utm_medium=api&utm_source=25ece07d",
-      "title": "Aide cuisine spécialiste Pide lahmacun (H/F)",
-      "source": "Adzuna",
-      "reason": "duplicate",
-      "detail": "Offre France Travail déjà reçue via EURES",
-      "company": "France Travail",
-      "location": "Ferney-Voltaire, Gex",
-      "posted_at": "2026-10-18",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5932376687?utm_medium=api&utm_source=25ece07d",
-      "title": "ITIL & Service Delivery Manager - H/F",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Dimotrans Group",
-      "location": "Pusignan, Genas",
-      "posted_at": "2026-10-17",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5932376395?utm_medium=api&utm_source=25ece07d",
-      "title": "Turkey Content Specialist",
-      "source": "Adzuna",
-      "reason": "in_turkey",
-      "detail": "Titre situant le poste en Turquie : Turkey Content Specialist",
-      "company": "Amo",
-      "location": "Paris, Ile-de-France",
-      "posted_at": "2026-10-17",
       "module": "adzuna"
     },
     {
@@ -806,17 +814,6 @@
       "company": "DFDS France (ex-Ekol Lojistik)",
       "location": "Calais / Dieppe, France",
       "posted_at": "2026-09-09",
-      "module": "company_ats"
-    },
-    {
-      "url": "https://jobs.dfds.com/jobs/8010410-stagiaire-pont-machine-h-f-2026",
-      "title": "Stagiaire Pont/Machine (H/F) 2026",
-      "source": "DFDS France (ex-Ekol Lojistik) (Teamtailor)",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "DFDS France (ex-Ekol Lojistik)",
-      "location": "Calais, France",
-      "posted_at": "2026-07-02",
       "module": "company_ats"
     },
     {
