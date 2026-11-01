@@ -3346,7 +3346,11 @@ def export_to_html_dashboard(jobs: List[JobOpportunity], filepath: str = "dashbo
                 <p data-tr="Türkiye'den Fransa'ya transfer süreçleri, vize prosedürleri ve hazır başvuru şablonları." data-fr="Procédures de transfert Turquie-France, démarches visas et modèles de candidature prêts à l'emploi.">Türkiye'den Fransa'ya transfer süreçleri, vize prosedürleri ve hazır başvuru şablonları.</p>
             </div>
 
-            <!-- PISTES (kind="lead") : entreprises / institutions à contacter, ce ne sont PAS des annonces -->
+            <!-- Réglages du bouton Actualiser (clé GitHub, envoi à un autre téléphone) -->
+            <button type="button" class="guide-settings-btn" onclick="window.PWAHandler.openRefreshSettings()">
+                <span aria-hidden="true">⚙️</span>
+                <span data-tr="Yenile butonu ayarları (anahtar, başka telefona gönder)" data-fr="Réglages du bouton Actualiser (clé, envoi à un autre téléphone)">Yenile butonu ayarları (anahtar, başka telefona gönder)</span>
+            </button>
 
             <!-- Blocs d'introduction (déplacés depuis Keşfet) -->
             <div class="guide-intro-blocks">

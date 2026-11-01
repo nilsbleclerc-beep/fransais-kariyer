@@ -87,6 +87,7 @@
     // la clé est enregistrée puis retirée de l'adresse avant que le routeur d'onglets ne lise le hash.
     // Le fragment # n'est jamais envoyé au serveur.
     let tokenImportedFromLink = false;
+    let suppressNextRefreshClick = false;
     (function importTokenFromLink() {
         const m = /^#gh=((?:github_pat_|ghp_)[A-Za-z0-9_]{20,})$/.exec(window.location.hash || '');
         if (!m) return;
@@ -197,6 +198,7 @@
             this.checkDisplayMode();
             this.setupLanguageWatchers();
             this.setupOverlayListeners();
+            this.setupRefreshLongPress();
             this.checkServerStatus();
             if (tokenImportedFromLink) {
                 const lang = getLang();
@@ -393,6 +395,7 @@
          * SYSTÈME DE RAFRAÎCHISSEMENT (LOCAL & CLOUD)
          */
         async triggerRefresh() {
+            if (suppressNextRefreshClick) { suppressNextRefreshClick = false; return; }
             if (isRefreshing) return;
 
             const btn = document.getElementById('refreshBtn');
@@ -654,6 +657,29 @@
             } catch (e) {
                 window.prompt(lang === 'fr' ? "Copie ce lien :" : "Bu bağlantıyı kopyala:", link);
             }
+        },
+
+        openRefreshSettings() {
+            this.openCloudInfoModal(getLang());
+        },
+
+        // Appui long (0,6 s) sur Actualiser : ouvre les réglages au lieu de lancer la recherche
+        setupRefreshLongPress() {
+            const btn = document.getElementById('refreshBtn');
+            if (!btn) return;
+            let timer = null;
+            const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
+            btn.addEventListener('pointerdown', () => {
+                cancel();
+                timer = setTimeout(() => {
+                    timer = null;
+                    suppressNextRefreshClick = true;
+                    if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) { /* ignoré */ } }
+                    this.openRefreshSettings();
+                }, 600);
+            });
+            ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => btn.addEventListener(ev, cancel));
+            btn.addEventListener('contextmenu', (e) => e.preventDefault());
         },
 
         clearGithubToken() {

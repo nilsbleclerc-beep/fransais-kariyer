@@ -618,3 +618,10 @@ html.pwa-scroll-lock body {
 .cloud-token-save { background: var(--accent-primary, #2563eb); border-color: transparent; color: #fff; }
 .cloud-token-help { margin-top: 8px; font-size: 14px; }
 .cloud-token-help a { color: var(--accent-primary, #2563eb); text-decoration: underline; }
+
+/* Accès aux réglages du bouton Actualiser depuis Rehber */
+.guide-settings-btn {
+    display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; margin: 0 0 20px;
+    padding: 10px 14px; border-radius: 12px; font-size: 15px; font-weight: 600; text-align: left; cursor: pointer;
+    border: 1px solid var(--border-default, #cbd5e1); background: var(--surface-card, #fff); color: var(--text-primary, #0f172a);
+}

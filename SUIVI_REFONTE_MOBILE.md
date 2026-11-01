@@ -87,6 +87,8 @@ En ligne, le bouton :
 2. si une **clé GitHub** est enregistrée sur l'appareil, lance le robot (`workflow_dispatch` sur `refresh.yml`), suit le scan puis la republication (~3 min) et recharge l'app ;
 3. sans clé, il ouvre une fenêtre qui permet d'enregistrer la clé, ou de lancer le robot à la main sur GitHub (« Run workflow »).
 
+Une fois la clé enregistrée, un appui court lance directement le scan. Pour rouvrir les réglages (clé, envoi), faire un **appui long sur Actualiser** ou toucher **« ⚙️ Réglages du bouton Actualiser »** en haut de Rehber.
+
 Pour un autre téléphone, pas de nouvelle saisie : bouton **« 📤 Envoyer à un autre téléphone »** dans la fenêtre Actualiser, qui partage un lien `…/index.html#gh=<clé>`. En le touchant, l'autre téléphone enregistre la clé, puis l'app l'efface de l'adresse (le fragment `#` n'est jamais envoyé au serveur).
 
 La clé est un *fine-grained token* limité au dépôt `fransais-kariyer`, avec la seule permission **Actions : Read and write**. Elle reste uniquement dans le stockage local de l'appareil. En cas de perte du téléphone, la révoquer sur GitHub.
@@ -199,7 +201,7 @@ Les onglets suivent une autre règle :
   python -c "import exporter, json; from models import JobOpportunity; jobs=[JobOpportunity(**d) for d in json.load(open('offres_france_turquie.json',encoding='utf-8'))]; exporter.export_to_html_dashboard(jobs,'dashboard.html')"
   ```
 
-- **Incrémenter `CACHE_NAME` dans `sw.js` (actuellement `v8`)** à chaque changement visible, sinon l'app installée ne se met pas à jour.
+- **Incrémenter `CACHE_NAME` dans `sw.js` (actuellement `v9`)** à chaque changement visible, sinon l'app installée ne se met pas à jour.
 - Un push qui touche `exporter.py`, `scrapers.py`, `companies_data.py` ou `pwa_*` relance le workflow. Le robot commite alors de nouvelles offres : faire `git pull` avant de reprendre.
 
 ---
