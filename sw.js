@@ -6,7 +6,7 @@
  * - Bypass automatique pour les routes dynamiques /api/*
  */
 
-const CACHE_NAME = 'fransais-pwa-v6';
+const CACHE_NAME = 'fransais-pwa-v7';
 
 const STATIC_ASSETS = [
     './',
@@ -54,6 +54,13 @@ self.addEventListener('activate', (event) => {
 // Interception des requêtes réseau
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
+
+    // 0. Autres domaines (API GitHub du bouton Actualiser…) et vérifications « no-store » : jamais de cache
+    if (url.origin !== self.location.origin) return;
+    if (event.request.cache === 'no-store') {
+        event.respondWith(fetch(event.request));
+        return;
+    }
 
     // 1. BYPASS COMPLET POUR L'API LOCALE (/api/refresh, /api/status, etc.)
     if (url.pathname.startsWith('/api/')) {

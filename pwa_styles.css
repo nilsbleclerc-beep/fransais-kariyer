@@ -603,3 +603,18 @@ html.pwa-scroll-lock body {
         animation: none;
     }
 }
+
+/* Forçage du robot : clé GitHub enregistrée sur l'appareil */
+.cloud-token-row { display: flex; gap: 8px; margin-top: 8px; }
+.cloud-token-input {
+    flex: 1; min-width: 0; min-height: 48px; padding: 0 12px; font-size: 16px;
+    border: 1px solid var(--border-default, #cbd5e1); border-radius: 12px;
+    background: var(--surface-card, #fff); color: var(--text-primary, #0f172a);
+}
+.cloud-token-save, .cloud-token-clear {
+    min-height: 48px; padding: 0 16px; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer;
+    border: 1px solid var(--border-default, #cbd5e1); background: var(--surface-subtle, #f1f5f9); color: var(--text-primary, #0f172a);
+}
+.cloud-token-save { background: var(--accent-primary, #2563eb); border-color: transparent; color: #fff; }
+.cloud-token-help { margin-top: 8px; font-size: 14px; }
+.cloud-token-help a { color: var(--accent-primary, #2563eb); text-decoration: underline; }

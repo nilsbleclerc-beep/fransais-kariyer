@@ -119,8 +119,8 @@
             <div class="pwa-modal-header-left">
                 <div class="cloud-icon-circle">🔄</div>
                 <div>
-                    <h3 class="pwa-modal-title" id="pwa-cloud-title" data-tr="Otomatik İlan Yenileme Sistemi" data-fr="Système d'Actualisation des Offres">Otomatik İlan Yenileme Sistemi</h3>
-                    <p class="pwa-modal-sub" data-tr="%100 Ücretsiz &amp; Sıfır Zahmet" data-fr="100% Gratuit &amp; Sans Manipulation">%100 Ücretsiz &amp; Sıfır Zahmet</p>
+                    <h3 class="pwa-modal-title" id="pwa-cloud-title" data-tr="İlanları Yenile" data-fr="Actualiser les offres">İlanları Yenile</h3>
+                    <p class="pwa-modal-sub" data-tr="Otomatik veya şimdi" data-fr="Automatique ou à la demande">Otomatik veya şimdi</p>
                 </div>
             </div>
             <button type="button" class="pwa-modal-close" onclick="window.PWAHandler.closeCloudInfoModal()" aria-label="Kapat / Fermer">&times;</button>
@@ -129,22 +129,33 @@
         <div class="cloud-info-body">
             <div class="cloud-info-card card-cloud">
                 <div class="cloud-card-header">
-                    <span class="cloud-card-badge" data-tr="☁️ BULUT MODU (HER GÜN OTOMATİK)" data-fr="☁️ MODE CLOUD (AUTOMATIQUE)">☁️ BULUT MODU (HER GÜN OTOMATİK)</span>
+                    <span class="cloud-card-badge" data-tr="☁️ HER SABAH OTOMATİK" data-fr="☁️ AUTOMATIQUE CHAQUE MATIN">☁️ HER SABAH OTOMATİK</span>
                 </div>
-                <p data-tr="Uygulama her sabah saat <strong>08:00'de (TR Saati)</strong> GitHub sunucuları tarafından otomatik olarak taranır ve güncellenir. Telefonunuzda herhangi bir işlem yapmanıza gerek yoktur, yeni ilanlar kendiliğinden gelir." data-fr="Le robot analyse le web chaque matin à <strong>08:00 (heure TR)</strong> via GitHub Actions et actualise le site automatiquement. Vous n'avez rien à faire sur votre téléphone !">Uygulama her sabah saat <strong>08:00'de (TR Saati)</strong> GitHub sunucuları tarafından otomatik olarak taranır ve güncellenir. Telefonunuzda herhangi bir işlem yapmanıza gerek yoktur, yeni ilanlar kendiliğinden gelir.</p>
+                <p data-tr="Robot her sabah saat <strong>08:00'de (TR)</strong> tüm kaynakları tarar ve yeni ilanları kendiliğinden ekler." data-fr="Le robot parcourt toutes les sources chaque matin à <strong>08:00 (heure TR)</strong> et ajoute seul les nouvelles offres.">Robot her sabah saat <strong>08:00'de (TR)</strong> tüm kaynakları tarar ve yeni ilanları kendiliğinden ekler.</p>
             </div>
 
             <div class="cloud-info-card card-local">
                 <div class="cloud-card-header">
-                    <span class="local-card-badge" data-tr="⚡ YEREL MOD (PC'DE ANINDA YENİLEME)" data-fr="⚡ MODE LOCAL (RAFRAÎCHISSEMENT IMMÉDIAT SUR PC)">⚡ YEREL MOD (PC'DE ANINDA YENİLEME)</span>
+                    <span class="local-card-badge" data-tr="⚡ ŞİMDİ ZORLA" data-fr="⚡ FORCER MAINTENANT">⚡ ŞİMDİ ZORLA</span>
                 </div>
-                <p data-tr="Eğer bilgisayarınızdaysanız ve yeni ilanları <em>hemen şimdi</em> taramak isterseniz: Klasördeki <strong>Lancer_Application.bat</strong> dosyasını çift tıklayıp açın, ardından 'Şimdi Yenile' butonuna basın. Tarayıcı arkada robotu anında çalıştırır." data-fr="Pour scanner le web <em>immédiatement</em> depuis votre PC : Double-cliquez sur <strong>Lancer_Application.bat</strong> puis cliquez sur 'Actualiser'. Le serveur local relancera le scraping en direct.">Eğer bilgisayarınızdaysanız ve yeni ilanları <em>hemen şimdi</em> taramak isterseniz: Klasördeki <strong>Lancer_Application.bat</strong> dosyasını çift tıklayıp açın, ardından 'Şimdi Yenile' butonuna basın. Tarayıcı arkada robotu anında çalıştırır.</p>
+                <div id="ghTokenSaved" hidden>
+                    <p data-tr="✅ Bu cihazda GitHub anahtarı kayıtlı: <strong>Yenile</strong> butonu hemen yeni bir tarama başlatır (~3 dk)." data-fr="✅ Clé GitHub enregistrée sur cet appareil : le bouton <strong>Actualiser</strong> lance tout de suite une nouvelle recherche (~3 min).">✅ Bu cihazda GitHub anahtarı kayıtlı: <strong>Yenile</strong> butonu hemen yeni bir tarama başlatır (~3 dk).</p>
+                    <button type="button" class="cloud-token-clear" onclick="window.PWAHandler.clearGithubToken()"><span data-tr="Anahtarı bu cihazdan sil" data-fr="Supprimer la clé de cet appareil">Anahtarı bu cihazdan sil</span></button>
+                </div>
+                <div id="ghTokenForm">
+                    <p data-tr="Taramayı istediğin an başlatmak için GitHub anahtarını <strong>bir kez</strong> bu cihaza kaydet (yalnızca bu cihazda saklanır)." data-fr="Pour lancer la recherche quand tu veux, enregistre <strong>une seule fois</strong> la clé GitHub sur cet appareil (elle reste uniquement sur cet appareil).">Taramayı istediğin an başlatmak için GitHub anahtarını <strong>bir kez</strong> bu cihaza kaydet (yalnızca bu cihazda saklanır).</p>
+                    <div class="cloud-token-row">
+                        <input type="password" id="ghTokenInput" class="cloud-token-input" placeholder="github_pat_…" autocomplete="off" spellcheck="false" aria-label="GitHub token">
+                        <button type="button" class="cloud-token-save" onclick="window.PWAHandler.saveGithubToken()"><span data-tr="Kaydet" data-fr="Enregistrer">Kaydet</span></button>
+                    </div>
+                    <p class="cloud-token-help"><a href="https://github.com/nilsbleclerc-beep/fransais-kariyer/actions/workflows/refresh.yml" target="_blank" rel="noopener" data-tr="Anahtar yoksa: GitHub'da « Run workflow » ile elle başlat ↗" data-fr="Sans clé : lancer à la main sur GitHub avec « Run workflow » ↗">Anahtar yoksa: GitHub'da « Run workflow » ile elle başlat ↗</a></p>
+                </div>
             </div>
         </div>
 
         <div class="pwa-modal-footer">
             <button type="button" class="pwa-modal-confirm-btn" onclick="window.PWAHandler.closeCloudInfoModal()">
-                <span data-tr="Anladım, Harika !" data-fr="Compris, parfait !">Anladım, Harika !</span>
+                <span data-tr="Kapat" data-fr="Fermer">Kapat</span>
             </button>
         </div>
     </div>

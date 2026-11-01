@@ -25,6 +25,64 @@
         }
     }
 
+    // --------------------------------------------------------------------------
+    // FORÇAGE DU ROBOT EN LIGNE (GitHub Actions, workflow_dispatch)
+    // --------------------------------------------------------------------------
+    const GH_API = 'https://api.github.com/repos/nilsbleclerc-beep/fransais-kariyer';
+    const GH_WORKFLOW = 'refresh.yml';
+    const GH_BRANCH = 'master';
+    const GH_TOKEN_KEY = 'fransa_gh_token';
+
+    function isLocalHost() {
+        return ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname);
+    }
+
+    function getGithubToken() {
+        try { return localStorage.getItem(GH_TOKEN_KEY) || ''; } catch (e) { return ''; }
+    }
+
+    function setGithubToken(value) {
+        try {
+            if (value) localStorage.setItem(GH_TOKEN_KEY, value);
+            else localStorage.removeItem(GH_TOKEN_KEY);
+        } catch (e) { /* stockage indisponible : le bouton reste en mode information */ }
+    }
+
+    function githubHeaders(token) {
+        return {
+            'Accept': 'application/vnd.github+json',
+            'Authorization': `Bearer ${token}`,
+            'X-GitHub-Api-Version': '2022-11-28'
+        };
+    }
+
+    function currentGeneratedAt() {
+        return (window.FransaData && window.FransaData.generatedAt) || '';
+    }
+
+    // Date de génération de la version actuellement publiée (sans passer par le cache)
+    async function fetchPublishedGeneratedAt() {
+        try {
+            const res = await fetch('./index.html?t=' + Date.now(), { cache: 'no-store' });
+            if (!res.ok) return '';
+            const m = /id="fransa-jobs"[^>]*data-generated-at="([^"]+)"/.exec(await res.text());
+            return m ? m[1] : '';
+        } catch (e) {
+            return '';
+        }
+    }
+
+    // Recharge en vidant le cache du service worker, pour afficher tout de suite la nouvelle version
+    async function reloadFresh() {
+        try {
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                await Promise.all(keys.map((k) => caches.delete(k)));
+            }
+        } catch (e) { /* rechargement simple */ }
+        window.location.reload();
+    }
+
     function isBannerSnoozed() {
         try {
             const dismissedTime = localStorage.getItem('pwa_banner_dismissed_time');
@@ -336,6 +394,11 @@
                 window.TrackerEngine.Toast.show(toastMsg, 'info', 3500);
             }
 
+            // En ligne (GitHub Pages) : il n'y a pas de serveur, on force un scan via GitHub Actions
+            if (!isLocalHost()) {
+                return this.cloudRefresh(lang);
+            }
+
             try {
                 // Tentative d'appel à l'API locale /api/refresh
                 const controller = new AbortController();
@@ -399,27 +462,166 @@
         },
 
         /**
-         * Gestion du rafraîchissement en mode Cloud (GitHub Pages) ou Statique
+         * Gestion du rafraîchissement en mode Cloud / statique (fichier ouvert sans serveur)
          */
         async handleCloudOrOfflineRefresh(lang) {
-            // Tente de récupérer la version la plus fraîche du JSON avec cache-busting
-            try {
-                const jsonRes = await fetch('./offres_france_turquie.json?t=' + Date.now(), { cache: 'no-cache' });
-                if (jsonRes.ok) {
-                    const jobs = await jsonRes.json();
-                    console.log('[Refresh Cloud] Données récupérées:', jobs.length, 'offres');
-                }
-            } catch (e) {
-                console.log('[Refresh Cloud] Erreur récupération json', e);
-            }
+            if (await this.loadPublishedVersionIfNewer(lang)) return;
+            this.resetRefreshButton();
+            isRefreshing = false;
+            this.openCloudInfoModal(lang);
+        },
 
-            setTimeout(() => {
+        /**
+         * FORÇAGE EN LIGNE (GitHub Pages) :
+         * 1. si une version plus récente est déjà publiée, on la charge tout de suite ;
+         * 2. sinon, avec la clé GitHub enregistrée sur cet appareil, on lance le robot (workflow_dispatch),
+         *    on suit son exécution puis la publication, et on recharge l'app avec les nouvelles offres.
+         */
+        async cloudRefresh(lang) {
+            if (await this.loadPublishedVersionIfNewer(lang)) return;
+
+            const token = getGithubToken();
+            if (!token) {
                 this.resetRefreshButton();
                 isRefreshing = false;
-
-                // Affichage d'un modal explicatif bienveillant
                 this.openCloudInfoModal(lang);
-            }, 1200);
+                return;
+            }
+
+            const before = currentGeneratedAt();
+            const startedAt = Date.now();
+            let resp = null;
+            try {
+                resp = await fetch(`${GH_API}/actions/workflows/${GH_WORKFLOW}/dispatches`, {
+                    method: 'POST',
+                    headers: githubHeaders(token),
+                    body: JSON.stringify({ ref: GH_BRANCH })
+                });
+            } catch (e) {
+                resp = null;
+            }
+            if (!resp || resp.status !== 204) {
+                const status = resp ? resp.status : 0;
+                if (status === 401 || status === 403 || status === 404) setGithubToken('');
+                this.failRefresh(lang, status === 401 || status === 403 || status === 404
+                    ? (lang === 'fr' ? "❌ Clé GitHub refusée : enregistre-la à nouveau." : "❌ GitHub anahtarı reddedildi: lütfen yeniden kaydet.")
+                    : (lang === 'fr' ? "❌ Impossible de joindre GitHub (connexion ?)." : "❌ GitHub'a ulaşılamadı (internet bağlantısı?)."),
+                    status === 401 || status === 403 || status === 404);
+                return;
+            }
+
+            this.toast(lang === 'fr'
+                ? "🚀 Recherche lancée : nouvelles offres dans ~3 minutes. Tu peux continuer à utiliser l'app."
+                : "🚀 Tarama başladı: yeni ilanlar ~3 dakika içinde. Uygulamayı kullanmaya devam edebilirsin.", 'info', 6000);
+            this.followCloudRun(lang, token, startedAt, before);
+        },
+
+        followCloudRun(lang, token, startedAt, before) {
+            const text = document.getElementById('refreshBtnText');
+            const deadline = startedAt + 12 * 60 * 1000;
+            let runDone = false;
+
+            if (refreshPollInterval) clearInterval(refreshPollInterval);
+            refreshPollInterval = setInterval(async () => {
+                const elapsed = Math.round((Date.now() - startedAt) / 1000);
+                if (text) text.textContent = `${lang === 'fr' ? 'Recherche' : 'Taranıyor'} ${Math.floor(elapsed / 60)}:${String(elapsed % 60).padStart(2, '0')}`;
+                if (Date.now() > deadline) {
+                    clearInterval(refreshPollInterval);
+                    refreshPollInterval = null;
+                    this.failRefresh(lang, lang === 'fr'
+                        ? "⏳ La recherche prend plus de temps que prévu : les offres arriveront d'elles-mêmes à la prochaine ouverture."
+                        : "⏳ Tarama beklenenden uzun sürüyor: ilanlar bir sonraki açılışta kendiliğinden gelecek.");
+                    return;
+                }
+                try {
+                    if (!runDone) {
+                        const r = await fetch(`${GH_API}/actions/workflows/${GH_WORKFLOW}/runs?event=workflow_dispatch&per_page=1`,
+                            { headers: githubHeaders(token), cache: 'no-store' });
+                        const run = r.ok ? ((await r.json()).workflow_runs || [])[0] : null;
+                        if (run && Date.parse(run.created_at) >= startedAt - 60000 && run.status === 'completed') {
+                            if (run.conclusion !== 'success') {
+                                clearInterval(refreshPollInterval);
+                                refreshPollInterval = null;
+                                this.failRefresh(lang, lang === 'fr'
+                                    ? "❌ Le robot a rencontré une erreur. Les offres actuelles restent affichées."
+                                    : "❌ Robot bir hatayla karşılaştı. Mevcut ilanlar gösterilmeye devam ediyor.");
+                                return;
+                            }
+                            runDone = true;
+                        }
+                    }
+                    // Après le robot, GitHub Pages republie le site (~1 min) : on attend une version plus récente
+                    if (runDone) {
+                        const published = await fetchPublishedGeneratedAt();
+                        if (published && published > before) {
+                            clearInterval(refreshPollInterval);
+                            refreshPollInterval = null;
+                            await reloadFresh();
+                        } else if (published && Date.now() - startedAt > 8 * 60 * 1000) {
+                            // Aucune nouvelle publication : le robot n'a trouvé aucun changement
+                            clearInterval(refreshPollInterval);
+                            refreshPollInterval = null;
+                            this.resetRefreshButton();
+                            isRefreshing = false;
+                            this.toast(lang === 'fr' ? "✅ Recherche terminée : aucune nouvelle offre depuis la dernière fois."
+                                : "✅ Tarama bitti: son seferden beri yeni ilan yok.", 'success', 5000);
+                        }
+                    }
+                } catch (e) {
+                    // réseau intermittent : on réessaie au tour suivant
+                }
+            }, 15000);
+        },
+
+        async loadPublishedVersionIfNewer(lang) {
+            const published = await fetchPublishedGeneratedAt();
+            const current = currentGeneratedAt();
+            if (published && current && published > current) {
+                this.toast(lang === 'fr' ? "✨ Nouvelles offres disponibles : chargement…" : "✨ Yeni ilanlar var: yükleniyor…", 'success', 2500);
+                await reloadFresh();
+                return true;
+            }
+            return false;
+        },
+
+        failRefresh(lang, message, reopenSettings) {
+            this.resetRefreshButton();
+            isRefreshing = false;
+            this.toast(message, 'warning', 6000);
+            if (reopenSettings) this.openCloudInfoModal(lang);
+        },
+
+        toast(message, type, duration) {
+            if (window.TrackerEngine && window.TrackerEngine.Toast) window.TrackerEngine.Toast.show(message, type, duration);
+        },
+
+        // Clé GitHub (fine-grained, « Actions : lecture et écriture » sur ce seul dépôt), gardée sur cet appareil
+        saveGithubToken() {
+            const input = document.getElementById('ghTokenInput');
+            const value = (input && input.value || '').trim();
+            const lang = getLang();
+            if (!/^(github_pat_|ghp_)[A-Za-z0-9_]{20,}$/.test(value)) {
+                this.toast(lang === 'fr' ? "Cette clé ne ressemble pas à une clé GitHub (github_pat_…)." : "Bu bir GitHub anahtarına benzemiyor (github_pat_…).", 'warning', 5000);
+                return;
+            }
+            setGithubToken(value);
+            if (input) input.value = '';
+            this.renderCloudTokenState();
+            this.toast(lang === 'fr' ? "✅ Clé enregistrée sur cet appareil. Le bouton Actualiser lance maintenant une vraie recherche."
+                : "✅ Anahtar bu cihaza kaydedildi. Yenile butonu artık gerçek bir tarama başlatıyor.", 'success', 5000);
+        },
+
+        clearGithubToken() {
+            setGithubToken('');
+            this.renderCloudTokenState();
+        },
+
+        renderCloudTokenState() {
+            const has = !!getGithubToken();
+            const saved = document.getElementById('ghTokenSaved');
+            const form = document.getElementById('ghTokenForm');
+            if (saved) saved.hidden = !has;
+            if (form) form.hidden = has;
         },
 
         finishRefreshSuccess(jobCount) {
@@ -456,6 +658,7 @@
         },
 
         openCloudInfoModal(lang) {
+            this.renderCloudTokenState();
             if (!showPwaOverlay('pwa-cloud')) {
                 // Fallback toast si modal absent
                 const toastMsg = (lang === 'fr')
@@ -475,6 +678,7 @@
          * Vérification silencieuse de l'état du serveur local au démarrage
          */
         async checkServerStatus() {
+            if (!isLocalHost()) return; // /api/status n'existe qu'avec app_server.py (évite un 404 en ligne)
             try {
                 const res = await fetch('/api/status', { method: 'GET' });
                 if (res.ok) {

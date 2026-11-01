@@ -80,6 +80,15 @@ Toutes les offres rejetées sont listées dans `rejected_offers.json`, avec leur
 
 Les 33 fiches entreprises/institutions (Voie 1, 2, 3) ont été **supprimées de l'app le 29/10** : leur contenu (postes « actifs », « visa pris en charge », emails RH) avait été rédigé par une IA à la création du projet et jamais vérifié. L'annuaire RH du panneau de détail est vidé pour la même raison. `companies_data.py` reste utilisé par le scorer et `sources/company_ats.py` (noms d'entreprises seulement).
 
+### 🔄 Bouton « Actualiser » (01/11/2026)
+
+En ligne, le bouton :
+1. charge immédiatement la version publiée si elle est plus récente que celle affichée (cache vidé) ;
+2. si une **clé GitHub** est enregistrée sur l'appareil, lance le robot (`workflow_dispatch` sur `refresh.yml`), suit le scan puis la republication (~3 min) et recharge l'app ;
+3. sans clé, il ouvre une fenêtre qui permet d'enregistrer la clé, ou de lancer le robot à la main sur GitHub (« Run workflow »).
+
+La clé est un *fine-grained token* limité au dépôt `fransais-kariyer`, avec la seule permission **Actions : Read and write**. Elle reste uniquement dans le stockage local de l'appareil. En cas de perte du téléphone, la révoquer sur GitHub.
+
 ### 🔑 Action requise : clés API (gratuites)
 
 Une fois inscrit sur chaque service, ajouter les clés dans GitHub : *Settings → Secrets and variables → Actions → New repository secret*.
@@ -188,7 +197,7 @@ Les onglets suivent une autre règle :
   python -c "import exporter, json; from models import JobOpportunity; jobs=[JobOpportunity(**d) for d in json.load(open('offres_france_turquie.json',encoding='utf-8'))]; exporter.export_to_html_dashboard(jobs,'dashboard.html')"
   ```
 
-- **Incrémenter `CACHE_NAME` dans `sw.js` (actuellement `v6`)** à chaque changement visible, sinon l'app installée ne se met pas à jour.
+- **Incrémenter `CACHE_NAME` dans `sw.js` (actuellement `v7`)** à chaque changement visible, sinon l'app installée ne se met pas à jour.
 - Un push qui touche `exporter.py`, `scrapers.py`, `companies_data.py` ou `pwa_*` relance le workflow. Le robot commite alors de nouvelles offres : faire `git pull` avant de reprendre.
 
 ---
