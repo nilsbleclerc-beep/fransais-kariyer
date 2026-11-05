@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-04T05:50:38+00:00",
+  "generated_at": "2026-11-05T05:53:27+00:00",
   "profile": {
     "residence_country": "TR",
     "target_country": "FR",
@@ -23,12 +23,12 @@
     },
     "eures": {
       "status": "ok",
-      "collected": 44,
-      "kept": 31,
+      "collected": 50,
+      "kept": 37,
       "error": "",
       "rejected": {
-        "too_old": 7,
-        "french_level": 4,
+        "french_level": 5,
+        "too_old": 6,
         "duplicate": 1,
         "english_level": 1
       }
@@ -39,7 +39,8 @@
       "kept": 6,
       "error": "",
       "rejected": {
-        "no_language_fit": 42,
+        "english_level": 1,
+        "no_language_fit": 41,
         "duplicate": 2
       }
     },
@@ -93,19 +94,30 @@
     }
   },
   "counts": {
-    "too_old": 7,
-    "french_level": 8,
+    "french_level": 9,
+    "too_old": 6,
     "duplicate": 3,
-    "english_level": 4,
-    "no_language_fit": 48
+    "english_level": 5,
+    "no_language_fit": 47
   },
   "rejected": [
+    {
+      "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjE1WkRCRCA5?lang=fr",
+      "title": "Technicien bois pour machine à commande numérique (H/F)",
+      "source": "EURES (France Travail)",
+      "reason": "french_level",
+      "detail": "Français exigé : « Français (courant »",
+      "company": "ATELIER K&CO",
+      "location": "Val-d'Oise, Île-de-France, France",
+      "posted_at": "2026-11-04",
+      "module": "eures"
+    },
     {
       "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjA5RkhNTSA5?lang=fr",
       "title": "Désosseur trancheur en boucherie (H/F)",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 154 jours (> 45)",
+      "detail": "Publiée il y a 155 jours (> 45)",
       "company": "LE CAPRICORNE",
       "location": "Seine-Saint-Denis, Île-de-France, France",
       "posted_at": "2026-06-03",
@@ -138,7 +150,7 @@
       "title": "BOUCHER H/F Avec expérience (H/F) 2 postes à pourvoir",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 65 jours (> 45)",
+      "detail": "Publiée il y a 66 jours (> 45)",
       "company": "ALYE",
       "location": "Centre-Val de Loire, France",
       "posted_at": "2026-08-31",
@@ -149,7 +161,7 @@
       "title": "BOULANGER H/F PATISSIER H/F (H/F)",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 47 jours (> 45)",
+      "detail": "Publiée il y a 48 jours (> 45)",
       "company": "ALYE",
       "location": "Centre-Val de Loire, France",
       "posted_at": "2026-09-18",
@@ -171,7 +183,7 @@
       "title": "MENUISIER - AGENCEUR DE MEUBLES SUR MESURE (H/F)",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 89 jours (> 45)",
+      "detail": "Publiée il y a 90 jours (> 45)",
       "company": "EREL AGENCEMENT MENUISERIE",
       "location": "Auvergne-Rhône-Alpes, France",
       "posted_at": "2026-08-07",
@@ -182,7 +194,7 @@
       "title": "Cuisinier / Cuisinière",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 57 jours (> 45)",
+      "detail": "Publiée il y a 58 jours (> 45)",
       "company": "PIZZ'ALKAN",
       "location": "Occitanie, France",
       "posted_at": "2026-09-08",
@@ -193,7 +205,7 @@
       "title": "Secrétaire bureautique (H/F)",
       "source": "EURES (France Travail)",
       "reason": "too_old",
-      "detail": "Publiée il y a 47 jours (> 45)",
+      "detail": "Publiée il y a 48 jours (> 45)",
       "company": "Non renseigné",
       "location": "Auvergne-Rhône-Alpes, France",
       "posted_at": "2026-09-18",
@@ -222,17 +234,6 @@
       "module": "eures"
     },
     {
-      "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjEwS0NZUCA5?lang=fr",
-      "title": "Livreur/Monteur de meubles (H/F)",
-      "source": "EURES (France Travail)",
-      "reason": "too_old",
-      "detail": "Publiée il y a 125 jours (> 45)",
-      "company": "DIZAYN MEUBLES",
-      "location": "Essonne, Île-de-France, France",
-      "posted_at": "2026-07-02",
-      "module": "eures"
-    },
-    {
       "url": "https://europa.eu/eures/portal/jv-se/jv-details/MjE0WVNXUCA5?lang=fr",
       "title": "Cuisinier / Cuisinière (H/F)",
       "source": "EURES (France Travail)",
@@ -242,6 +243,50 @@
       "location": "Caluire-et-Cuire, Auvergne-Rhône-Alpes, France",
       "posted_at": "2026-10-08",
       "module": "eures"
+    },
+    {
+      "url": "https://www.adzuna.fr/land/ad/5953611993?se=6BzdztzY8RGAdtnZUYW2Cw&utm_medium=api&utm_source=25ece07d&v=7B6B2BBD283CCE495F7B617CBE3EDC9430D9CE11",
+      "title": "Conseiller de vente Parfumerie luxe H/F",
+      "source": "Adzuna",
+      "reason": "english_level",
+      "detail": "Anglais avancé exigé : « Anglais courant »",
+      "company": "Crit",
+      "location": "Roissy-en-Brie, Torcy",
+      "posted_at": "2026-11-05",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5953210226?utm_medium=api&utm_source=25ece07d",
+      "title": "Stagiaire Juriste Corporate",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Albioma",
+      "location": "Puteaux, Nanterre",
+      "posted_at": "2026-11-04",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5953206460?utm_medium=api&utm_source=25ece07d",
+      "title": "Stagiaire Analyste de financement",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Albioma",
+      "location": "Puteaux, Nanterre",
+      "posted_at": "2026-11-04",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5952973354?utm_medium=api&utm_source=25ece07d",
+      "title": "AFFRETEUR.SE - F/H",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "Dimotrans",
+      "location": "Thouaré-sur-Loire, Nantes",
+      "posted_at": "2026-11-04",
+      "module": "adzuna"
     },
     {
       "url": "https://www.adzuna.fr/details/5952471256?utm_medium=api&utm_source=25ece07d",
@@ -266,7 +311,7 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/land/ad/5952138434?se=-vvzRRPY8RGT9NV5Q-REgg&utm_medium=api&utm_source=25ece07d&v=6122EAAFD2F16F8816B368BB2F3FE7997303513B",
+      "url": "https://www.adzuna.fr/land/ad/5952138434?se=6BzdztzY8RGAdtnZUYW2Cw&utm_medium=api&utm_source=25ece07d&v=6122EAAFD2F16F8816B368BB2F3FE7997303513B",
       "title": "AFFRETEUR (H/F)",
       "source": "Adzuna",
       "reason": "no_language_fit",
@@ -277,7 +322,7 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/land/ad/5951961459?se=-vvzRRPY8RGT9NV5Q-REgg&utm_medium=api&utm_source=25ece07d&v=B67C262ED73BDE37579F5978FB4ACF519A05BDF1",
+      "url": "https://www.adzuna.fr/details/5951961459?utm_medium=api&utm_source=25ece07d",
       "title": "STAGIAIRE HÉLICICULTURE ET CHANGEMENT CLIMATIQUE F/H",
       "source": "Adzuna",
       "reason": "no_language_fit",
@@ -288,7 +333,7 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/land/ad/5951718305?se=-vvzRRPY8RGT9NV5Q-REgg&utm_medium=api&utm_source=25ece07d&v=00C89B749BFBFD3D953DD8AE095DE7F2ABB2662A",
+      "url": "https://www.adzuna.fr/details/5951718305?utm_medium=api&utm_source=25ece07d",
       "title": "STAGIAIRE HÉLICICULTURE ET CHANGEMENT CLIMATIQUE F/H",
       "source": "Adzuna",
       "reason": "no_language_fit",
@@ -306,6 +351,17 @@
       "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
       "company": "Renault Group",
       "location": "France",
+      "posted_at": "2026-11-01",
+      "module": "adzuna"
+    },
+    {
+      "url": "https://www.adzuna.fr/details/5948876346?utm_medium=api&utm_source=25ece07d",
+      "title": "Responsable Import (H/F)",
+      "source": "Adzuna",
+      "reason": "no_language_fit",
+      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
+      "company": "ADSEARCH",
+      "location": "Roissy-en-Brie, Torcy",
       "posted_at": "2026-11-01",
       "module": "adzuna"
     },
@@ -350,17 +406,6 @@
       "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
       "company": "Jennah",
       "location": "Noisy-le-Sec, Bobigny",
-      "posted_at": "2026-10-31",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5947986623?utm_medium=api&utm_source=25ece07d",
-      "title": "AFFRETEUR.SE CONFIRME.E - F/H",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Dimotrans",
-      "location": "Mougins, Grasse",
       "posted_at": "2026-10-31",
       "module": "adzuna"
     },
@@ -607,7 +652,7 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/land/ad/5940638024?se=-vvzRRPY8RGT9NV5Q-REgg&utm_medium=api&utm_source=25ece07d&v=C7390970293925E9B1F68EA5065E543AEDF631DF",
+      "url": "https://www.adzuna.fr/land/ad/5940638024?se=6BzdztzY8RGAdtnZUYW2Cw&utm_medium=api&utm_source=25ece07d&v=C7390970293925E9B1F68EA5065E543AEDF631DF",
       "title": "Ingénieur Méthodes Peinture H/F (CDI)",
       "source": "Adzuna",
       "reason": "no_language_fit",
@@ -640,7 +685,7 @@
       "module": "adzuna"
     },
     {
-      "url": "https://www.adzuna.fr/land/ad/5939442982?se=-vvzRRPY8RGT9NV5Q-REgg&utm_medium=api&utm_source=25ece07d&v=3B22C31C1BCF403EFEFA8B2E9777FA3A3192894C",
+      "url": "https://www.adzuna.fr/land/ad/5939442982?se=6BzdztzY8RGAdtnZUYW2Cw&utm_medium=api&utm_source=25ece07d&v=3B22C31C1BCF403EFEFA8B2E9777FA3A3192894C",
       "title": "Responsable Commercial Export – Matériels TP / Agricoles (H/F) (CDI)",
       "source": "Adzuna",
       "reason": "no_language_fit",
@@ -681,50 +726,6 @@
       "company": "CRIT RUNGIS",
       "location": "Charles-de-Gaulles Aéroport, Val-d'Oise",
       "posted_at": "2026-10-22",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5937222106?utm_medium=api&utm_source=25ece07d",
-      "title": "Régleur sur commande numérique en 2×8 (H/F)",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Cofabrik RH",
-      "location": "Rives, Grenoble",
-      "posted_at": "2026-10-22",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5936985949?utm_medium=api&utm_source=25ece07d",
-      "title": "Agent de Sécurité Evènementiel H/F",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Entreprise non communiquée",
-      "location": "Gironde, Nouvelle-Aquitaine",
-      "posted_at": "2026-10-21",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5936820263?utm_medium=api&utm_source=25ece07d",
-      "title": "Responsable Tresorerie & Risque Client",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Saica",
-      "location": "Pessac, Bordeaux",
-      "posted_at": "2026-10-21",
-      "module": "adzuna"
-    },
-    {
-      "url": "https://www.adzuna.fr/details/5936161142?utm_medium=api&utm_source=25ece07d",
-      "title": "RESPONSABLE TRESORERIE & RISQUE CLIENT",
-      "source": "Adzuna",
-      "reason": "no_language_fit",
-      "detail": "Ni turc, ni « français non requis », ni métier de terrain : français implicite",
-      "company": "Saica Pack",
-      "location": "Pessac, Bordeaux",
-      "posted_at": "2026-10-21",
       "module": "adzuna"
     },
     {
